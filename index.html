@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fuel Log</title>
+<meta name="description" content="Log fill-ups and track fuel consumption, prices and spending. Data stays on this device.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fuel Log">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EEF2F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1614" media="(prefers-color-scheme: dark)">
+<style>
+/* Layout: one phone-width column (summary → trend → history → settings), floating Add button, bottom-sheet form */
+:root{
+  --bg:#EEF2F0; --surface:#FFFFFF; --sunken:#E3E9E6; --fg:#14211D; --muted:#5A6964; --line:#CBD5D1;
+  --accent:#0C7262; --accent-soft:#D3EAE4; --on-accent:#FFFFFF; --amber:#B06E00; --amber-soft:#F6E6C6; --danger:#B3261E;
+  --display:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1614; --surface:#18221F; --sunken:#121B18; --fg:#E4ECE9; --muted:#93A39D; --line:#2C3A36;
+  --accent:#3FBFA6; --accent-soft:#173A33; --on-accent:#0B1513; --amber:#F2AE3D; --amber-soft:#3A2D14; --danger:#F2867E;
+  color-scheme:dark}}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:8px calc(110px + env(safe-area-inset-bottom,0px));display:grid;gap:18px}
+h1,h2{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
+h1{font-size:30px;letter-spacing:-.01em}
+h2{font-size:19px}
+.label{font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hint{font-size:13px;color:var(--muted);margin:0}
+
+header.top{max-width:640px;margin:0 auto;padding:16px 16px 4px;display:grid;gap:2px}
+header.top .sub{color:var(--muted);font-size:14px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stack{display:grid;gap:12px}
+
+.banner{display:grid;gap:6px;background:var(--amber-soft);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;font-size:14px}
+.banner .row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+
+/* summary tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tile{background:var(--surface);padding:13px 14px 12px;display:grid;gap:1px;min-width:0}
+.tile .v{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tile .v small{font-size:13px;font-weight:600;color:var(--muted);margin-left:3px}
+.tile.hero .v{color:var(--amber)}
+.tile .s{font-size:12.5px;color:var(--muted)}
+
+/* tabs + chart */
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tabs button{flex:none;padding:6px 12px;font-size:14px;border-radius:999px}
+.tabs button[aria-selected=true]{background:var(--accent-soft);border-color:var(--accent);font-weight:600}
+.chart{width:100%;min-height:220px}
+.chart svg{display:block;width:100%;height:auto}
+.chart text{font-family:var(--body);font-size:11.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.chart .endlbl{font-family:var(--display);font-weight:700;font-size:13px;fill:var(--fg)}
+.chart .avglbl{fill:var(--amber);font-weight:600}
+.empty-chart{padding:56px 12px;text-align:center;color:var(--muted);background:var(--sunken);border-radius:10px}
+
+/* history list */
+.list{display:grid;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.entry{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer;min-width:0}
+.entry:first-child{border-top:none}
+.entry:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.entry:active{background:var(--sunken)}
+.entry.static{cursor:default}
+.e-main,.e-side{display:grid;gap:2px;min-width:0}
+.e-side{text-align:right;justify-items:end;flex:none}
+.e-date{font-weight:600}
+.e-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.e-note{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.e-cons{font-family:var(--display);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+.e-cons small{font-size:11px;font-weight:600;color:var(--muted);margin-left:2px}
+.good{color:var(--accent)} .bad{color:var(--amber)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--sunken);color:var(--muted);margin-left:6px;vertical-align:1px}
+.emptystate{padding:28px 16px;text-align:center;color:var(--muted);display:grid;gap:8px;justify-items:center}
+.emptystate strong{color:var(--fg)}
+
+/* controls */
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:9px 14px}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-family:var(--display);font-weight:700;font-size:17px;padding:13px}
+button.link{border:none;background:none;color:var(--accent);padding:0;text-decoration:underline;text-underline-offset:3px}
+button.plain{border:none;background:none;color:var(--accent);padding:6px 0;font-weight:600}
+button.danger{border-color:var(--danger);color:var(--danger);background:transparent}
+button.danger.arm{background:var(--danger);color:var(--surface)}
+input[type=text],input[type=date]{font:inherit;font-size:16px;font-variant-numeric:tabular-nums;width:100%;min-width:0;padding:10px 11px;
+  border:1px solid var(--line);border-radius:10px;background:var(--sunken);color:var(--fg);-webkit-appearance:none;appearance:none;min-height:44px}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(608px,calc(100% - 32px));
+  box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:5}
+
+/* settings */
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.setrow input{width:80px;text-align:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:none;border-radius:0;padding:8px 12px;font-size:14px}
+.seg button[aria-checked=true]{background:var(--accent);color:var(--on-accent);font-weight:600}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btnrow button{flex:1 1 140px}
+
+/* bottom sheet */
+dialog{border:none;padding:0;background:var(--surface);color:var(--fg);width:100%;max-width:560px;max-height:92dvh;
+  margin:auto auto 0;border-radius:18px 18px 0 0;overflow:auto}
+@media (min-width:600px){dialog{margin:auto;border-radius:18px}}
+dialog::backdrop{background:rgba(5,12,10,.45)}
+dialog form{display:grid;gap:12px;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet-head{display:flex;justify-content:space-between;align-items:center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.field{display:grid;gap:4px;min-width:0}
+.check{display:flex;align-items:center;gap:10px;font-size:15px;min-height:36px}
+.check input{width:22px;height:22px;accent-color:var(--accent);margin:0}
+.err{font-size:14px;color:var(--danger);margin:0}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);
+  padding:9px 16px;border-radius:999px;font-size:14px;z-index:6;max-width:calc(100% - 32px);text-align:center}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .18s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,6px)}}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Fuel Log</h1>
+  <span class="sub" id="sub">No fill-ups yet</span>
+</header>
+
+<main class="wrap">
+  <div id="installBanner" class="banner" hidden>
+    <strong>Install on your iPhone</strong>
+    <span>Tap the Share button in Safari, then <b>Add to Home Screen</b>. Fuel Log then opens like an app and works offline.</span>
+    <div class="row"><button type="button" class="link" id="hideInstall">Got it</button></div>
+  </div>
+
+  <div id="sampleBanner" class="banner" hidden>
+    <strong>Showing sample data</strong>
+    <span>These example fill-ups aren't saved. Add your own to start your log.</span>
+    <div class="row"><button type="button" class="link" id="hideSample">Hide sample</button></div>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section class="panel stack" aria-labelledby="trendTitle">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center">
+      <h2 id="trendTitle">Trends</h2>
+    </div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button type="button" role="tab" data-tab="cons" aria-selected="true">Consumption</button>
+      <button type="button" role="tab" data-tab="price" aria-selected="false">Price/L</button>
+      <button type="button" role="tab" data-tab="spend" aria-selected="false">Spending</button>
+    </div>
+    <div class="chart" id="chart"></div>
+    <p class="hint" id="chartNote"></p>
+  </section>
+
+  <section class="stack" aria-labelledby="histTitle">
+    <h2 id="histTitle">History</h2>
+    <div id="history"></div>
+  </section>
+
+  <section class="panel stack" aria-labelledby="setTitle">
+    <h2 id="setTitle">Settings and backup</h2>
+    <div class="setrow"><label for="currency">Currency symbol</label><input type="text" id="currency" maxlength="4" autocomplete="off"></div>
+    <div class="setrow"><span id="unitLbl">Show consumption as</span>
+      <div class="seg" role="radiogroup" aria-labelledby="unitLbl" id="unitSeg">
+        <button type="button" role="radio" data-unit="l100" aria-checked="true">L/100 km</button>
+        <button type="button" role="radio" data-unit="kml" aria-checked="false">km/L</button>
+      </div>
+    </div>
+    <p class="hint">Your fill-ups are saved only on this device. Export a backup now and then and keep it in iCloud Drive. You can also open the backup in Numbers or Excel.</p>
+    <p class="hint" id="backupInfo">Last backup: never</p>
+    <div class="btnrow">
+      <button type="button" id="exportBtn">Export backup</button>
+      <button type="button" id="importBtn">Import backup</button>
+    </div>
+    <input type="file" id="importFile" accept=".csv,text/csv,text/plain" hidden>
+  </section>
+</main>
+
+<button type="button" class="primary fab" id="addBtn">Add fill-up</button>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<dialog id="sheet" aria-labelledby="sheetTitle">
+  <form id="form" novalidate>
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Add fill-up</h2>
+      <button type="button" class="plain" id="cancelBtn">Cancel</button>
+    </div>
+    <div class="row2">
+      <div class="field"><label class="label" for="date">Date</label><input type="date" id="date"></div>
+      <div class="field"><label class="label" for="odo">Odometer (km)</label><input type="text" id="odo" inputmode="decimal" autocomplete="off" placeholder="e.g. 18420"></div>
+    </div>
+    <div class="row3">
+      <div class="field"><label class="label" for="litres">Litres</label><input type="text" id="litres" inputmode="decimal" autocomplete="off" placeholder="12.4"></div>
+      <div class="field"><label class="label" for="price">Price/L</label><input type="text" id="price" inputmode="decimal" autocomplete="off" placeholder="1.89"></div>
+      <div class="field"><label class="label" for="total">Total</label><input type="text" id="total" inputmode="decimal" autocomplete="off" placeholder="23.44"></div>
+    </div>
+    <p class="hint">Fill in any two of litres, price and total. The third is worked out for you.</p>
+    <label class="check"><input type="checkbox" id="full" checked> Filled the tank to full</label>
+    <div class="field"><label class="label" for="note">Note (optional)</label><input type="text" id="note" maxlength="120" autocomplete="off" placeholder="Station, trip, new tyres…"></div>
+    <p class="err" id="formErr" hidden></p>
+    <button class="primary" type="submit" id="saveBtn">Save fill-up</button>
+    <button type="button" class="danger" id="deleteBtn" hidden>Delete fill-up</button>
+  </form>
+</dialog>
+
+<script>
+(function(){
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const KEY = "fuel.entries", SKEY = "fuel.settings";
+
+  // ---------- storage ----------
+  function load(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } }
+  let entries = load(KEY, []);
+  if (!Array.isArray(entries)) entries = [];
+  const settings = Object.assign({ currency: "$", unit: "l100", tab: "cons", lastBackup: null, installHidden: false }, load(SKEY, {}));
+  function saveSettings(){ try{ localStorage.setItem(SKEY, JSON.stringify(settings)); }catch(e){} }
+  function commit(next){
+    localStorage.setItem(KEY, JSON.stringify(next)); // throws if storage is full or blocked
+    entries = next;
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  }
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  let sample = false, editingId = null;
+
+  // ---------- formatting ----------
+  const nf = d => new Intl.NumberFormat(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+  const f0 = nf(0), f1 = nf(1), f2 = nf(2), f3 = nf(3);
+  const cur = () => settings.currency;
+  const money = v => cur() + f2.format(v);
+  const parseISO = iso => { const [y,m,d] = iso.split("-").map(Number); return new Date(y, m-1, d); };
+  const fmtDate = iso => parseISO(iso).toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
+  const shortDate = iso => parseISO(iso).toLocaleDateString(undefined, { day:"numeric", month:"short" });
+  const toISO = d => { const t = new Date(d); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
+  const todayISO = () => toISO(new Date());
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const num = s => { const v = parseFloat(String(s).replace(/\s/g, "").replace(",", ".")); return isFinite(v) ? v : NaN; };
+  const consVal = l100 => settings.unit === "kml" ? 100 / l100 : l100;
+  const consUnit = () => settings.unit === "kml" ? "km/L" : "L/100km";
+
+  // ---------- sample data (motorcycle-sized) ----------
+  function sampleEntries(){
+    const start = new Date(); start.setDate(start.getDate() - 120);
+    const plan = [[0,0,0,true,""],[9,318,3.6,true,""],[17,295,3.4,true,""],[24,160,3.9,false,"Half tank before trip"],[27,210,3.9,true,"Weekend ride"],[38,330,3.3,true,""],[49,305,3.5,true,""],[60,342,3.2,true,""],[71,288,3.7,true,"Heavy traffic"],[83,320,3.4,true,""],[95,311,3.5,true,""],[108,326,3.3,true,""]];
+    let odo = 17200, price = 1.86;
+    return plan.map(([day, dist, cons, full, note], i) => {
+      const d = new Date(start); d.setDate(d.getDate() + day);
+      odo += dist; price = +(price + Math.sin(i * 1.7) * 0.04).toFixed(3);
+      const litres = i === 0 ? 12 : +(dist * cons / 100).toFixed(2);
+      return { id: "s" + i, date: toISO(d), odo, litres, total: +(litres * price).toFixed(2), full, note };
+    });
+  }
+
+  // ---------- calculations ----------
+  function compute(list){
+    const s = [...list].sort((a,b) => a.odo - b.odo);
+    const rows = s.map((e,i) => ({ ...e, dist: i ? e.odo - s[i-1].odo : null, ppl: e.total / e.litres, cons: null }));
+    let lastFull = -1, segL = 0, segD = 0, segCost = 0;
+    rows.forEach((r,i) => {
+      if (!r.full) return;
+      if (lastFull >= 0){
+        let litres = 0, cost = 0;
+        for (let j = lastFull + 1; j <= i; j++){ litres += rows[j].litres; cost += rows[j].total; }
+        const dist = r.odo - rows[lastFull].odo;
+        if (dist > 0){ r.cons = litres / dist * 100; segL += litres; segD += dist; segCost += cost; }
+      }
+      lastFull = i;
+    });
+    const consRows = rows.filter(r => r.cons != null);
+    const totalSpent = rows.reduce((a,r) => a + r.total, 0);
+    const totalL = rows.reduce((a,r) => a + r.litres, 0);
+    return {
+      rows, totalSpent, totalL,
+      distance: rows.length > 1 ? rows[rows.length-1].odo - rows[0].odo : 0,
+      avgCons: segD ? segL / segD * 100 : null,
+      costPerKm: segD ? segCost / segD : null,
+      avgPrice: totalL ? totalSpent / totalL : null,
+      lastCons: consRows.length ? consRows[consRows.length-1].cons : null
+    };
+  }
+
+  // ---------- chart ----------
+  function niceScale(min, max, n, zero){
+    if (zero) min = 0;
+    if (min === max){ const pad = Math.abs(min) * 0.1 || 1; min -= pad; max += pad; }
+    const raw = (max - min) / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), e = raw / mag;
+    const step = (e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1) * mag;
+    const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step, ticks = [];
+    for (let v = lo; v <= hi + step / 2; v += step) ticks.push(+v.toFixed(10));
+    return { lo, hi, ticks, step };
+  }
+
+  function chartSVG(points, opts, W){
+    const H = 220, T = 18, B = 28;
+    const ys = points.map(p => p.y).concat(opts.avg != null ? [opts.avg] : []);
+    let lo = Math.min(...ys), hi = Math.max(...ys);
+    // keep small differences from looking like big swings: show at least ±10% around the middle
+    const mid = (lo + hi) / 2, minSpan = Math.abs(mid) * 0.2;
+    if (!opts.bars && hi - lo < minSpan){ lo = mid - minSpan / 2; hi = mid + minSpan / 2; }
+    const sc = niceScale(lo, hi, 4, opts.bars);
+    const dec = sc.step < 0.1 ? 2 : sc.step < 1 ? 1 : 0;
+    const tickTxt = t => (opts.prefix || "") + nf(dec).format(t);
+    const L = Math.max(...sc.ticks.map(t => tickTxt(t).length)) * 7 + 10;
+    const endTxt = opts.bars ? "" : (opts.short || opts.fmt)(points[points.length - 1].y);
+    const R = opts.bars ? 10 : endTxt.length * 7.5 + 14;
+    const iw = W - L - R, ih = H - T - B, n = points.length;
+    const yPos = v => T + ih - (v - sc.lo) / (sc.hi - sc.lo) * ih;
+    const xPos = i => opts.bars ? L + (i + 0.5) * iw / n : (n === 1 ? L + iw / 2 : L + i * iw / (n - 1));
+    let g = "";
+    sc.ticks.forEach(t => {
+      const y = yPos(t);
+      g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"${t === sc.lo ? "" : ' stroke-dasharray="2 4"'}/>`;
+      g += `<text x="${L - 8}" y="${y + 4}" text-anchor="end">${esc(tickTxt(t))}</text>`;
+    });
+    const slots = Math.max(2, Math.floor(iw / 58)), every = Math.max(1, Math.ceil(n / slots));
+    points.forEach((p,i) => {
+      const last = i === n - 1;
+      // every Nth label plus the latest one; drop a regular label that would crowd the latest
+      const show = last || (i % every === 0 && xPos(n - 1) - xPos(i) >= 54);
+      if (!show) return;
+      const anchor = opts.bars || n === 1 ? "middle" : last ? "end" : i === 0 ? "start" : "middle";
+      g += `<text x="${xPos(i)}" y="${H - 8}" text-anchor="${anchor}">${esc(p.label)}</text>`;
+    });
+    let m = "";
+    if (opts.bars){
+      const bw = Math.min(36, iw / n * 0.62);
+      points.forEach((p,i) => {
+        const y = yPos(p.y), last = i === n - 1;
+        m += `<rect x="${xPos(i) - bw / 2}" y="${y}" width="${bw}" height="${Math.max(0, yPos(sc.lo) - y)}" rx="4" fill="${last ? "var(--amber)" : "var(--accent)"}" opacity="${last ? 1 : .7}"><title>${esc(p.label)}: ${esc(opts.fmt(p.y))}</title></rect>`;
+      });
+      const lp = points[n - 1], lx = Math.min(Math.max(xPos(n - 1), L + 30), W - 30);
+      m += `<text class="endlbl" x="${lx}" y="${Math.max(12, yPos(lp.y) - 6)}" text-anchor="middle">${esc(opts.fmt(lp.y))}</text>`;
+    } else {
+      const d = points.map((p,i) => `${i ? "L" : "M"}${xPos(i).toFixed(1)},${yPos(p.y).toFixed(1)}`).join("");
+      if (n > 1) m += `<path d="${d}L${xPos(n - 1).toFixed(1)},${yPos(sc.lo)}L${xPos(0).toFixed(1)},${yPos(sc.lo)}Z" fill="var(--accent)" opacity=".1"/>`;
+      m += `<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>`;
+      if (opts.avg != null){
+        const y = yPos(opts.avg);
+        m += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+        m += `<text class="avglbl" x="${L + 4}" y="${y - 5}">avg</text>`;
+      }
+      points.forEach((p,i) => {
+        const last = i === n - 1;
+        m += `<circle cx="${xPos(i)}" cy="${yPos(p.y)}" r="${last ? 5 : 3}" fill="${last ? "var(--amber)" : "var(--surface)"}" stroke="${last ? "var(--amber)" : "var(--accent)"}" stroke-width="2"><title>${esc(p.label)}: ${esc(opts.fmt(p.y))}</title></circle>`;
+      });
+      m += `<text class="endlbl" x="${xPos(n - 1) + 9}" y="${yPos(points[n - 1].y) + 4}">${esc(endTxt)}</text>`;
+    }
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(opts.aria)}">${g}${m}</svg>`;
+  }
+
+  function renderChart(c){
+    const el = $("#chart"), note = $("#chartNote"), tab = settings.tab;
+    const W = Math.max(260, Math.round(el.clientWidth || 320));
+    let pts, opts;
+    if (tab === "cons"){
+      pts = c.rows.filter(r => r.cons != null).map(r => ({ label: shortDate(r.date), y: consVal(r.cons) }));
+      opts = { fmt: v => f1.format(v) + " " + consUnit(), short: v => f1.format(v), avg: c.avgCons != null ? consVal(c.avgCons) : null, aria: "Fuel consumption per tank in " + consUnit() };
+      note.textContent = `${consUnit()} for each tank, measured between full fill-ups. ${settings.unit === "kml" ? "Higher" : "Lower"} is better. The dashed line is your average.`;
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">Log two full-tank fill-ups to see your consumption.</div>`; return; }
+    } else if (tab === "price"){
+      pts = c.rows.map(r => ({ label: shortDate(r.date), y: r.ppl }));
+      opts = { fmt: v => cur() + f3.format(v), prefix: cur(), avg: c.avgPrice, aria: "Price paid per litre at each fill-up" };
+      note.textContent = "What you paid per litre at each fill-up. The dashed line is your average.";
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">Your fuel prices will appear here.</div>`; return; }
+    } else {
+      const byMonth = {};
+      c.rows.forEach(r => { const k = r.date.slice(0,7); byMonth[k] = (byMonth[k] || 0) + r.total; });
+      pts = Object.keys(byMonth).sort().slice(-12).map(k => ({ label: parseISO(k + "-01").toLocaleDateString(undefined, { month: "short" }), y: byMonth[k] }));
+      opts = { bars: true, fmt: money, prefix: cur(), aria: "Fuel spending per month" };
+      note.textContent = "Total spent on fuel each month, last 12 months. This month is highlighted.";
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">Your monthly spending will appear here.</div>`; return; }
+    }
+    el.innerHTML = chartSVG(pts, opts, W);
+  }
+
+  // ---------- render ----------
+  function renderTiles(c){
+    const t = (label, val, unit, sub, hero) => `<div class="tile${hero ? " hero" : ""}"><span class="label">${label}</span><span class="v">${val}${unit && val !== "–" ? `<small>${unit}</small>` : ""}</span><span class="s">${sub}</span></div>`;
+    $("#tiles").innerHTML =
+      t("Average", c.avgCons != null ? f1.format(consVal(c.avgCons)) : "–", consUnit(), c.lastCons != null ? `Last tank ${f1.format(consVal(c.lastCons))}` : "Needs 2 full tanks", true) +
+      t("Cost per km", c.costPerKm != null ? cur() + f3.format(c.costPerKm) : "–", "", c.costPerKm != null ? `${money(c.costPerKm * 100)} per 100 km` : "Needs 2 full tanks") +
+      t("Total spent", c.rows.length ? money(c.totalSpent) : "–", "", `${f1.format(c.totalL)} L in ${c.rows.length} fill-up${c.rows.length === 1 ? "" : "s"}`) +
+      t("Distance", c.distance ? f0.format(c.distance) : "–", "km", c.avgPrice != null ? `Avg ${cur()}${f3.format(c.avgPrice)}/L` : "Logged so far");
+  }
+
+  function renderHistory(c){
+    const el = $("#history");
+    if (!c.rows.length){
+      el.innerHTML = `<div class="list"><div class="emptystate"><strong>No fill-ups yet</strong><span>Tap <b>Add fill-up</b> after your next visit to the pump. Two full tanks are enough to show your consumption.</span><button type="button" class="link" id="showSample">Preview with sample data</button></div></div>`;
+      $("#showSample").onclick = () => { sample = true; render(); };
+      return;
+    }
+    const avg = c.avgCons;
+    el.innerHTML = `<div class="list">${[...c.rows].reverse().map(r => {
+      const cls = r.cons != null && avg != null ? (r.cons <= avg ? "good" : "bad") : "";
+      return `<button type="button" class="entry${sample ? " static" : ""}" data-id="${esc(r.id)}" ${sample ? 'tabindex="-1"' : `aria-label="Edit fill-up on ${esc(fmtDate(r.date))}"`}>
+        <span class="e-main">
+          <span class="e-date">${esc(fmtDate(r.date))}${r.full ? "" : '<span class="pill">partial</span>'}</span>
+          <span class="e-meta">${f0.format(r.odo)} km${r.dist != null ? ` · +${f0.format(r.dist)} km` : ""}</span>
+          ${r.note ? `<span class="e-note">${esc(r.note)}</span>` : ""}
+        </span>
+        <span class="e-side">
+          <span class="e-cons ${cls}">${r.cons != null ? f1.format(consVal(r.cons)) : "–"}<small>${consUnit()}</small></span>
+          <span class="e-meta">${f2.format(r.litres)} L · ${money(r.total)}</span>
+        </span>
+      </button>`;
+    }).join("")}</div>`;
+    if (!sample) el.querySelectorAll(".entry").forEach(b => b.onclick = () => openSheet(b.dataset.id));
+  }
+
+  function renderSettings(){
+    $("#currency").value = settings.currency;
+    $("#unitSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.unit === settings.unit)));
+    $("#tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === settings.tab)));
+    $("#exportBtn").disabled = !entries.length;
+    if (settings.lastBackup){
+      const days = Math.floor((Date.now() - new Date(settings.lastBackup)) / 864e5);
+      $("#backupInfo").textContent = `Last backup: ${days <= 0 ? "today" : days === 1 ? "yesterday" : days + " days ago"}` + (days > 30 && entries.length ? ". Time for a new one." : "");
+    } else {
+      $("#backupInfo").textContent = entries.length ? "Last backup: never. Export one to keep your log safe." : "Last backup: never";
+    }
+  }
+
+  function render(){
+    if (entries.length) sample = false;
+    const data = sample ? sampleEntries() : entries;
+    $("#sampleBanner").hidden = !sample;
+    const c = compute(data);
+    const last = c.rows[c.rows.length - 1];
+    $("#sub").textContent = c.rows.length ? `${c.rows.length} fill-up${c.rows.length === 1 ? "" : "s"} · last on ${fmtDate(last.date)}${sample ? " (sample)" : ""}` : "No fill-ups yet";
+    renderTiles(c); renderChart(c); renderHistory(c); renderSettings();
+  }
+
+  let toastTimer;
+  function toast(msg){
+    const t = $("#toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+  }
+
+  // ---------- sheet (add / edit) ----------
+  const sheet = $("#sheet"), form = $("#form");
+  const order = [];
+  let deleteArmed = false;
+
+  function openSheet(id){
+    editingId = id || null;
+    const e = id ? entries.find(x => x.id === id) : null;
+    $("#sheetTitle").textContent = e ? "Edit fill-up" : "Add fill-up";
+    $("#saveBtn").textContent = e ? "Save changes" : "Save fill-up";
+    $("#deleteBtn").hidden = !e;
+    setDeleteArmed(false);
+    $("#date").value = e ? e.date : todayISO();
+    $("#odo").value = e ? e.odo : "";
+    $("#litres").value = e ? e.litres : "";
+    $("#total").value = e ? e.total.toFixed(2) : "";
+    $("#price").value = e ? (e.total / e.litres).toFixed(3) : "";
+    $("#full").checked = e ? !!e.full : true;
+    $("#note").value = e ? e.note || "" : "";
+    const lastOdo = entries.reduce((m, x) => Math.max(m, x.odo), 0);
+    $("#odo").placeholder = lastOdo ? `Last: ${f0.format(lastOdo)}` : "e.g. 18420";
+    order.length = 0; if (e) order.push("litres", "total");
+    showErr("");
+    if (typeof sheet.showModal === "function") sheet.showModal(); else sheet.setAttribute("open", "");
+  }
+  function closeSheet(){ if (sheet.open) sheet.close(); editingId = null; }
+  function showErr(msg){ const e = $("#formErr"); e.textContent = msg || ""; e.hidden = !msg; }
+  function setDeleteArmed(on){ deleteArmed = on; const b = $("#deleteBtn"); b.classList.toggle("arm", on); b.textContent = on ? "Tap again to delete" : "Delete fill-up"; }
+
+  $("#addBtn").onclick = () => openSheet(null);
+  $("#cancelBtn").onclick = closeSheet;
+  sheet.addEventListener("click", e => { if (e.target === sheet) closeSheet(); });
+
+  ["litres", "price", "total"].forEach(id => {
+    $("#" + id).addEventListener("input", () => {
+      const i = order.indexOf(id); if (i >= 0) order.splice(i, 1);
+      if ($("#" + id).value.trim() !== "") order.unshift(id);
+      const [a, b] = order; if (!a || !b) return;
+      const third = ["litres", "price", "total"].find(x => x !== a && x !== b);
+      const L = num($("#litres").value), P = num($("#price").value), T = num($("#total").value);
+      if (third === "total" && L > 0 && P > 0) $("#total").value = (L * P).toFixed(2);
+      if (third === "price" && L > 0 && T > 0) $("#price").value = (T / L).toFixed(3);
+      if (third === "litres" && P > 0 && T > 0) $("#litres").value = (T / P).toFixed(2);
+    });
+  });
+
+  form.addEventListener("submit", ev => {
+    ev.preventDefault();
+    const date = $("#date").value, odo = num($("#odo").value), litres = num($("#litres").value);
+    let total = num($("#total").value);
+    const price = num($("#price").value);
+    if (!(total > 0) && litres > 0 && price > 0) total = litres * price;
+    if (!date) return showErr("Choose the date of the fill-up.");
+    if (!(odo > 0)) return showErr("Enter your odometer reading in km.");
+    if (!(litres > 0)) return showErr("Enter how many litres you filled.");
+    if (!(total > 0)) return showErr("Enter the price per litre or the total you paid.");
+    const others = entries.filter(e => e.id !== editingId);
+    const before = others.filter(e => e.date <= date).sort((a,b) => b.odo - a.odo)[0];
+    const after = others.filter(e => e.date > date).sort((a,b) => a.odo - b.odo)[0];
+    if (before && odo <= before.odo) return showErr(`The odometer should be higher than ${f0.format(before.odo)} km, your reading on ${fmtDate(before.date)}.`);
+    if (after && odo >= after.odo) return showErr(`The odometer should be lower than ${f0.format(after.odo)} km, your reading on ${fmtDate(after.date)}.`);
+    const data = { date, odo: Math.round(odo * 10) / 10, litres: +litres.toFixed(2), total: +total.toFixed(2), full: $("#full").checked, note: $("#note").value.trim() };
+    const next = editingId
+      ? entries.map(e => e.id === editingId ? { ...e, ...data } : e)
+      : [...entries, { id: newId(), ...data, created: new Date().toISOString() }];
+    try { commit(next); } catch(e){ return showErr("Couldn't save. Your device may be out of storage."); }
+    const wasEdit = !!editingId;
+    closeSheet(); render(); toast(wasEdit ? "Changes saved" : "Fill-up saved");
+  });
+
+  $("#deleteBtn").onclick = () => {
+    if (!deleteArmed){ setDeleteArmed(true); return; }
+    try { commit(entries.filter(e => e.id !== editingId)); } catch(e){ return showErr("Couldn't delete. Try again."); }
+    closeSheet(); render(); toast("Fill-up deleted");
+  };
+
+  // ---------- settings ----------
+  $("#currency").addEventListener("input", e => { settings.currency = e.target.value.trim(); saveSettings(); const c = compute(sample ? sampleEntries() : entries); renderTiles(c); renderChart(c); renderHistory(c); });
+  $("#unitSeg").addEventListener("click", e => { const b = e.target.closest("button[data-unit]"); if (!b) return; settings.unit = b.dataset.unit; saveSettings(); render(); });
+  $("#tabs").addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if (!b) return; settings.tab = b.dataset.tab; saveSettings(); render(); });
+  $("#hideSample").onclick = () => { sample = false; render(); };
+
+  // ---------- backup: CSV export / import ----------
+  const HEAD = ["date", "odometer_km", "litres", "total_cost", "full_tank", "note"];
+  const csvCell = v => { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  function toCSV(list){
+    return [HEAD.join(",")].concat([...list].sort((a,b) => a.odo - b.odo).map(e =>
+      [e.date, e.odo, e.litres, e.total.toFixed(2), e.full ? "yes" : "no", e.note || ""].map(csvCell).join(","))).join("\n") + "\n";
+  }
+  function parseCSV(text){
+    const rows = []; let row = [], f = "", q = false;
+    text = text.replace(/^﻿/, "");
+    for (let i = 0; i < text.length; i++){
+      const ch = text[i];
+      if (q){
+        if (ch === '"'){ if (text[i+1] === '"'){ f += '"'; i++; } else q = false; }
+        else f += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === ","){ row.push(f); f = ""; }
+      else if (ch === "\n"){ row.push(f); rows.push(row); row = []; f = ""; }
+      else if (ch !== "\r") f += ch;
+    }
+    if (f !== "" || row.length){ row.push(f); rows.push(row); }
+    return rows.filter(r => r.some(c => c.trim() !== ""));
+  }
+
+  $("#exportBtn").onclick = async () => {
+    if (!entries.length) return;
+    const name = `fuel-log-backup-${todayISO()}.csv`;
+    const file = new File([toCSV(entries)], name, { type: "text/csv" });
+    const done = () => { settings.lastBackup = new Date().toISOString(); saveSettings(); renderSettings(); };
+    const touch = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+    if (touch && navigator.canShare && navigator.canShare({ files: [file] })){
+      try { await navigator.share({ files: [file], title: "Fuel Log backup" }); done(); toast("Backup exported"); return; }
+      catch(e){ if (e && e.name === "AbortError") return; }
+    }
+    const url = URL.createObjectURL(file), a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    done(); toast("Backup saved to Downloads");
+  };
+
+  $("#importBtn").onclick = () => $("#importFile").click();
+  $("#importFile").addEventListener("change", async e => {
+    const file = e.target.files && e.target.files[0]; e.target.value = "";
+    if (!file) return;
+    let rows;
+    try { rows = parseCSV(await file.text()); } catch(err){ return toast("Couldn't read that file."); }
+    const head = (rows.shift() || []).map(h => h.trim().toLowerCase());
+    const ix = Object.fromEntries(HEAD.map(h => [h, head.indexOf(h)]));
+    if (ix.date < 0 || ix.odometer_km < 0 || ix.litres < 0 || ix.total_cost < 0) return toast("That file isn't a Fuel Log backup.");
+    const seen = new Set(entries.map(x => x.date + "|" + x.odo));
+    let added = 0, skipped = 0; const next = [...entries];
+    rows.forEach(r => {
+      const date = (r[ix.date] || "").trim(), odo = num(r[ix.odometer_km]), litres = num(r[ix.litres]), total = num(r[ix.total_cost]);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !(odo > 0) || !(litres > 0) || !(total > 0)){ skipped++; return; }
+      const k = date + "|" + odo; if (seen.has(k)){ skipped++; return; } seen.add(k);
+      const full = ix.full_tank < 0 ? true : !/^(no|false|0|n)$/i.test((r[ix.full_tank] || "").trim());
+      next.push({ id: newId(), date, odo, litres, total, full, note: ix.note < 0 ? "" : (r[ix.note] || "").trim(), created: new Date().toISOString() });
+      added++;
+    });
+    if (!added) return toast(skipped ? `Nothing new to import (${skipped} already in your log or unreadable).` : "That backup is empty.");
+    try { commit(next); } catch(err){ return toast("Couldn't save the import. Your device may be out of storage."); }
+    render(); toast(`Imported ${added} fill-up${added === 1 ? "" : "s"}${skipped ? `, skipped ${skipped}` : ""}`);
+  });
+
+  // ---------- install hint + offline ----------
+  const standalone = navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  $("#installBanner").hidden = !(isiOS && !standalone && !settings.installHidden);
+  $("#hideInstall").onclick = () => { settings.installHidden = true; saveSettings(); $("#installBanner").hidden = true; };
+
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")){
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+
+  let resizeTimer;
+  window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => renderChart(compute(sample ? sampleEntries() : entries)), 150); });
+  window.addEventListener("storage", e => { if (e.key === KEY){ entries = load(KEY, []); render(); } });
+
+  render();
+})();
+</script>
+</body>
+</html>

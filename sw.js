@@ -1,6 +1,6 @@
 // Offline support: keeps a copy of the app on the device.
 // Bump VERSION whenever you upload a changed file, so phones pick up the update.
-const VERSION = "fuel-log-v4";
+const VERSION = "fuel-log-v5";
 const FILES = [
   "./",
   "./index.html",

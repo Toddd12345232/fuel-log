@@ -195,6 +195,8 @@ details.more summary::-webkit-details-marker{display:none}
 details.more summary::after{content:"+";font-size:20px;font-weight:400;color:var(--muted)}
 details.more[open] summary::after{content:"−"}
 details.more .sheet-sec{padding-top:2px}
+#dFuelPart{padding-top:0;gap:12px}
+.row2.single{grid-template-columns:1fr}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);
   padding:9px 16px;border-radius:999px;font-size:14px;z-index:6;max-width:calc(100% - 32px);text-align:center}
@@ -472,6 +474,12 @@ details.more .sheet-sec{padding-top:2px}
       <button type="button" class="plain" data-close>Cancel</button>
     </div>
     <div class="field"><label class="label" for="dTrip">Trip</label><select id="dTrip"></select></div>
+    <div class="field"><span class="label" id="dKindLbl">What are you logging?</span>
+      <div class="radioseg" role="radiogroup" aria-labelledby="dKindLbl">
+        <label><input type="radio" name="dKind" value="start">Starting odometer</label>
+        <label><input type="radio" name="dKind" value="drive" checked>Drive or fill-up</label>
+      </div>
+    </div>
     <div class="recent" id="tRecentWrap" hidden>
       <span class="label">Recent vehicles</span>
       <div class="tabs" id="tRecent"></div>
@@ -505,11 +513,12 @@ details.more .sheet-sec{padding-top:2px}
         <select id="tConsU"><option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option></select>
       </div>
     </div>
-    <div class="row2">
-      <div class="field"><label class="label" for="tOdoA" id="tOdoALbl">Odometer start</label><input type="text" id="tOdoA" inputmode="decimal" autocomplete="off" placeholder="Optional"></div>
+    <div class="row2" id="tOdoRow">
+      <div class="field" id="tOdoAWrap"><label class="label" for="tOdoA" id="tOdoALbl">Odometer start</label><input type="text" id="tOdoA" inputmode="decimal" autocomplete="off" placeholder="Optional"></div>
       <div class="field"><label class="label" for="tOdoB" id="tOdoBLbl">Odometer now</label><input type="text" id="tOdoB" inputmode="decimal" autocomplete="off" placeholder="Optional"></div>
     </div>
     <p class="livehint" id="tOdoHint"></p>
+    <div class="sheet-sec" id="dFuelPart">
     <div class="row3">
       <div class="field"><label class="label" for="tDist" id="tDistLbl">Distance km</label><input type="text" id="tDist" inputmode="decimal" autocomplete="off" placeholder="320"></div>
       <div class="field"><label class="label" for="tLitres">Fuel used L</label><input type="text" id="tLitres" inputmode="decimal" autocomplete="off" placeholder="18.5"></div>
@@ -524,6 +533,7 @@ details.more .sheet-sec{padding-top:2px}
     <div class="ratebox" id="tRateWrap" hidden>
       <div class="field"><label class="label" for="tRate" id="tRateLbl">Your rate</label><input type="text" id="tRate" inputmode="decimal" autocomplete="off"></div>
       <p class="hint" id="tRateHint"></p>
+    </div>
     </div>
     <div class="field"><label class="label" for="tPlace">Where (optional)</label><input type="text" id="tPlace" maxlength="60" autocomplete="off" placeholder="Naha → Nago"></div>
     <div class="field"><label class="label" for="tNote">Note (optional)</label><input type="text" id="tNote" maxlength="120" autocomplete="off" placeholder="Rental, A/C on, 4 passengers…"></div>
@@ -655,7 +665,7 @@ details.more .sheet-sec{padding-top:2px}
   }
   function normDrive(t, fallbackCur){
     const cost = t.cost == null || t.cost === "" ? null : +t.cost;
-    return { id: t.id || newId(), tripId: t.tripId || null, date: t.date, type: TYPES[t.type] ? t.type : "other", make: clean(t.make), model: clean(t.model), year: clean(t.year),
+    return { id: t.id || newId(), tripId: t.tripId || null, kind: t.kind === "start" ? "start" : "drive", date: t.date, type: TYPES[t.type] ? t.type : "other", make: clean(t.make), model: clean(t.model), year: clean(t.year),
       fuel: FUELS[t.fuel] ? t.fuel : "petrol", distance: +t.distance, litres: +t.litres, cost: cost != null && isFinite(cost) ? cost : null,
       currency: isCode(t.currency) ? t.currency : (isoFrom(t.currency) || fallbackCur || H()), distUnit: du(t.distUnit), consUnit: CONS[t.consUnit] ? t.consUnit : legacyCons,
       odoStart: odoOrNull(t.odoStart), odoEnd: odoOrNull(t.odoEnd), place: clean(t.place), note: clean(t.note), created: t.created || new Date().toISOString() };
@@ -953,7 +963,7 @@ details.more .sheet-sec{padding-top:2px}
     const el = $("#history");
     if (!c.fills.length){
       const startRow = c.rows.find(r => r.start);
-      el.innerHTML = `<div class="list">${startRow ? startHTML(startRow, v) : ""}<div class="emptystate"><strong>No fill-ups for ${esc(vehName(v))} yet</strong><span>Tap <b>Add fill-up</b> after your next visit to the pump${startRow ? ". Just type the new odometer reading." : ". Two full tanks are enough to show consumption."}</span>${startRow ? "" : '<button type="button" class="link" data-sample>Preview with sample data</button>'}</div></div>`;
+      el.innerHTML = `<div class="list">${startRow ? startHTML(startRow, v) : ""}<div class="emptystate"><strong>No fill-ups for ${esc(vehName(v))} yet</strong><span>Tap <b>Add fill-up</b> after your next visit to the pump${startRow ? ". Just type the new odometer reading." : ". Two full tanks are enough to show consumption."}</span>${startRow ? "" : '<button type="button" class="link" data-editveh>Log the starting odometer first</button><button type="button" class="link" data-sample>Preview with sample data</button>'}</div></div>`;
       return;
     }
     const avg = c.avgCons;
@@ -984,6 +994,7 @@ details.more .sheet-sec{padding-top:2px}
   // ---------- render: trips ----------
   let viewJ = journeys, viewD = drives;   // what the Trips screen shows: your data, or the sample
   const modelKey = o => [o.type, o.make, o.model, o.year].map(s => clean(s).toLowerCase()).join("|");
+  const isFuel = d => d.kind !== "start";   // a starting-odometer entry has no fuel or distance
   const journeyOf = (d, list) => (list || viewJ).find(j => j.id === d.tripId) || null;
   // a drive's cost in the home currency: { v, approx } — v is null while the rate isn't known yet
   function homeCost(d, list){
@@ -1021,23 +1032,24 @@ details.more .sheet-sec{padding-top:2px}
 
     const U = settings.cmpUnit, D = U.startsWith("mpg") ? "mi" : "km";
     const jSel = viewJ.find(j => j.id === settings.activeTrip) || null;
-    const scope = jSel ? viewD.filter(d => d.tripId === jSel.id) : viewD;
+    const inSel = jSel ? viewD.filter(d => d.tripId === jSel.id) : viewD, scope = inSel.filter(isFuel);
     ensureRates(scope.filter(d => needsDailyRate(d, journeyOf(d)) && !fx[d.date]).map(d => d.date));
 
     // trip switcher
     const ordered = sortedJourneys(viewJ, viewD);
     $("#tripChips").innerHTML = `<button type="button" class="vchip" role="tab" aria-selected="${!jSel}" data-j="all"><span class="vc-name">All trips</span><span class="vc-sub">${plural(viewJ.length, "trip")}</span></button>`
-      + ordered.map(j => { const n = viewD.filter(d => d.tripId === j.id).length;
+      + ordered.map(j => { const n = viewD.filter(d => d.tripId === j.id && isFuel(d)).length;
           return `<button type="button" class="vchip" role="tab" aria-selected="${jSel && j.id === jSel.id}" data-j="${esc(j.id)}"><span class="vc-name">${esc(j.name)}</span><span class="vc-sub">${esc(j.currency)} · ${plural(n, "drive")}</span></button>`; }).join("")
       + `<button type="button" class="vchip add" data-newtrip>+ New trip</button>`;
     $("#tripDetail").hidden = !jSel;
     if (jSel){
-      const ds = scope.map(d => d.date).sort();
+      const ds = inSel.map(d => d.date).sort();
       const rateTxt = jSel.currency === H() ? "" : jSel.fixedRate && jSel.fixedTo === H() ? `your rate: 1 ${jSel.currency} = ${fmtIn(jSel.fixedRate, 6)} ${H()}` : `daily rates to ${H()}`;
       $("#tripDetailText").textContent = [`Paid in ${jSel.currency}`, rateTxt, jSel.vehicle ? modelText(jSel.vehicle) : "", ds.length ? fmtRange(ds[0], ds[ds.length - 1]) : ""].filter(Boolean).join(" · ");
     }
     const sampleTag = sampleTrip ? " (sample)" : "";
-    $("#sub").textContent = jSel ? `${jSel.name} · ${plural(scope.length, "drive")}${sampleTag}` : `${plural(viewJ.length, "trip")} · ${plural(viewD.length, "drive")}${sampleTag}`;
+    $("#sub").textContent = jSel ? `${jSel.name} · ${!scope.length && inSel.length ? "starting odometer logged" : plural(scope.length, "drive")}${sampleTag}`
+      : `${plural(viewJ.length, "trip")} · ${plural(viewD.filter(isFuel).length, "drive")}${sampleTag}`;
 
     // tiles
     const totD = scope.reduce((a,t) => a + t.distance, 0), totL = scope.reduce((a,t) => a + t.litres, 0);
@@ -1101,23 +1113,29 @@ details.more .sheet-sec{padding-top:2px}
     $("#tripListTitle").textContent = jSel ? "Drives" : "Your trips";
     if (!jSel){
       tl.innerHTML = `<div class="list">${ordered.map(j => {
-        const ds = viewD.filter(d => d.tripId === j.id), dd = ds.reduce((a,d) => a + d.distance, 0), ll = ds.reduce((a,d) => a + d.litres, 0);
-        const dates = ds.map(d => d.date).sort(), c2 = costSummary(ds);
+        const inTrip = viewD.filter(d => d.tripId === j.id), ds = inTrip.filter(isFuel), dd = ds.reduce((a,d) => a + d.distance, 0), ll = ds.reduce((a,d) => a + d.litres, 0);
+        const dates = inTrip.map(d => d.date).sort(), c2 = costSummary(ds);
         return `<button type="button" class="entry tap" data-open="${esc(j.id)}" aria-label="Open ${esc(j.name)}">
           <span class="e-main"><span class="e-date">${esc(j.name)}</span>
             <span class="e-meta">${dates.length ? esc(fmtRange(dates[0], dates[dates.length - 1])) + " · " : ""}${plural(ds.length, "drive")} · ${esc(j.currency)}</span>
             ${j.note ? `<span class="e-note">${esc(j.note)}</span>` : ""}</span>
-          <span class="e-side">${dd ? `<span class="e-cons">${f1.format(consIn(ll / dd * 100, U))}<small>${consLabel(U)}</small></span><span class="e-meta">${fmtDist(dd, D)}</span>` : '<span class="e-meta">No drives yet</span>'}
+          <span class="e-side">${dd ? `<span class="e-cons">${f1.format(consIn(ll / dd * 100, U))}<small>${consLabel(U)}</small></span><span class="e-meta">${fmtDist(dd, D)}</span>` : `<span class="e-meta">${inTrip.length ? "Starting odometer logged" : "No drives yet"}</span>`}
             ${c2.n ? `<span class="e-home">${c2.missing ? "…" : (c2.approx ? "≈ " : "") + money(c2.total)}</span>` : ""}</span>
         </button>`; }).join("")}</div>`;
       return;
     }
-    if (!scope.length){
-      tl.innerHTML = `<div class="list"><div class="emptystate"><strong>No drives in ${esc(jSel.name)} yet</strong><span>Tap <b>Log drive</b> after you fill up or finish a drive. Make and model are optional.</span></div></div>`;
+    if (!inSel.length){
+      tl.innerHTML = `<div class="list"><div class="emptystate"><strong>No drives in ${esc(jSel.name)} yet</strong><span>Before you set off, tap <b>Log drive</b> and choose <b>Starting odometer</b> to log the car and its reading. After each fill-up or drive, just type the new reading.</span></div></div>`;
       return;
     }
-    const sorted = [...scope].sort((a,b) => b.date.localeCompare(a.date) || String(b.created || "").localeCompare(String(a.created || "")));
+    const sorted = [...inSel].sort((a,b) => b.date.localeCompare(a.date) || (a.kind === "start") - (b.kind === "start") || String(b.created || "").localeCompare(String(a.created || "")));
     tl.innerHTML = `<div class="list">${sorted.map(t => { const hc = homeCost(t);
+      if (!isFuel(t)) return `<button type="button" class="entry start${sampleTrip ? " static" : " tap"}" data-drive="${esc(t.id)}" aria-label="Edit starting odometer">
+        <span class="e-main"><span class="e-model">${modelHTML(t)}</span>
+          <span class="e-meta">${esc(fmtDate(t.date))} · Starting odometer${t.place ? " · " + esc(t.place) : ""}</span>
+          ${t.note ? `<span class="e-note">${esc(t.note)}</span>` : ""}</span>
+        <span class="e-side"><span class="e-cons">${f0.format(distIn(t.odoEnd, t.distUnit))}<small>${du(t.distUnit)}</small></span><span class="e-meta">Start</span></span>
+      </button>`;
       return `<button type="button" class="entry${sampleTrip ? " static" : " tap"}" data-drive="${esc(t.id)}" ${sampleTrip ? 'tabindex="-1"' : `aria-label="Edit drive on ${esc(fmtDate(t.date))}"`}>
         <span class="e-main">
           <span class="e-model">${modelHTML(t)}</span>
@@ -1487,7 +1505,7 @@ details.more .sheet-sec{padding-top:2px}
     if (jFromDrive){
       fillTripSelect(id); prepCur($("#tCurSel"), currency);
       if (hasCar){ applyVehicle(car); markRecent(-1); }
-      prefillOdo(); updateHomeHint();
+      prefillOdo(); if (!editingDrive) setKind(defaultKind(id)); updateHomeHint();
       closeDialog(jSheet); saveSettings(); render(); toast(`${name} created`);
       return;
     }
@@ -1506,7 +1524,21 @@ details.more .sheet-sec{padding-top:2px}
 
   // ---------- drive sheet ----------
   const driveSheet = $("#driveSheet");
-  let editingDrive = null, driveTripId = null, tripDU = "km", tripCU = "l100", recentList = [], odoAuto = false, odoFrom = "";
+  let editingDrive = null, driveTripId = null, tripDU = "km", tripCU = "l100", recentList = [], odoAuto = false, odoFrom = "", driveKind = "drive";
+  // "Starting odometer": only the car and its reading, before you set off. "Drive or fill-up": the usual entry.
+  const odoNowLabel = () => driveKind === "start" ? `Odometer reading (${tripDU})` : `Odometer now (${tripDU})`;
+  function setKind(k){
+    driveKind = k === "start" ? "start" : "drive"; setRadio("dKind", driveKind);
+    const start = driveKind === "start";
+    $("#dFuelPart").hidden = start; $("#tOdoAWrap").hidden = start; $("#tOdoRow").classList.toggle("single", start);
+    $("#tOdoBLbl").textContent = odoNowLabel();
+    $("#tOdoB").placeholder = start ? "e.g. 45210" : "Optional";
+    $("#driveSave").textContent = editingDrive ? "Save changes" : start ? "Save starting odometer" : "Save drive";
+    updateOdo(false);
+  }
+  onRadio("dKind", () => setKind(radioVal("dKind")));
+  // a car's first entry in a trip starts as "Starting odometer"
+  const defaultKind = jid => !drives.some(d => d.tripId === jid) && !lastReading(jid, formVehicle()) ? "start" : "drive";
   const tripOrder = linkThree(["tDist", "tLitres", "tCons"], third => {
     const Dkm = distOut(num($("#tDist").value), tripDU), Lt = num($("#tLitres").value), C = num($("#tCons").value);
     const l100 = C > 0 ? consOut(C, tripCU) : NaN;
@@ -1525,7 +1557,7 @@ details.more .sheet-sec{padding-top:2px}
     setRadio("tDistU", tripDU); $("#tConsU").value = tripCU;
     $("#tDistLbl").textContent = "Distance " + tripDU;
     $("#tOdoALbl").textContent = `Odometer start (${tripDU})`;
-    $("#tOdoBLbl").textContent = `Odometer now (${tripDU})`;
+    $("#tOdoBLbl").textContent = odoNowLabel();
     $("#tConsLbl").textContent = consLabel(tripCU);
     $("#tDist").placeholder = tripDU === "mi" ? "200" : "320";
     $("#tCons").placeholder = { l100: "5.8", kml: "17", mpgus: "40", mpguk: "48" }[tripCU];
@@ -1547,7 +1579,7 @@ details.more .sheet-sec{padding-top:2px}
   function lastReading(jid, veh){
     const k = modelKey(veh);
     const best = drives.filter(d => d.tripId === jid && d.odoEnd != null && modelKey(d) === k).sort((a,b) => b.odoEnd - a.odoEnd)[0];
-    if (best) return { km: best.odoEnd, from: `your last reading (${shortDate(best.date)})` };
+    if (best) return { km: best.odoEnd, from: best.kind === "start" ? `your starting reading (${shortDate(best.date)})` : `your last reading (${shortDate(best.date)})` };
     const car = tripCarOf(jid);
     if (car && car.startOdo != null && modelKey(car) === k) return { km: car.startOdo, from: "the pickup reading" };
     return null;
@@ -1562,6 +1594,12 @@ details.more .sheet-sec{padding-top:2px}
   }
   function updateOdo(applyDist){
     const aRaw = $("#tOdoA").value.trim(), a = num(aRaw), b = num($("#tOdoB").value), h = $("#tOdoHint");
+    if (driveKind === "start"){
+      const p = editingDrive ? null : lastReading(driveTripId, formVehicle());
+      h.textContent = p ? `The last reading for this car was ${fmtIn(distIn(p.km, tripDU), 1)} ${tripDU}.`
+        : "Log the reading before you set off. Forgot, and already at your first fill-up? Choose Drive or fill-up instead and enter both readings there.";
+      return;
+    }
     if (aRaw !== "" && a >= 0 && b > 0){
       if (b <= a){ h.textContent = "Odometer now should be higher than the start reading."; return; }
       if (applyDist){ $("#tDist").value = fmtIn(b - a, 1); $("#tDist").dispatchEvent(new Event("input")); }
@@ -1569,7 +1607,7 @@ details.more .sheet-sec{padding-top:2px}
       return;
     }
     h.textContent = odoAuto ? `Start is ${odoFrom}. Type the odometer now and the distance fills in.`
-      : aRaw === "" && !editingDrive ? "First drive in this car? Enter the start reading and the reading now, or just type the distance." : "";
+      : aRaw === "" && !editingDrive ? "Forgot to log the start? Enter the reading from when you set off as Odometer start, plus the reading now. Or just type the distance." : "";
   }
   $("#tOdoA").addEventListener("input", () => { odoAuto = false; updateOdo(true); });
   $("#tOdoB").addEventListener("input", () => updateOdo(true));
@@ -1611,7 +1649,7 @@ details.more .sheet-sec{padding-top:2px}
     driveTripId = e.target.value;
     const j = journeys.find(x => x.id === driveTripId);
     if (j){ setCur($("#tCurSel"), j.currency); if (j.vehicle){ applyVehicle(j.vehicle); markRecent(-1); } }
-    prefillOdo(); updateHomeHint();
+    prefillOdo(); if (!editingDrive) setKind(defaultKind(driveTripId)); updateHomeHint();
   });
 
   function openDrive(id){
@@ -1621,8 +1659,7 @@ details.more .sheet-sec{padding-top:2px}
     const jid = t ? t.tripId : pick;
     if (!jid) return openJourney(null);
     fillTripSelect(jid);
-    $("#driveTitle").textContent = t ? "Edit drive" : "Log drive";
-    $("#driveSave").textContent = t ? "Save changes" : "Save drive";
+    $("#driveTitle").textContent = t ? (t.kind === "start" ? "Edit starting odometer" : "Edit drive") : "Log drive";
     ["tDist", "tLitres", "tCons", "tCost", "tPlace", "tNote", "tOdoA", "tOdoB", "tRate"].forEach(f => { $("#" + f).value = ""; });
     tripOrder.length = 0; odoAuto = false;
     // recent vehicles: this trip's car first, then this trip's drives, then others; newest first, one per model
@@ -1640,22 +1677,25 @@ details.more .sheet-sec{padding-top:2px}
       $("#tDate").value = t.date;
       $("#tOdoA").value = t.odoStart != null ? fmtIn(distIn(t.odoStart, t.distUnit), 1) : "";
       $("#tOdoB").value = t.odoEnd != null ? fmtIn(distIn(t.odoEnd, t.distUnit), 1) : "";
-      $("#tDist").value = fmtIn(distIn(t.distance, t.distUnit), 1);
-      $("#tLitres").value = t.litres;
-      $("#tCons").value = consIn(t.litres / t.distance * 100, t.consUnit).toFixed(1);
+      if (t.kind !== "start"){
+        $("#tDist").value = fmtIn(distIn(t.distance, t.distUnit), 1);
+        $("#tLitres").value = t.litres;
+        $("#tCons").value = consIn(t.litres / t.distance * 100, t.consUnit).toFixed(1);
+      }
       $("#tCost").value = t.cost != null ? t.cost : "";
       prepCur($("#tCurSel"), t.currency);
       $("#tPlace").value = t.place; $("#tNote").value = t.note;
       tripOrder.push("tDist", "tLitres");
-      updateOdo(false);
+      setKind(t.kind);
     } else {
       $("#tDate").value = todayISO();
       if (recentList.length){ applyVehicle(recentList[0]); markRecent(0); }
       else applyVehicle({ type: "car", make: "", model: "", year: "", fuel: "petrol", distUnit: settings.newVeh.distUnit, consUnit: settings.cmpUnit });
       prepCur($("#tCurSel"), j ? j.currency : H());
       prefillOdo();
+      setKind(defaultKind(jid));
     }
-    $("#driveDelete").hidden = !t; armButton($("#driveDelete"), false, "Delete drive");
+    $("#driveDelete").hidden = !t; armButton($("#driveDelete"), false, t && t.kind === "start" ? "Delete starting odometer" : "Delete drive");
     setErr("#driveErr", "");
     updateHomeHint();
     openDialog(driveSheet);
@@ -1687,6 +1727,24 @@ details.more .sheet-sec{padding-top:2px}
     const C = num($("#tCons").value), l100 = C > 0 ? consOut(C, tripCU) : NaN;
     const costRaw = $("#tCost").value.trim(), cost = num(costRaw);
     const aRaw = $("#tOdoA").value.trim(), A = num(aRaw), B = num($("#tOdoB").value);
+    const km = v => Math.round(distOut(v, tripDU) * 1000) / 1000;
+    if (driveKind === "start"){
+      if (!journeys.some(j => j.id === tripId)) return setErr("#driveErr", "Choose which trip this belongs to.");
+      if (!yearOk(year)) return setErr("#driveErr", "Enter the year as four digits, like 2022, or leave it empty.");
+      if (!date) return setErr("#driveErr", "Choose the date.");
+      if (!(B >= 0) || $("#tOdoB").value.trim() === "") return setErr("#driveErr", `Enter the odometer reading in ${distWord(tripDU)}.`);
+      const trip = journeys.find(j => j.id === tripId);
+      const sData = { tripId, kind: "start", date, type: radioVal("tType") || "car", make: $("#tMake").value.trim(), model: $("#tModel").value.trim(), year, fuel: $("#tFuel").value,
+        distance: 0, litres: 0, cost: null, currency: trip.currency, distUnit: tripDU, consUnit: tripCU, odoStart: null, odoEnd: km(B),
+        place: $("#tPlace").value.trim(), note: $("#tNote").value.trim() };
+      const wasEdit = !!editingDrive;
+      const nextS = wasEdit ? drives.map(t => t.id === editingDrive ? { ...t, ...sData } : t) : [...drives, { id: newId(), ...sData, created: new Date().toISOString() }];
+      try { commitDrives(nextS); } catch(e){ return setErr("#driveErr", "Couldn't save. Your device may be out of storage."); }
+      sampleTrip = false; settings.activeTrip = tripId; saveSettings();
+      closeDialog(driveSheet); render();
+      toast(wasEdit ? "Changes saved" : "Starting odometer saved. After a fill-up, just type the new reading");
+      return;
+    }
     if (!(Lt > 0) && Dkm > 0 && l100 > 0) Lt = Dkm * l100 / 100;
     if (!(Dkm > 0) && Lt > 0 && l100 > 0) Dkm = Lt * 100 / l100;
     if (!journeys.some(j => j.id === tripId)) return setErr("#driveErr", "Choose which trip this drive belongs to.");
@@ -1698,10 +1756,9 @@ details.more .sheet-sec{padding-top:2px}
     if (costRaw && !(cost >= 0)) return setErr("#driveErr", "Enter the fuel cost as a number, or leave it empty.");
     if (!currency) return setErr("#driveErr", CODE_ERR);
     const ownRate = !$("#tRateWrap").hidden ? num($("#tRate").value) : NaN;
-    const km = v => Math.round(distOut(v, tripDU) * 1000) / 1000;
     const data = { tripId, date, type: radioVal("tType") || "car", make: $("#tMake").value.trim(), model: $("#tModel").value.trim(), year, fuel: $("#tFuel").value,
       distance: Math.round(Dkm * 1000) / 1000, litres: +Lt.toFixed(2), cost: costRaw ? +cost.toFixed(2) : null, currency,
-      distUnit: tripDU, consUnit: tripCU, odoStart: aRaw !== "" && A >= 0 ? km(A) : null, odoEnd: B > 0 ? km(B) : null,
+      kind: "drive", distUnit: tripDU, consUnit: tripCU, odoStart: aRaw !== "" && A >= 0 ? km(A) : null, odoEnd: B > 0 ? km(B) : null,
       place: $("#tPlace").value.trim(), note: $("#tNote").value.trim() };
     const next = editingDrive ? drives.map(t => t.id === editingDrive ? { ...t, ...data } : t)
       : [...drives, { id: newId(), ...data, created: new Date().toISOString() }];
@@ -1716,9 +1773,9 @@ details.more .sheet-sec{padding-top:2px}
 
   $("#driveDelete").onclick = () => {
     const b = $("#driveDelete");
-    if (!b.dataset.armed){ armButton(b, true, "Delete drive", "Tap again to delete"); return; }
+    if (!b.dataset.armed){ armButton(b, true, "Delete", "Tap again to delete"); return; }
     try { commitDrives(drives.filter(t => t.id !== editingDrive)); } catch(e){ return setErr("#driveErr", "Couldn't delete. Try again."); }
-    closeDialog(driveSheet); render(); toast("Drive deleted");
+    closeDialog(driveSheet); render(); toast("Deleted");
   };
 
   // ---------- page events ----------
@@ -1795,7 +1852,7 @@ details.more .sheet-sec{padding-top:2px}
     return rows.filter(r => r.some(c => c.trim() !== ""));
   }
   const validFill = e => e && ISO.test(e.date) && e.odo > 0 && e.litres > 0 && e.total > 0;
-  const validDrive = t => t && ISO.test(t.date) && t.distance > 0 && t.litres > 0;
+  const validDrive = t => t && ISO.test(t.date) && (t.kind === "start" ? +t.odoEnd >= 0 : t.distance > 0 && t.litres > 0);
 
   function importJSON(b){
     if (!b || b.app !== "fuel-log") return toast("That file isn't a Fuel Log backup.");

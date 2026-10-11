@@ -1,7 +1,7 @@
 {
   "name": "Fuel Log",
   "short_name": "Fuel Log",
-  "description": "Log fill-ups and track fuel consumption, prices and spending. Data stays on this device.",
+  "description": "Log fill-ups for your vehicles and compare fuel efficiency across trips and models. Data stays on this device.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -316,6 +316,7 @@ details.more .sheet-sec{padding-top:2px}
     <p class="hint">Distance and consumption units are set for each vehicle (tap <b>Edit vehicle</b>) and for each drive.</p>
     <p class="hint">Your data is saved only on this device. Export a backup now and then and keep it in iCloud Drive.</p>
     <p class="hint" id="backupInfo">Last backup: never</p>
+    <p class="hint" id="appVersion"></p>
     <div class="btnrow">
       <button type="button" id="exportBtn">Export backup</button>
       <button type="button" id="importBtn">Import backup</button>
@@ -547,6 +548,7 @@ details.more .sheet-sec{padding-top:2px}
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
+  const APP_VERSION = 7;   // keep in step with VERSION in sw.js
   const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx" };
 
   // ---------- small helpers ----------
@@ -1601,7 +1603,8 @@ details.more .sheet-sec{padding-top:2px}
       return;
     }
     if (aRaw !== "" && a >= 0 && b > 0){
-      if (b <= a){ h.textContent = "Odometer now should be higher than the start reading."; return; }
+      if (b === a && !editingDrive){ h.textContent = "Same reading twice: no fuel or distance yet, so this will be saved as your starting odometer."; return; }
+      if (b < a){ h.textContent = "Odometer now should be higher than the start reading."; return; }
       if (applyDist){ $("#tDist").value = fmtIn(b - a, 1); $("#tDist").dispatchEvent(new Event("input")); }
       h.textContent = `+${fmtIn(b - a, 1)} ${tripDU} driven`;
       return;
@@ -1728,6 +1731,9 @@ details.more .sheet-sec{padding-top:2px}
     const costRaw = $("#tCost").value.trim(), cost = num(costRaw);
     const aRaw = $("#tOdoA").value.trim(), A = num(aRaw), B = num($("#tOdoB").value);
     const km = v => Math.round(distOut(v, tripDU) * 1000) / 1000;
+    const onlyReading = driveKind === "drive" && !editingDrive && !(Dkm > 0) && !(Lt > 0) && !(C > 0) && !costRaw
+      && $("#tOdoB").value.trim() !== "" && B >= 0 && (aRaw === "" || A === B);
+    if (onlyReading) setKind("start");
     if (driveKind === "start"){
       if (!journeys.some(j => j.id === tripId)) return setErr("#driveErr", "Choose which trip this belongs to.");
       if (!yearOk(year)) return setErr("#driveErr", "Enter the year as four digits, like 2022, or leave it empty.");
@@ -1933,8 +1939,15 @@ details.more .sheet-sec{padding-top:2px}
   $("#installBanner").hidden = !(isiOS && !standalone && !settings.installHidden);
   $("#hideInstall").onclick = () => { settings.installHidden = true; saveSettings(); $("#installBanner").hidden = true; };
 
+  $("#appVersion").textContent = `App version ${APP_VERSION}`;
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")){
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    // when an update is installed, refresh once so the new version shows straight away
+    const hadController = !!navigator.serviceWorker.controller; let refreshed = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController && !refreshed){ refreshed = true; location.reload(); } });
+    navigator.serviceWorker.register("sw.js").then(reg => {
+      // a home-screen app often resumes instead of reloading, so also look for updates when it comes back
+      document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
+    }).catch(() => {});
   }
   window.addEventListener("online", () => { fxTried.clear(); render(); });
 

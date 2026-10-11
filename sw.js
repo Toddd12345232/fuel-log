@@ -1,6 +1,6 @@
 // Offline support: keeps a copy of the app on the device.
-// Bump VERSION whenever you upload a changed file, so phones pick up the update.
-const VERSION = "fuel-log-v6";
+// Bump VERSION (and APP_VERSION in index.html) whenever you upload a changed file, so phones pick up the update.
+const VERSION = "fuel-log-v7";
 const FILES = [
   "./",
   "./index.html",
@@ -11,7 +11,8 @@ const FILES = [
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(FILES)));
+  // cache: "reload" skips the browser's own copy, which GitHub Pages lets go 10 minutes stale
+  event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(FILES.map(f => new Request(f, { cache: "reload" })))));
   self.skipWaiting();
 });
 
@@ -31,7 +32,7 @@ self.addEventListener("fetch", event => {
   if (req.mode === "navigate") {
     event.respondWith(caches.open(VERSION).then(async cache => {
       const cached = await cache.match("./index.html");
-      const fresh = fetch(req).then(res => {
+      const fresh = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(res => {
         if (res.ok) cache.put("./index.html", res.clone());
         return res;
       }).catch(() => cached);

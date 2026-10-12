@@ -10,7 +10,8 @@ FUEL_LANGS["en-GB"] = {
   note_sep: "Fuel and electric are ranked separately, because litres and kWh can't be compared. Choose Cost to rank them together.",
   sec_fuel: "Petrol, diesel and hybrid",
   note_cost: "Ranked by what fuel and charging cost per 100 {unit}, converted to {home} with each day's exchange rate. Petrol and electric are compared directly.",
-  err_litres: "Enter how many litres you filled.", err_total: "Enter the price per litre or the total you paid."
+  err_litres: "Enter how many litres you filled.", err_total: "Enter the price per litre or the total you paid.",
+  ins_worse: "Lately you're averaging {v}, {pct} worse than usual. Low tyre pressure, extra weight or a service that's due can cause this."
 };
 
 // 繁體中文（台灣）. 繁體中文（香港） is made from this with Hong Kong wording (see build).
@@ -148,7 +149,8 @@ FUEL_LANGS["zh-TW"] = {
   err_reading: "請輸入里程讀數（{unit}）。", err_now_higher: "目前里程應該比起始里程高。", err_distance: "請輸入距離（{unit}），或輸入兩個里程。",
   err_fuel_used: "請輸入用油量，或行車電腦上的能耗。", err_energy_used: "請輸入用電量（kWh），或車上顯示的能耗。",
   err_cost_num: "費用請輸入數字，或留空。",
-  name_my_motorcycle: "我的機車", name_earlier_trips: "之前的旅程", name_other_drives: "其他行車", name_imported_trips: "匯入的旅程", name_trip: "旅程"
+  name_my_motorcycle: "我的機車", name_earlier_trips: "之前的旅程", name_other_drives: "其他行車", name_imported_trips: "匯入的旅程", name_trip: "旅程",
+  insights: "分析", ins_better: "最近平均 {v}，比平常好 {pct}。", ins_worse: "最近平均 {v}，比平常差 {pct}。胎壓不足、載重增加或該保養了，都可能造成這情況。", ins_steady: "最近平均 {v}，和平常差不多。", ins_month: "本月至今：{amount}。上個月：{last}。", ins_year: "照最近的速度，一年大約 {amount}。", ins_price_up: "上次單價 {price}，比你的平均高 {pct}。", ins_price_down: "上次單價 {price}，比你的平均低 {pct}。", dist_aria: "每月里程", dist_note: "最近 12 個月，每個月里程計讀數之間的距離。", dist_empty: "每月里程會顯示在這裡。", lg_trend: "趨勢", lg_best: "最佳"
 };
 
 // 繁體中文（香港）: made from the Taiwan translation with Hong Kong wording.
@@ -286,7 +288,8 @@ FUEL_LANGS["zh-HK"] = {
   err_reading: "請輸入里程讀數（{unit}）。", err_now_higher: "目前里程應該比起始里程高。", err_distance: "請輸入距離（{unit}），或輸入兩個里程。",
   err_fuel_used: "請輸入用油量，或行車電腦上的能耗。", err_energy_used: "請輸入用電量（kWh），或車上顯示的能耗。",
   err_cost_num: "費用請輸入數字，或留空。",
-  name_my_motorcycle: "我的電單車", name_earlier_trips: "之前的旅程", name_other_drives: "其他行車", name_imported_trips: "匯入的旅程", name_trip: "旅程"
+  name_my_motorcycle: "我的電單車", name_earlier_trips: "之前的旅程", name_other_drives: "其他行車", name_imported_trips: "匯入的旅程", name_trip: "旅程",
+  insights: "分析", ins_better: "最近平均 {v}，比平常好 {pct}。", ins_worse: "最近平均 {v}，比平常差 {pct}。胎壓不足、載重增加或該保養了，都可能造成這情況。", ins_steady: "最近平均 {v}，和平常差不多。", ins_month: "本月至今：{amount}。上個月：{last}。", ins_year: "照最近的速度，一年大約 {amount}。", ins_price_up: "上次單價 {price}，比你的平均高 {pct}。", ins_price_down: "上次單價 {price}，比你的平均低 {pct}。", dist_aria: "每月里程", dist_note: "最近 12 個月，每個月咪錶讀數之間的距離。", dist_empty: "每月里程會顯示在這裡。", lg_trend: "趨勢", lg_best: "最佳"
 };
 
 // 简体中文
@@ -424,7 +427,8 @@ FUEL_LANGS["zh-Hans"] = {
   err_reading: "请输入里程读数（{unit}）。", err_now_higher: "当前里程应该比起始里程高。", err_distance: "请输入距离（{unit}），或输入两个里程。",
   err_fuel_used: "请输入用油量，或行车电脑上的能耗。", err_energy_used: "请输入用电量（kWh），或车上显示的能耗。",
   err_cost_num: "费用请输入数字，或留空。",
-  name_my_motorcycle: "我的摩托车", name_earlier_trips: "以前的旅程", name_other_drives: "其他行车", name_imported_trips: "导入的旅程", name_trip: "旅程"
+  name_my_motorcycle: "我的摩托车", name_earlier_trips: "以前的旅程", name_other_drives: "其他行车", name_imported_trips: "导入的旅程", name_trip: "旅程",
+  insights: "分析", ins_better: "最近平均 {v}，比平时好 {pct}。", ins_worse: "最近平均 {v}，比平时差 {pct}。胎压不足、载重增加或该保养了，都可能导致这种情况。", ins_steady: "最近平均 {v}，与平时持平。", ins_month: "本月至今：{amount}。上月：{last}。", ins_year: "按最近的速度，一年大约 {amount}。", ins_price_up: "上次单价 {price}，比你的平均高 {pct}。", ins_price_down: "上次单价 {price}，比你的平均低 {pct}。", dist_aria: "每月里程", dist_note: "最近 12 个月，每个月里程表读数之间的距离。", dist_empty: "每月里程会显示在这里。", lg_trend: "趋势", lg_best: "最佳"
 };
 
 // 한국어
@@ -562,7 +566,8 @@ FUEL_LANGS["ko"] = {
   err_reading: "주행거리를 {unit} 단위로 입력하세요.", err_now_higher: "현재 주행거리는 시작 주행거리보다 커야 합니다.", err_distance: "거리를 {unit} 단위로 입력하거나 두 주행거리를 모두 입력하세요.",
   err_fuel_used: "사용한 연료량이나 트립 컴퓨터의 연비를 입력하세요.", err_energy_used: "사용한 전력(kWh)이나 차량에 표시된 전비를 입력하세요.",
   err_cost_num: "비용은 숫자로 입력하거나 비워 두세요.",
-  name_my_motorcycle: "내 오토바이", name_earlier_trips: "이전 여행", name_other_drives: "기타 운행", name_imported_trips: "가져온 여행", name_trip: "여행"
+  name_my_motorcycle: "내 오토바이", name_earlier_trips: "이전 여행", name_other_drives: "기타 운행", name_imported_trips: "가져온 여행", name_trip: "여행",
+  insights: "분석", ins_better: "최근 평균 {v}, 평소보다 {pct} 좋습니다.", ins_worse: "최근 평균 {v}, 평소보다 {pct} 나쁩니다. 타이어 공기압 부족, 짐 무게, 정비 시기 등이 원인일 수 있습니다.", ins_steady: "최근 평균 {v}, 평소와 비슷합니다.", ins_month: "이번 달 지금까지: {amount}. 지난달: {last}.", ins_year: "최근 추세라면 1년에 약 {amount}입니다.", ins_price_up: "마지막 단가 {price}은(는) 평균보다 {pct} 높았습니다.", ins_price_down: "마지막 단가 {price}은(는) 평균보다 {pct} 낮았습니다.", dist_aria: "월별 주행 거리", dist_note: "최근 12개월 동안 매달 주행 거리계 기록 사이의 거리입니다.", dist_empty: "월별 주행 거리가 여기에 표시됩니다.", lg_trend: "추세", lg_best: "최고"
 };
 
 // 日本語
@@ -700,7 +705,8 @@ FUEL_LANGS["ja"] = {
   err_reading: "走行距離計の値を {unit} で入力してください。", err_now_higher: "現在の値は出発時の値より大きくしてください。", err_distance: "距離を {unit} で入力するか、両方の値を入力してください。",
   err_fuel_used: "使用した燃料か、トリップコンピューターの燃費を入力してください。", err_energy_used: "使用した電力（kWh）か、車に表示された電費を入力してください。",
   err_cost_num: "費用は数字で入力するか、空欄にしてください。",
-  name_my_motorcycle: "自分のバイク", name_earlier_trips: "以前の旅行", name_other_drives: "その他の走行", name_imported_trips: "読み込んだ旅行", name_trip: "旅行"
+  name_my_motorcycle: "自分のバイク", name_earlier_trips: "以前の旅行", name_other_drives: "その他の走行", name_imported_trips: "読み込んだ旅行", name_trip: "旅行",
+  insights: "分析", ins_better: "最近の平均は {v}、いつもより {pct} 良好です。", ins_worse: "最近の平均は {v}、いつもより {pct} 悪化しています。タイヤの空気圧不足、荷物の重さ、点検時期などが原因かもしれません。", ins_steady: "最近の平均は {v}、いつもと同じくらいです。", ins_month: "今月これまで：{amount}。先月：{last}。", ins_year: "最近のペースだと、年間で約 {amount} です。", ins_price_up: "前回の単価 {price} は平均より {pct} 高めでした。", ins_price_down: "前回の単価 {price} は平均より {pct} 安めでした。", dist_aria: "月ごとの走行距離", dist_note: "直近12か月の、毎月のオドメーター記録の間の距離です。", dist_empty: "月ごとの走行距離がここに表示されます。", lg_trend: "傾向", lg_best: "ベスト"
 };
 
 // Español
@@ -839,7 +845,8 @@ FUEL_LANGS["es"] = {
   err_reading: "Escribe la lectura del cuentakilómetros en {unit}.", err_now_higher: "El cuentakilómetros ahora debe ser mayor que la lectura inicial.", err_distance: "Escribe la distancia en {unit} o las dos lecturas del cuentakilómetros.",
   err_fuel_used: "Escribe el combustible usado o el consumo del ordenador de a bordo.", err_energy_used: "Escribe la energía usada (kWh) o el consumo que marca el coche.",
   err_cost_num: "Escribe el coste como número o déjalo vacío.",
-  name_my_motorcycle: "Mi moto", name_earlier_trips: "Viajes anteriores", name_other_drives: "Otros trayectos", name_imported_trips: "Viajes importados", name_trip: "Viaje"
+  name_my_motorcycle: "Mi moto", name_earlier_trips: "Viajes anteriores", name_other_drives: "Otros trayectos", name_imported_trips: "Viajes importados", name_trip: "Viaje",
+  insights: "Análisis", ins_better: "Últimamente tu media es {v}, un {pct} mejor de lo habitual.", ins_worse: "Últimamente tu media es {v}, un {pct} peor de lo habitual. Puede deberse a neumáticos con poca presión, más peso o una revisión pendiente.", ins_steady: "Últimamente tu media es {v}, como de costumbre.", ins_month: "Este mes hasta ahora: {amount}. El mes pasado: {last}.", ins_year: "A tu ritmo reciente, serían unos {amount} al año.", ins_price_up: "Tu último precio, {price}, fue un {pct} más alto que tu media.", ins_price_down: "Tu último precio, {price}, fue un {pct} más bajo que tu media.", dist_aria: "Distancia por mes", dist_note: "Distancia entre tus lecturas del cuentakilómetros cada mes, en los últimos 12 meses.", dist_empty: "Aquí aparecerá tu distancia mensual.", lg_trend: "Tendencia", lg_best: "Mejor"
 };
 
 // Français
@@ -978,7 +985,8 @@ FUEL_LANGS["fr"] = {
   err_reading: "Saisissez le relevé du compteur en {unit}.", err_now_higher: "Le compteur actuel doit être supérieur au relevé de départ.", err_distance: "Saisissez la distance en {unit}, ou les deux relevés du compteur.",
   err_fuel_used: "Saisissez le carburant utilisé, ou la consommation de l'ordinateur de bord.", err_energy_used: "Saisissez l'énergie utilisée (kWh), ou la consommation affichée par la voiture.",
   err_cost_num: "Saisissez le coût en chiffres, ou laissez vide.",
-  name_my_motorcycle: "Ma moto", name_earlier_trips: "Voyages précédents", name_other_drives: "Autres trajets", name_imported_trips: "Voyages importés", name_trip: "Voyage"
+  name_my_motorcycle: "Ma moto", name_earlier_trips: "Voyages précédents", name_other_drives: "Autres trajets", name_imported_trips: "Voyages importés", name_trip: "Voyage",
+  insights: "Analyse", ins_better: "Ces derniers temps, votre moyenne est de {v}, {pct} de mieux que d'habitude.", ins_worse: "Ces derniers temps, votre moyenne est de {v}, {pct} de moins bien que d'habitude. Des pneus sous-gonflés, du poids en plus ou un entretien à faire peuvent l'expliquer.", ins_steady: "Ces derniers temps, votre moyenne est de {v}, comme d'habitude.", ins_month: "Ce mois-ci pour l'instant : {amount}. Le mois dernier : {last}.", ins_year: "À votre rythme récent, cela fait environ {amount} par an.", ins_price_up: "Votre dernier prix, {price}, était {pct} au-dessus de votre moyenne.", ins_price_down: "Votre dernier prix, {price}, était {pct} en dessous de votre moyenne.", dist_aria: "Distance par mois", dist_note: "Distance entre vos relevés de compteur chaque mois, sur les 12 derniers mois.", dist_empty: "Votre distance mensuelle apparaîtra ici.", lg_trend: "Tendance", lg_best: "Meilleur"
 };
 
 // Português (Brasil)
@@ -1117,7 +1125,8 @@ FUEL_LANGS["pt"] = {
   err_reading: "Digite a leitura do hodômetro em {unit}.", err_now_higher: "O hodômetro agora precisa ser maior que a leitura inicial.", err_distance: "Digite a distância em {unit} ou as duas leituras do hodômetro.",
   err_fuel_used: "Digite o combustível usado ou o consumo do computador de bordo.", err_energy_used: "Digite a energia usada (kWh) ou o consumo que o carro mostra.",
   err_cost_num: "Digite o custo como número ou deixe em branco.",
-  name_my_motorcycle: "Minha moto", name_earlier_trips: "Viagens anteriores", name_other_drives: "Outros trajetos", name_imported_trips: "Viagens importadas", name_trip: "Viagem"
+  name_my_motorcycle: "Minha moto", name_earlier_trips: "Viagens anteriores", name_other_drives: "Outros trajetos", name_imported_trips: "Viagens importadas", name_trip: "Viagem",
+  insights: "Análise", ins_better: "Ultimamente sua média é {v}, {pct} melhor que o normal.", ins_worse: "Ultimamente sua média é {v}, {pct} pior que o normal. Pneus com pouca pressão, peso extra ou uma revisão atrasada podem causar isso.", ins_steady: "Ultimamente sua média é {v}, dentro do normal.", ins_month: "Este mês até agora: {amount}. Mês passado: {last}.", ins_year: "No seu ritmo recente, são cerca de {amount} por ano.", ins_price_up: "Seu último preço, {price}, foi {pct} acima da sua média.", ins_price_down: "Seu último preço, {price}, foi {pct} abaixo da sua média.", dist_aria: "Distância por mês", dist_note: "Distância entre as leituras do hodômetro a cada mês, nos últimos 12 meses.", dist_empty: "Sua distância mensal vai aparecer aqui.", lg_trend: "Tendência", lg_best: "Melhor"
 };
 
 // Deutsch
@@ -1256,7 +1265,8 @@ FUEL_LANGS["de"] = {
   err_reading: "Gib den Kilometerstand in {unit} ein.", err_now_higher: "Der aktuelle Kilometerstand muss höher sein als der Startstand.", err_distance: "Gib die Strecke in {unit} oder beide Kilometerstände ein.",
   err_fuel_used: "Gib den verbrauchten Kraftstoff oder den Verbrauch vom Bordcomputer ein.", err_energy_used: "Gib die verbrauchte Energie (kWh) oder den vom Auto angezeigten Verbrauch ein.",
   err_cost_num: "Gib die Kosten als Zahl ein oder lass das Feld leer.",
-  name_my_motorcycle: "Mein Motorrad", name_earlier_trips: "Frühere Reisen", name_other_drives: "Andere Fahrten", name_imported_trips: "Importierte Reisen", name_trip: "Reise"
+  name_my_motorcycle: "Mein Motorrad", name_earlier_trips: "Frühere Reisen", name_other_drives: "Andere Fahrten", name_imported_trips: "Importierte Reisen", name_trip: "Reise",
+  insights: "Auswertung", ins_better: "Zuletzt liegst du bei {v}, {pct} besser als sonst.", ins_worse: "Zuletzt liegst du bei {v}, {pct} schlechter als sonst. Zu wenig Reifendruck, Zusatzgewicht oder eine fällige Wartung können die Ursache sein.", ins_steady: "Zuletzt liegst du bei {v}, wie sonst auch.", ins_month: "Diesen Monat bisher: {amount}. Letzten Monat: {last}.", ins_year: "Bei deinem aktuellen Tempo sind das etwa {amount} im Jahr.", ins_price_up: "Dein letzter Preis, {price}, lag {pct} über deinem Durchschnitt.", ins_price_down: "Dein letzter Preis, {price}, lag {pct} unter deinem Durchschnitt.", dist_aria: "Strecke pro Monat", dist_note: "Strecke zwischen deinen Kilometerständen pro Monat, in den letzten 12 Monaten.", dist_empty: "Hier erscheint deine monatliche Strecke.", lg_trend: "Trend", lg_best: "Bester"
 };
 
 // Italiano
@@ -1395,7 +1405,8 @@ FUEL_LANGS["it"] = {
   err_reading: "Inserisci la lettura del contachilometri in {unit}.", err_now_higher: "Il contachilometri attuale deve essere superiore alla lettura di partenza.", err_distance: "Inserisci la distanza in {unit} o entrambe le letture del contachilometri.",
   err_fuel_used: "Inserisci il carburante usato o il consumo del computer di bordo.", err_energy_used: "Inserisci l'energia usata (kWh) o il consumo mostrato dall'auto.",
   err_cost_num: "Inserisci il costo come numero o lascia vuoto.",
-  name_my_motorcycle: "La mia moto", name_earlier_trips: "Viaggi precedenti", name_other_drives: "Altri tragitti", name_imported_trips: "Viaggi importati", name_trip: "Viaggio"
+  name_my_motorcycle: "La mia moto", name_earlier_trips: "Viaggi precedenti", name_other_drives: "Altri tragitti", name_imported_trips: "Viaggi importati", name_trip: "Viaggio",
+  insights: "Analisi", ins_better: "Ultimamente la tua media è {v}, il {pct} meglio del solito.", ins_worse: "Ultimamente la tua media è {v}, il {pct} peggio del solito. Pneumatici sgonfi, peso in più o un tagliando da fare possono esserne la causa.", ins_steady: "Ultimamente la tua media è {v}, in linea con il solito.", ins_month: "Questo mese finora: {amount}. Mese scorso: {last}.", ins_year: "Al tuo ritmo recente, sono circa {amount} all'anno.", ins_price_up: "Il tuo ultimo prezzo, {price}, era il {pct} sopra la tua media.", ins_price_down: "Il tuo ultimo prezzo, {price}, era il {pct} sotto la tua media.", dist_aria: "Distanza al mese", dist_note: "Distanza tra le letture del contachilometri ogni mese, negli ultimi 12 mesi.", dist_empty: "Qui apparirà la tua distanza mensile.", lg_trend: "Andamento", lg_best: "Migliore"
 };
 
 // Русский
@@ -1535,7 +1546,8 @@ FUEL_LANGS["ru"] = {
   err_reading: "Введите показания одометра в {unit}.", err_now_higher: "Текущие показания одометра должны быть больше стартовых.", err_distance: "Введите расстояние в {unit} или оба показания одометра.",
   err_fuel_used: "Введите израсходованное топливо или расход с бортового компьютера.", err_energy_used: "Введите израсходованную энергию (кВт·ч) или расход, который показывает машина.",
   err_cost_num: "Введите стоимость числом или оставьте пустым.",
-  name_my_motorcycle: "Мой мотоцикл", name_earlier_trips: "Прошлые поездки", name_other_drives: "Другие маршруты", name_imported_trips: "Импортированные поездки", name_trip: "Поездка"
+  name_my_motorcycle: "Мой мотоцикл", name_earlier_trips: "Прошлые поездки", name_other_drives: "Другие маршруты", name_imported_trips: "Импортированные поездки", name_trip: "Поездка",
+  insights: "Анализ", ins_better: "В последнее время в среднем {v} — на {pct} лучше обычного.", ins_worse: "В последнее время в среднем {v} — на {pct} хуже обычного. Причиной может быть низкое давление в шинах, лишний груз или пора на ТО.", ins_steady: "В последнее время в среднем {v} — как обычно.", ins_month: "В этом месяце пока: {amount}. В прошлом месяце: {last}.", ins_year: "В нынешнем темпе это примерно {amount} в год.", ins_price_up: "Последняя цена, {price}, была на {pct} выше вашей средней.", ins_price_down: "Последняя цена, {price}, была на {pct} ниже вашей средней.", dist_aria: "Расстояние по месяцам", dist_note: "Расстояние между показаниями одометра за каждый месяц, последние 12 месяцев.", dist_empty: "Здесь появится ваш пробег по месяцам.", lg_trend: "Тренд", lg_best: "Лучший"
 };
 
 // العربية
@@ -1679,7 +1691,8 @@ FUEL_LANGS["ar"] = {
   err_reading: "أدخل قراءة العداد بوحدة {unit}.", err_now_higher: "يجب أن يكون العداد الآن أعلى من قراءة البداية.", err_distance: "أدخل المسافة بوحدة {unit} أو قراءتي العداد.",
   err_fuel_used: "أدخل الوقود المستهلك أو الاستهلاك من حاسوب السيارة.", err_energy_used: "أدخل الطاقة المستهلكة (كيلوواط ساعة) أو الاستهلاك الذي تعرضه السيارة.",
   err_cost_num: "أدخل التكلفة كرقم أو اتركها فارغة.",
-  name_my_motorcycle: "دراجتي النارية", name_earlier_trips: "رحلات سابقة", name_other_drives: "مشاوير أخرى", name_imported_trips: "رحلات مستوردة", name_trip: "رحلة"
+  name_my_motorcycle: "دراجتي النارية", name_earlier_trips: "رحلات سابقة", name_other_drives: "مشاوير أخرى", name_imported_trips: "رحلات مستوردة", name_trip: "رحلة",
+  insights: "تحليلات", ins_better: "مؤخرًا متوسطك {v}، أفضل من المعتاد بنسبة {pct}.", ins_worse: "مؤخرًا متوسطك {v}، أسوأ من المعتاد بنسبة {pct}. قد يكون السبب ضغط إطارات منخفضًا أو وزنًا زائدًا أو صيانة مستحقة.", ins_steady: "مؤخرًا متوسطك {v}، كالمعتاد.", ins_month: "هذا الشهر حتى الآن: {amount}. الشهر الماضي: {last}.", ins_year: "بوتيرتك الأخيرة، هذا نحو {amount} في السنة.", ins_price_up: "آخر سعر دفعته، {price}، كان أعلى من متوسطك بنسبة {pct}.", ins_price_down: "آخر سعر دفعته، {price}، كان أقل من متوسطك بنسبة {pct}.", dist_aria: "المسافة شهريًا", dist_note: "المسافة بين قراءات العداد كل شهر، خلال آخر 12 شهرًا.", dist_empty: "ستظهر مسافتك الشهرية هنا.", lg_trend: "الاتجاه", lg_best: "الأفضل"
 };
 
 // हिन्दी
@@ -1818,7 +1831,8 @@ FUEL_LANGS["hi"] = {
   err_reading: "ओडोमीटर रीडिंग {unit} में लिखें।", err_now_higher: "अभी का ओडोमीटर शुरुआती रीडिंग से ज़्यादा होना चाहिए।", err_distance: "दूरी {unit} में लिखें, या दोनों ओडोमीटर रीडिंग लिखें।",
   err_fuel_used: "ख़र्च हुआ ईंधन लिखें, या ट्रिप कंप्यूटर का माइलेज लिखें।", err_energy_used: "ख़र्च हुई ऊर्जा (kWh) लिखें, या कार में दिख रही खपत लिखें।",
   err_cost_num: "लागत अंकों में लिखें, या ख़ाली छोड़ दें।",
-  name_my_motorcycle: "मेरी मोटरसाइकिल", name_earlier_trips: "पिछली यात्राएँ", name_other_drives: "अन्य ड्राइव", name_imported_trips: "इंपोर्ट की गई यात्राएँ", name_trip: "यात्रा"
+  name_my_motorcycle: "मेरी मोटरसाइकिल", name_earlier_trips: "पिछली यात्राएँ", name_other_drives: "अन्य ड्राइव", name_imported_trips: "इंपोर्ट की गई यात्राएँ", name_trip: "यात्रा",
+  insights: "विश्लेषण", ins_better: "हाल में आपका औसत {v} है, सामान्य से {pct} बेहतर।", ins_worse: "हाल में आपका औसत {v} है, सामान्य से {pct} ख़राब। टायर में कम हवा, ज़्यादा वज़न या सर्विस का समय इसकी वजह हो सकती है।", ins_steady: "हाल में आपका औसत {v} है, सामान्य जैसा।", ins_month: "इस महीने अब तक: {amount}। पिछले महीने: {last}।", ins_year: "हाल की रफ़्तार से, यह साल में लगभग {amount} होगा।", ins_price_up: "आपका पिछला दाम, {price}, आपके औसत से {pct} ज़्यादा था।", ins_price_down: "आपका पिछला दाम, {price}, आपके औसत से {pct} कम था।", dist_aria: "हर महीने की दूरी", dist_note: "पिछले 12 महीनों में हर महीने ओडोमीटर रीडिंग के बीच की दूरी।", dist_empty: "आपकी मासिक दूरी यहाँ दिखेगी।", lg_trend: "रुझान", lg_best: "सबसे अच्छा"
 };
 
 // Bahasa Indonesia
@@ -1957,7 +1971,8 @@ FUEL_LANGS["id"] = {
   err_reading: "Masukkan angka odometer dalam {unit}.", err_now_higher: "Odometer sekarang harus lebih besar dari angka awal.", err_distance: "Masukkan jarak dalam {unit}, atau kedua angka odometer.",
   err_fuel_used: "Masukkan BBM yang terpakai, atau konsumsi dari trip computer.", err_energy_used: "Masukkan energi yang terpakai (kWh), atau konsumsi yang ditampilkan mobil.",
   err_cost_num: "Masukkan biaya sebagai angka, atau kosongkan.",
-  name_my_motorcycle: "Motorku", name_earlier_trips: "Perjalanan sebelumnya", name_other_drives: "Perjalanan lain", name_imported_trips: "Perjalanan yang diimpor", name_trip: "Perjalanan"
+  name_my_motorcycle: "Motorku", name_earlier_trips: "Perjalanan sebelumnya", name_other_drives: "Perjalanan lain", name_imported_trips: "Perjalanan yang diimpor", name_trip: "Perjalanan",
+  insights: "Analisis", ins_better: "Belakangan rata-ratamu {v}, {pct} lebih baik dari biasanya.", ins_worse: "Belakangan rata-ratamu {v}, {pct} lebih buruk dari biasanya. Tekanan ban kurang, beban lebih, atau jadwal servis bisa jadi penyebabnya.", ins_steady: "Belakangan rata-ratamu {v}, sama seperti biasanya.", ins_month: "Bulan ini sejauh ini: {amount}. Bulan lalu: {last}.", ins_year: "Dengan laju belakangan ini, sekitar {amount} per tahun.", ins_price_up: "Harga terakhirmu, {price}, {pct} di atas rata-ratamu.", ins_price_down: "Harga terakhirmu, {price}, {pct} di bawah rata-ratamu.", dist_aria: "Jarak per bulan", dist_note: "Jarak antar angka odometer setiap bulan, dalam 12 bulan terakhir.", dist_empty: "Jarak bulananmu akan muncul di sini.", lg_trend: "Tren", lg_best: "Terbaik"
 };
 
 // Tiếng Việt
@@ -2096,5 +2111,6 @@ FUEL_LANGS["vi"] = {
   err_reading: "Nhập số công-tơ-mét theo {unit}.", err_now_higher: "Công-tơ-mét hiện tại phải lớn hơn số lúc xuất phát.", err_distance: "Nhập quãng đường theo {unit}, hoặc cả hai số công-tơ-mét.",
   err_fuel_used: "Nhập lượng nhiên liệu đã dùng, hoặc mức tiêu hao từ máy tính hành trình.", err_energy_used: "Nhập năng lượng đã dùng (kWh), hoặc mức tiêu hao xe hiển thị.",
   err_cost_num: "Nhập chi phí bằng chữ số, hoặc để trống.",
-  name_my_motorcycle: "Xe máy của tôi", name_earlier_trips: "Chuyến đi trước", name_other_drives: "Chặng khác", name_imported_trips: "Chuyến đi đã nhập", name_trip: "Chuyến đi"
+  name_my_motorcycle: "Xe máy của tôi", name_earlier_trips: "Chuyến đi trước", name_other_drives: "Chặng khác", name_imported_trips: "Chuyến đi đã nhập", name_trip: "Chuyến đi",
+  insights: "Phân tích", ins_better: "Gần đây trung bình của bạn là {v}, tốt hơn thường lệ {pct}.", ins_worse: "Gần đây trung bình của bạn là {v}, kém hơn thường lệ {pct}. Lốp non hơi, chở nặng hoặc đến hạn bảo dưỡng có thể là nguyên nhân.", ins_steady: "Gần đây trung bình của bạn là {v}, như thường lệ.", ins_month: "Tháng này đến nay: {amount}. Tháng trước: {last}.", ins_year: "Với nhịp gần đây, khoảng {amount} mỗi năm.", ins_price_up: "Giá lần trước, {price}, cao hơn mức trung bình của bạn {pct}.", ins_price_down: "Giá lần trước, {price}, thấp hơn mức trung bình của bạn {pct}.", dist_aria: "Quãng đường mỗi tháng", dist_note: "Quãng đường giữa các lần ghi công-tơ-mét mỗi tháng, trong 12 tháng gần nhất.", dist_empty: "Quãng đường hằng tháng của bạn sẽ hiện ở đây.", lg_trend: "Xu hướng", lg_best: "Tốt nhất"
 };

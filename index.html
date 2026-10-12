@@ -85,7 +85,20 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;padding:6px 12px;font-size:14px;border-radius:999px}
 .tabs button[aria-selected=true],.tabs button[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);font-weight:600}
+/* the four chart tabs: two by two on a phone so none is hidden off the edge, one row when there's room */
+#tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
+@media (min-width:480px){#tabs{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .chart{width:100%;min-height:220px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend span::before{content:"";width:18px;border-top:3.5px solid var(--accent);border-radius:2px}
+.legend .avg::before{border-top:2px dashed var(--amber)}
+.legend .best::before{width:8px;height:8px;border:2px solid var(--accent);border-radius:50%}
+.insights{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.insights li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:14.5px;line-height:1.4}
+.insights li::before{content:"";width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--muted)}
+.insights li.good::before{background:var(--accent)}
+.insights li.warn::before{background:var(--amber)}
 .chart svg{display:block;width:100%;height:auto;direction:ltr}
 .chart text{font-family:var(--body);font-size:11.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
 .chart .endlbl{font-family:var(--display);font-weight:700;font-size:13px;fill:var(--fg)}
@@ -268,14 +281,21 @@ details.more .sheet-sec{padding-top:2px}
 
       <div class="tiles" id="tiles"></div>
 
+      <section class="panel stack" id="insightsPanel" aria-labelledby="insTitle" hidden>
+        <h2 id="insTitle" data-i18n="insights">Insights</h2>
+        <ul class="insights" id="insightList"></ul>
+      </section>
+
       <section class="panel stack" aria-labelledby="trendTitle">
         <h2 id="trendTitle" data-i18n="trends">Trends</h2>
         <div class="tabs" role="tablist" id="tabs">
           <button type="button" role="tab" data-tab="cons" aria-selected="true" data-i18n="tab_cons">Consumption</button>
           <button type="button" role="tab" data-tab="price" aria-selected="false">Price/L</button>
           <button type="button" role="tab" data-tab="spend" aria-selected="false" data-i18n="tab_spend">Spending</button>
+          <button type="button" role="tab" data-tab="dist" aria-selected="false" data-i18n="tile_distance">Distance</button>
         </div>
         <div class="chart" id="chart"></div>
+        <div class="legend" id="chartLegend" hidden></div>
         <p class="hint" id="chartNote"></p>
       </section>
 
@@ -600,7 +620,7 @@ details.more .sheet-sec{padding-top:2px}
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
-  const APP_VERSION = 11;   // keep in step with VERSION in sw.js
+  const APP_VERSION = 12;   // keep in step with VERSION in sw.js
   const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx" };
 
   // ---------- small helpers ----------
@@ -622,6 +642,12 @@ details.more .sheet-sec{padding-top:2px}
     sample_title: "Showing sample data", hide_sample: "Hide sample",
     sample_fills: "These example fill-ups aren't saved. Add your own to start this vehicle's log.", sample_trips: "These example trips aren't saved. Create your own trip to start.", sample_suffix: " (sample)",
     first_vehicle_title: "Add your first vehicle", first_vehicle_body: "Add the bike or car you ride or drive, with its current odometer reading. After that, each fill-up only needs the new reading.",
+    insights: "Insights", ins_better: "Lately you're averaging {v}, {pct} better than usual.",
+    ins_worse: "Lately you're averaging {v}, {pct} worse than usual. Low tire pressure, extra weight or a service that's due can cause this.",
+    ins_steady: "Lately you're averaging {v}, in line with usual.", ins_month: "This month so far: {amount}. Last month: {last}.",
+    ins_year: "At your recent pace, that's about {amount} a year.", ins_price_up: "Your last price, {price}, was {pct} above your average.", ins_price_down: "Your last price, {price}, was {pct} below your average.",
+    dist_aria: "Distance per month", dist_note: "Distance between your odometer readings each month, over the last 12 months.", dist_empty: "Your monthly distance will show here.",
+    lg_trend: "Trend", lg_best: "Best",
     add_vehicle: "Add vehicle", edit_vehicle: "Edit vehicle", your_vehicles: "Your vehicles", trends: "Trends", tab_cons: "Consumption", tab_spend: "Spending", tab_price: "Price/{amt}",
     first_trip_title: "Start your first trip", first_trip_body: "Create a trip, like \"Okinawa road trip\", and pick the currency you'll pay in there. Then log each drive into it. Costs are converted to your home currency with each day's exchange rate.",
     new_trip: "New trip", preview_sample_trips: "Preview with sample trips", your_trips: "Your trips", edit_trip: "Edit trip",
@@ -1092,7 +1118,7 @@ details.more .sheet-sec{padding-top:2px}
         let litres = 0, cost = 0;
         for (let j = lastFull + 1; j <= i; j++){ litres += rows[j].litres; cost += rows[j].total; }
         const dist = r.odo - rows[lastFull].odo;
-        if (dist > 0 && litres > 0){ r.cons = litres / dist * 100; segL += litres; segD += dist; segCost += cost; }
+        if (dist > 0 && litres > 0){ r.cons = litres / dist * 100; r.segL = litres; r.segD = dist; segL += litres; segD += dist; segCost += cost; }
       }
       lastFull = i;
     });
@@ -1153,23 +1179,30 @@ details.more .sheet-sec{padding-top:2px}
       g += `<text x="${xPos(i)}" y="${HT - 8}" text-anchor="${anchor}">${esc(p.label)}</text>`;
     });
     let m = "";
+    const avgLine = () => {
+      if (opts.avg == null) return "";
+      const y = yPos(opts.avg);
+      return `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="6 4"/>`
+        + `<text class="avglbl" x="${L + 4}" y="${y - 5}">${esc(t("avg_short"))}</text>`;
+    };
     if (opts.bars){
       const bw = Math.min(36, iw / n * 0.62);
       points.forEach((p,i) => {
         const y = yPos(p.y), last = i === n - 1;
         m += `<rect x="${xPos(i) - bw / 2}" y="${y}" width="${bw}" height="${Math.max(0, yPos(sc.lo) - y)}" rx="4" fill="${last ? "var(--amber)" : "var(--accent)"}" opacity="${last ? 1 : .7}"><title>${esc(p.label)}: ${esc(opts.fmt(p.y))}</title></rect>`;
       });
+      m += avgLine();
       const lp = points[n - 1], lx = Math.min(Math.max(xPos(n - 1), L + 30), W - 30);
       m += `<text class="endlbl" x="${lx}" y="${Math.max(12, yPos(lp.y) - 6)}" text-anchor="middle">${esc(opts.fmt(lp.y))}</text>`;
     } else {
-      const d = points.map((p,i) => `${i ? "L" : "M"}${xPos(i).toFixed(1)},${yPos(p.y).toFixed(1)}`).join("");
-      if (n > 1) m += `<path d="${d}L${xPos(n - 1).toFixed(1)},${yPos(sc.lo)}L${xPos(0).toFixed(1)},${yPos(sc.lo)}Z" fill="var(--accent)" opacity=".1"/>`;
-      m += `<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>`;
-      if (opts.avg != null){
-        const y = yPos(opts.avg);
-        m += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
-        m += `<text class="avglbl" x="${L + 4}" y="${y - 5}">${esc(t("avg_short"))}</text>`;
-      }
+      const path = ys => ys.map((y,i) => `${i ? "L" : "M"}${xPos(i).toFixed(1)},${yPos(y).toFixed(1)}`).join("");
+      const d = path(points.map(p => p.y)), trend = opts.trend && n >= 4;
+      if (n > 1) m += `<path d="${d}L${xPos(n - 1).toFixed(1)},${yPos(sc.lo)}L${xPos(0).toFixed(1)},${yPos(sc.lo)}Z" fill="var(--accent)" opacity="${trend ? .06 : .1}"/>`;
+      m += `<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="${trend ? 1.5 : 2.25}" opacity="${trend ? .45 : 1}" stroke-linejoin="round" stroke-linecap="round"/>`;
+      // trend: the average of each point and the two before it, so one odd tank doesn't hide the direction
+      if (trend) m += `<path d="${path(points.map((p,i) => { const w = points.slice(Math.max(0, i - 2), i + 1); return w.reduce((a,q) => a + q.y, 0) / w.length; }))}" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+      m += avgLine();
+      if (opts.best != null) m += `<circle cx="${xPos(opts.best)}" cy="${yPos(points[opts.best].y)}" r="8.5" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
       points.forEach((p,i) => {
         const last = i === n - 1;
         m += `<circle cx="${xPos(i)}" cy="${yPos(p.y)}" r="${last ? 5 : 3}" fill="${last ? "var(--amber)" : "var(--surface)"}" stroke="${last ? "var(--amber)" : "var(--accent)"}" stroke-width="2"><title>${esc(p.label)}: ${esc(opts.fmt(p.y))}</title></circle>`;
@@ -1179,29 +1212,88 @@ details.more .sheet-sec{padding-top:2px}
     return `<svg viewBox="0 0 ${W} ${HT}" width="${W}" height="${HT}" role="img" aria-label="${esc(opts.aria)}">${g}${m}</svg>`;
   }
 
+  // the last 12 calendar months up to this one (from the first month with data); months with nothing logged count as 0
+  function monthSeries(byMonth){
+    const first = Object.keys(byMonth).sort()[0], now = new Date(), out = [];
+    if (!first) return out;
+    for (let i = 11; i >= 0; i--){
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1), k = toISO(d).slice(0, 7);
+      if (k >= first) out.push({ label: d.toLocaleDateString(LOCALE, { month: "short" }), y: byMonth[k] || 0 });
+    }
+    return out.some(p => p.y) ? out : [];
+  }
+
   function renderChart(c, v){
-    const el = $("#chart"), note = $("#chartNote"), tab = settings.tab, u = v.consUnit;
+    const el = $("#chart"), note = $("#chartNote"), tab = settings.tab, u = v.consUnit, legend = $("#chartLegend");
     const W = Math.max(260, Math.round(el.clientWidth || 320));
+    const mean = list => list.reduce((a,p) => a + p.y, 0) / list.length;
     let pts, opts;
+    legend.hidden = true;
     if (tab === "cons"){
-      pts = c.rows.filter(r => r.cons != null).map(r => ({ label: shortDate(r.date), y: consIn(r.cons, u) }));
-      opts = { fmt: x => f1.format(x) + " " + consLabel(u), short: x => f1.format(x), avg: c.avgCons != null ? consIn(c.avgCons, u) : null, aria: tv("cons_aria", v, { unit: consLabel(u) }) };
+      const measured = c.rows.filter(r => r.cons != null);
+      pts = measured.map(r => ({ label: shortDate(r.date), y: consIn(r.cons, u) }));
+      const best = measured.length >= 3 ? measured.reduce((b, r, i) => r.cons <= measured[b].cons ? i : b, 0) : null;  // the latest of any ties
+      opts = { fmt: x => f1.format(x) + " " + consLabel(u), short: x => f1.format(x), avg: c.avgCons != null ? consIn(c.avgCons, u) : null, aria: tv("cons_aria", v, { unit: consLabel(u) }), trend: true, best };
       note.textContent = tv("cons_note", v, { unit: consLabel(u), better: t(higherBetter(u) ? "higher_better" : "lower_better") });
       if (!pts.length){ el.innerHTML = `<div class="empty-chart">${esc(tv(v.startOdo != null && v.startFull ? "first_full_soon" : "log_two", v))}</div>`; return; }
     } else if (tab === "price"){
       pts = c.fills.map(r => ({ label: shortDate(r.date), y: r.ppl }));
-      opts = { fmt: x => moneyPPL(x, v.currency), prefix: sym(v.currency), avg: c.avgPrice, aria: tv("price_aria", v) };
+      opts = { fmt: x => moneyPPL(x, v.currency), prefix: sym(v.currency), avg: c.avgPrice, aria: tv("price_aria", v), trend: true };
       note.textContent = tv("price_note", v);
       if (!pts.length){ el.innerHTML = `<div class="empty-chart">${esc(tv("prices_empty", v))}</div>`; return; }
+    } else if (tab === "dist"){
+      const byMonth = {}, du2 = du(v.distUnit);
+      c.rows.forEach(r => { if (r.dist > 0 && r.date){ const k = r.date.slice(0,7); byMonth[k] = (byMonth[k] || 0) + distIn(r.dist, v.distUnit); } });
+      pts = monthSeries(byMonth);
+      opts = { bars: true, fmt: x => `${f0.format(x)} ${du2}`, avg: pts.length > 1 ? mean(pts) : null, aria: t("dist_aria") };
+      note.textContent = t("dist_note");
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">${esc(t("dist_empty"))}</div>`; return; }
     } else {
       const byMonth = {};
       c.fills.forEach(r => { const k = r.date.slice(0,7); byMonth[k] = (byMonth[k] || 0) + r.total; });
-      pts = Object.keys(byMonth).sort().slice(-12).map(k => ({ label: parseISO(k + "-01").toLocaleDateString(LOCALE, { month: "short" }), y: byMonth[k] }));
-      opts = { bars: true, fmt: x => money(x, v.currency), prefix: sym(v.currency), aria: tv("spend_aria", v) };
+      pts = monthSeries(byMonth);
+      opts = { bars: true, fmt: x => money(x, v.currency), prefix: sym(v.currency), avg: pts.length > 1 ? mean(pts) : null, aria: tv("spend_aria", v) };
       note.textContent = tv("spend_note", v);
       if (!pts.length){ el.innerHTML = `<div class="empty-chart">${esc(t("spend_empty"))}</div>`; return; }
     }
     el.innerHTML = chartSVG(pts, opts, W);
+    if (opts.trend && pts.length >= 4){
+      legend.innerHTML = `<span>${esc(t("lg_trend"))}</span><span class="avg">${esc(t("tile_average"))}</span>${opts.best != null ? `<span class="best">${esc(t("lg_best"))}</span>` : ""}`;
+      legend.hidden = false;
+    }
+  }
+
+  // a few plain-language observations from one vehicle's log
+  function insights(c, v){
+    const out = [], vu = v.consUnit, vc = v.currency, now = new Date();
+    const pct = x => new Intl.NumberFormat(LOCALE, { style: "percent", maximumFractionDigits: 0 }).format(x);
+    // lately: the last 3 measured tanks against the overall average
+    const measured = c.rows.filter(r => r.cons != null);
+    if (measured.length >= 4 && c.avgCons){
+      const recent = measured.slice(-3), rc = recent.reduce((a,r) => a + r.segL, 0) / recent.reduce((a,r) => a + r.segD, 0) * 100;
+      const d = consIn(rc, vu) / consIn(c.avgCons, vu) - 1, better = higherBetter(vu) ? d > 0 : d < 0;
+      const key = Math.abs(d) < 0.03 ? "ins_steady" : better ? "ins_better" : "ins_worse";
+      out.push({ kind: { ins_better: "good", ins_worse: "warn" }[key] || "", text: t(key, { v: `${f1.format(consIn(rc, vu))} ${consLabel(vu)}`, pct: pct(Math.abs(d)) }) });
+    }
+    // this month against last month
+    const spent = k => c.fills.filter(r => r.date.startsWith(k)).reduce((a,r) => a + r.total, 0);
+    const ym = toISO(now).slice(0, 7), pm = toISO(new Date(now.getFullYear(), now.getMonth() - 1, 1)).slice(0, 7);
+    if (spent(ym) || spent(pm)) out.push({ text: t("ins_month", { amount: money(spent(ym), vc), last: money(spent(pm), vc) }) });
+    // a year at the pace of the last 90 days (needs a month of history)
+    if (c.fills.length >= 3){
+      // whole days, so the answer doesn't change with the time of day; the window includes its first day
+      const today = parseISO(todayISO()), first = parseISO(c.fills.map(r => r.date).sort()[0]), days = Math.min(90, Math.round((today - first) / 864e5));
+      const since = toISO(new Date(today.getFullYear(), today.getMonth(), today.getDate() - days));
+      const s = c.fills.filter(r => r.date >= since).reduce((a,r) => a + r.total, 0);
+      if (days >= 30 && s > 0) out.push({ text: t("ins_year", { amount: sym(vc) + f0.format(Math.round(s / days * 365 / 10) * 10) }) });
+    }
+    // the last price against the average price
+    const lastF = c.fills[c.fills.length - 1];
+    if (c.fills.length >= 3 && c.avgPrice && lastF){
+      const d = lastF.ppl / c.avgPrice - 1;
+      if (Math.abs(d) >= 0.03) out.push({ kind: d > 0 ? "warn" : "good", text: t(d > 0 ? "ins_price_up" : "ins_price_down", { price: `${moneyPPL(lastF.ppl, vc)}/${amtUnit(v)}`, pct: pct(Math.abs(d)) }) });
+    }
+    return out;
   }
 
   // ---------- render: shared ----------
@@ -1247,6 +1339,10 @@ details.more .sheet-sec{padding-top:2px}
       tile(t("tile_cost_per", { unit: du(u) }), perU != null ? moneyPer(perU, vc) : "–", "", perU != null ? t("per_100", { amount: money(perU * 100, vc), unit: du(u) }) : tv("needs_full", v)) +
       tile(t("tile_total"), c.fills.length ? money(c.totalSpent, vc) : "–", "", t("total_sub", { amount: `${f1.format(c.totalL)} ${amt}`, count: nFill(c.fills.length, v) })) +
       tile(t("tile_distance"), c.distance ? f0.format(distIn(c.distance, u)) : "–", du(u), c.avgPrice != null ? t("avg_price", { price: `${moneyPPL(c.avgPrice, vc)}/${amt}` }) : t("logged_so_far"));
+
+    const ins = insights(c, v);
+    $("#insightsPanel").hidden = !ins.length;
+    $("#insightList").innerHTML = ins.map(x => `<li class="${x.kind || ""}">${esc(x.text)}</li>`).join("");
 
     $("#tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === settings.tab)));
     renderChart(c, v);

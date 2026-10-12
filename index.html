@@ -347,6 +347,7 @@ details.more .sheet-sec{padding-top:2px}
       <div class="field"><label class="label" for="odoStart" id="odoStartLbl">Starting odometer (optional)</label><input type="text" id="odoStart" inputmode="decimal" autocomplete="off" placeholder="Reading when you started tracking"></div>
       <label class="check"><input type="checkbox" id="odoStartFull" checked> The tank was full at that reading</label>
     </div>
+    <div class="field" id="fDistWrap" hidden><label class="label" for="fDist" id="fDistLbl">Or distance since last fill-up</label><input type="text" id="fDist" inputmode="decimal" autocomplete="off" placeholder="From your trip meter"></div>
     <p class="livehint" id="odoHint"></p>
     <div class="row3">
       <div class="field"><label class="label" for="litres">Litres</label><input type="text" id="litres" inputmode="decimal" autocomplete="off" placeholder="12.4"></div>
@@ -548,7 +549,7 @@ details.more .sheet-sec{padding-top:2px}
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
-  const APP_VERSION = 7;   // keep in step with VERSION in sw.js
+  const APP_VERSION = 8;   // keep in step with VERSION in sw.js
   const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx" };
 
   // ---------- small helpers ----------
@@ -1217,21 +1218,41 @@ details.more .sheet-sec{padding-top:2px}
     if (v.startOdo != null) pts.push({ odo: v.startOdo, date: "", start: true });
     return pts;
   }
-  function updateOdoHint(){
-    const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return;
-    const u = v.distUnit, val = num($("#odo").value), pts = readings(v, editingFill), h = $("#odoHint");
-    const sRaw = $("#odoStart").value.trim(), sv = num(sRaw);
+  // earlier readings, including a starting reading typed on a first fill-up
+  function fillPoints(v){
+    const u = v.distUnit, pts = readings(v, editingFill), sRaw = $("#odoStart").value.trim(), sv = num(sRaw);
     if (!$("#fillStartWrap").hidden && sRaw !== "" && sv >= 0) pts.push({ odo: distOut(sv, u), date: "", start: true });
+    return pts;
+  }
+  // the reading a distance counts from: the last one before this fill-up
+  function fillBase(v, pts){
+    const e = editingFill ? entries.find(x => x.id === editingFill) : null;
+    return pts.filter(p => !e || p.odo < e.odo).sort((a,b) => b.odo - a.odo)[0] || null;
+  }
+  // syncDist: also write the distance box from the odometer (skipped while you're typing the distance)
+  function updateOdoHint(syncDist){
+    const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return;
+    const u = v.distUnit, val = num($("#odo").value), pts = fillPoints(v), h = $("#odoHint");
+    $("#fDistWrap").hidden = !pts.length;
+    $("#fDistLbl").textContent = `Or distance since last fill-up (${du(u)})`;
     if (!(val > 0)){
       const last = pts.sort((a,b) => b.odo - a.odo)[0];
       h.textContent = last ? `Last reading: ${fmtDist(last.odo, u)}` : "First fill-up: enter the odometer as shown on the bike or car.";
+      if (syncDist) $("#fDist").value = "";
       return;
     }
     const km = distOut(val, u), prev = pts.filter(p => p.odo < km).sort((a,b) => b.odo - a.odo)[0];
+    if (syncDist) $("#fDist").value = prev ? fmtIn(distIn(km - prev.odo, u), 1) : "";
     h.textContent = prev ? `+${fmtDist(km - prev.odo, u)} since ${prev.start ? "your starting reading" : shortDate(prev.date)}` : (pts.length ? "That's lower than your earlier readings." : "");
   }
-  $("#odo").addEventListener("input", updateOdoHint);
-  $("#odoStart").addEventListener("input", updateOdoHint);
+  $("#odo").addEventListener("input", () => updateOdoHint(true));
+  $("#odoStart").addEventListener("input", () => updateOdoHint(true));
+  $("#fDist").addEventListener("input", () => {
+    const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return;
+    const d = num($("#fDist").value), base = fillBase(v, fillPoints(v));
+    if (base && d > 0) $("#odo").value = fmtIn(distIn(base.odo, v.distUnit) + d, 1);
+    updateOdoHint(false);
+  });
 
   function openFill(id){
     const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return openVehicle(null);
@@ -1260,7 +1281,8 @@ details.more .sheet-sec{padding-top:2px}
     if (first) $("#odoLbl").textContent = `Odometer now (${du(u)})`;
     fillOrder.length = 0; if (e) fillOrder.push("litres", "total");
     setErr("#fillErr", "");
-    updateOdoHint();
+    $("#fDist").value = "";
+    updateOdoHint(true);
     openDialog(fillSheet);
   }
 
@@ -1546,7 +1568,7 @@ details.more .sheet-sec{padding-top:2px}
     const l100 = C > 0 ? consOut(C, tripCU) : NaN;
     if (third === "tCons" && Dkm > 0 && Lt > 0) $("#tCons").value = consIn(Lt / Dkm * 100, tripCU).toFixed(1);
     if (third === "tLitres" && Dkm > 0 && l100 > 0) $("#tLitres").value = (Dkm * l100 / 100).toFixed(2);
-    if (third === "tDist" && Lt > 0 && l100 > 0) $("#tDist").value = distIn(Lt * 100 / l100, tripDU).toFixed(0);
+    if (third === "tDist" && Lt > 0 && l100 > 0){ $("#tDist").value = distIn(Lt * 100 / l100, tripDU).toFixed(0); odoFromDist(); }
   });
 
   // switching units converts whatever is already typed, so the numbers keep their meaning
@@ -1605,14 +1627,24 @@ details.more .sheet-sec{padding-top:2px}
     if (aRaw !== "" && a >= 0 && b > 0){
       if (b === a && !editingDrive){ h.textContent = "Same reading twice: no fuel or distance yet, so this will be saved as your starting odometer."; return; }
       if (b < a){ h.textContent = "Odometer now should be higher than the start reading."; return; }
-      if (applyDist){ $("#tDist").value = fmtIn(b - a, 1); $("#tDist").dispatchEvent(new Event("input")); }
+      if (applyDist){ $("#tDist").value = fmtIn(b - a, 1); odoSync = true; $("#tDist").dispatchEvent(new Event("input")); odoSync = false; }
       h.textContent = `+${fmtIn(b - a, 1)} ${tripDU} driven`;
       return;
     }
-    h.textContent = odoAuto ? `Start is ${odoFrom}. Type the odometer now and the distance fills in.`
+    h.textContent = odoAuto ? `Start is ${odoFrom}. Type the odometer now or the distance, and the other fills in.`
       : aRaw === "" && !editingDrive ? "Forgot to log the start? Enter the reading from when you set off as Odometer start, plus the reading now. Or just type the distance." : "";
   }
-  $("#tOdoA").addEventListener("input", () => { odoAuto = false; updateOdo(true); });
+  // the other direction: a distance (typed, or worked out from fuel and consumption) moves "Odometer now" to start + distance
+  let odoSync = false;
+  function odoFromDist(){
+    if (odoSync || driveKind === "start") return;
+    const aRaw = $("#tOdoA").value.trim(), a = num(aRaw), d = num($("#tDist").value);
+    if (aRaw === "" || !(a >= 0) || !(d > 0)) return;
+    $("#tOdoB").value = fmtIn(a + d, 1);
+    updateOdo(false);
+  }
+  $("#tDist").addEventListener("input", odoFromDist);
+  $("#tOdoA").addEventListener("input", () => { odoAuto = false; if ($("#tOdoB").value.trim() === "") odoFromDist(); else updateOdo(true); });
   $("#tOdoB").addEventListener("input", () => updateOdo(true));
   ["tMake", "tModel", "tYear"].forEach(id => $("#" + id).addEventListener("input", () => { markRecent(-1); prefillOdo(); }));
   onRadio("tType", prefillOdo);

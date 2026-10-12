@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Fuel Log</title>
-<meta name="description" content="Log fill-ups for your vehicles and compare fuel efficiency across trips and models. Data stays on this device.">
+<meta name="description" content="Log fill-ups and charges for your vehicles and compare efficiency across trips and models. Data stays on this device.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -15,7 +15,7 @@
 <meta name="theme-color" content="#EEF2F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F1614" media="(prefers-color-scheme: dark)">
 <style>
-/* Layout: one phone-width column. Mode switch (My vehicles / Trips) under the title; each mode: switcher chips → summary tiles → chart or ranking → history; settings last; floating Add button; bottom-sheet forms */
+/* Layout: one phone-width column. Title with the ☰ settings button, mode switch (My vehicles / Trips); each mode: switcher chips → summary tiles → chart or ranking → history; floating Add button; bottom-sheet forms */
 :root{
   --bg:#EEF2F0; --surface:#FFFFFF; --sunken:#E3E9E6; --fg:#14211D; --muted:#5A6964; --line:#CBD5D1;
   --accent:#0C7262; --accent-soft:#D3EAE4; --on-accent:#FFFFFF; --amber:#B06E00; --amber-soft:#F6E6C6; --danger:#B3261E;
@@ -43,6 +43,9 @@ h2{font-size:19px}
 
 header.top{max-width:640px;margin:0 auto;padding:16px 16px 0;display:grid;gap:2px}
 header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
+.titlerow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.iconbtn{display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:12px;flex:none}
+.iconbtn svg{width:22px;height:22px;stroke:currentColor}
 .modeseg{display:grid;grid-template-columns:1fr 1fr;background:var(--sunken);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin-top:10px}
 .modeseg button{border:none;background:transparent;border-radius:9px;padding:9px;font-weight:600;color:var(--muted)}
 .modeseg button[aria-selected=true]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.14)}
@@ -57,7 +60,7 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 /* vehicle and trip switchers */
 .vchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding:2px 16px}
 .vchips::-webkit-scrollbar{display:none}
-.vchip{flex:none;display:grid;text-align:left;padding:8px 14px;border-radius:12px;min-width:112px;max-width:200px}
+.vchip{flex:none;display:grid;text-align:start;padding:8px 14px;border-radius:12px;min-width:112px;max-width:200px}
 .vchip[aria-selected=true]{border-color:var(--accent);background:var(--accent-soft)}
 .vc-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vc-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -69,7 +72,7 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .tile{background:var(--surface);padding:13px 14px 12px;display:grid;gap:1px;min-width:0;align-content:start}
 .tile .v{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:break-word}
 .tile .v.md{font-size:21px;line-height:1.3;padding-block:3px 1px}
-.tile .v small{font-size:13px;font-weight:600;color:var(--muted);margin-left:3px}
+.tile .v small{font-size:13px;font-weight:600;color:var(--muted);margin-inline-start:3px}
 .tile .v.sm{font-size:18px;line-height:1.25;padding-block:4px 2px}
 .tile .v .yr{font-weight:500;color:var(--muted)}
 .tile.hero .v{color:var(--amber)}
@@ -81,7 +84,7 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .tabs button{flex:none;padding:6px 12px;font-size:14px;border-radius:999px}
 .tabs button[aria-selected=true],.tabs button[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);font-weight:600}
 .chart{width:100%;min-height:220px}
-.chart svg{display:block;width:100%;height:auto}
+.chart svg{display:block;width:100%;height:auto;direction:ltr}
 .chart text{font-family:var(--body);font-size:11.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
 .chart .endlbl{font-family:var(--display);font-weight:700;font-size:13px;fill:var(--fg)}
 .chart .avglbl{fill:var(--amber);font-weight:600}
@@ -93,7 +96,7 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .unitrow{display:flex;flex-wrap:wrap;gap:8px 16px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
 .seg button{border:none;border-radius:0;padding:7px 14px;font-size:14px;background:transparent}
-.seg button + button{border-left:1px solid var(--line)}
+.seg button + button{border-inline-start:1px solid var(--line)}
 .seg button[aria-checked=true]{background:var(--accent);color:var(--on-accent);font-weight:600}
 #compare{display:grid;gap:12px}
 .rank-h{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 -2px}
@@ -105,13 +108,13 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .rank-name{font-weight:600;min-width:0;overflow-wrap:anywhere}
 .rank-name .yr{font-weight:400;color:var(--muted)}
 .rank-val{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.rank-val small{font-size:11px;font-weight:600;color:var(--muted);margin-left:2px}
+.rank-val small{font-size:11px;font-weight:600;color:var(--muted);margin-inline-start:2px}
 .bar{height:8px;background:var(--sunken);border-radius:99px;overflow:hidden;margin-top:6px}
 .bar span{display:block;height:100%;background:var(--accent);opacity:.5;border-radius:99px}
 .rank-row.first .bar span{opacity:1}
 .rank-row.mine .bar span{background:var(--amber);opacity:.85}
 .rank-meta{font-size:12.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
-.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--sunken);color:var(--muted);margin-left:6px;vertical-align:1px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--sunken);color:var(--muted);margin-inline-start:6px;vertical-align:1px}
 .tag.mine{background:var(--amber-soft);color:var(--amber)}
 .check-inline{display:flex;align-items:center;gap:8px;font-size:14px}
 .check-inline input{width:20px;height:20px;accent-color:var(--accent);margin:0}
@@ -125,17 +128,17 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .entry.static{cursor:default}
 .entry.start{background:var(--sunken)}
 .e-main,.e-side{display:grid;gap:2px;min-width:0;align-content:start}
-.e-side{text-align:right;justify-items:end;flex:none}
+.e-side{text-align:end;justify-items:end;flex:none}
 .e-date{font-weight:600}
 .e-model{font-weight:600}
 .e-model .yr{font-weight:400;color:var(--muted)}
 .e-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .e-note{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .e-cons{font-family:var(--display);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
-.e-cons small{font-size:11px;font-weight:600;color:var(--muted);margin-left:2px}
+.e-cons small{font-size:11px;font-weight:600;color:var(--muted);margin-inline-start:2px}
 .e-home{font-size:13px;color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
 .good{color:var(--accent)} .bad{color:var(--amber)}
-.pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--sunken);color:var(--muted);margin-left:6px;vertical-align:1px}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--sunken);color:var(--muted);margin-inline-start:6px;vertical-align:1px}
 .entry.start .pill{background:var(--surface)}
 .emptystate{padding:28px 16px;text-align:center;color:var(--muted);display:grid;gap:8px;justify-items:center}
 .emptystate strong{color:var(--fg)}
@@ -154,8 +157,8 @@ input[type=text],input[type=date]{-webkit-appearance:none;appearance:none}
 input:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 .radioseg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--sunken);min-height:44px}
-.radioseg label{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 6px;font-size:14px;cursor:pointer;border-left:1px solid var(--line);position:relative}
-.radioseg label:first-child{border-left:none}
+.radioseg label{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 6px;font-size:14px;cursor:pointer;border-inline-start:1px solid var(--line);position:relative}
+.radioseg label:first-child{border-inline-start:none}
 .radioseg input{position:absolute;opacity:0;pointer-events:none}
 .radioseg label:has(input:checked){background:var(--accent);color:var(--on-accent);font-weight:600}
 .radioseg label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:-2px}
@@ -163,11 +166,23 @@ input:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid 
 .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(608px,calc(100% - 32px));
   box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:5}
 
-/* settings */
+/* settings menu */
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .setrow select{width:auto;max-width:100%}
 .btnrow{display:flex;gap:10px;flex-wrap:wrap}
 .btnrow button{flex:1 1 140px}
+.sheet-body{display:grid;gap:14px;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.menu-sec{display:grid;gap:10px}
+.menu-sec + .menu-sec{border-top:1px solid var(--line);padding-top:14px}
+.langlist{display:grid;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.langopt{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;min-height:48px}
+.langopt:first-child{border-top:none}
+.langopt:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.langopt span{display:grid}
+.langopt .ln{font-weight:600}
+.langopt .le{font-size:12.5px;color:var(--muted)}
+.langopt[aria-checked=true]{background:var(--accent-soft)}
+.langopt[aria-checked=true]::after{content:"✓";color:var(--accent);font-weight:700;font-size:18px}
 
 /* bottom sheets */
 dialog{border:none;padding:0;background:var(--surface);color:var(--fg);width:100%;max-width:560px;max-height:92dvh;
@@ -183,8 +198,11 @@ dialog form{display:grid;gap:12px;padding:16px 16px calc(20px + env(safe-area-in
 .row-mm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 76px;gap:8px}
 .row-cost{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:8px}
 .field{display:grid;gap:4px;min-width:0;align-content:start}
+/* side-by-side fields keep their boxes level even when one label wraps onto two lines */
+:is(.row2,.row3,.row-mm,.row-cost) > .field{grid-template-rows:1fr auto;align-content:stretch}
+:is(.row2,.row3,.row-mm,.row-cost) > .field > .label{align-self:end}
 .check{display:flex;align-items:center;gap:10px;font-size:15px;min-height:36px}
-.check input{width:22px;height:22px;accent-color:var(--accent);margin:0}
+.check input{width:22px;height:22px;accent-color:var(--accent);margin:0;flex:none}
 .err{font-size:14px;color:var(--danger);margin:0}
 .livehint{font-size:13.5px;color:var(--accent);font-weight:600;margin:-4px 0 0;font-variant-numeric:tabular-nums}
 .livehint:empty{display:none}
@@ -195,13 +213,16 @@ dialog form{display:grid;gap:12px;padding:16px 16px calc(20px + env(safe-area-in
 .ratebox input[type=text]{background:var(--surface)}
 .curother{margin-top:6px}
 .curpick{display:grid;gap:0;min-width:0}
-.entry.tap::after{content:"›";align-self:center;color:var(--muted);font-size:22px;line-height:1;margin-left:-4px}
+.entry.tap::after{content:"›";align-self:center;color:var(--muted);font-size:22px;line-height:1;margin-inline-start:-4px}
+[dir=rtl] .entry.tap::after{content:"‹"}
 details.more{border-top:1px solid var(--line);padding-top:6px}
 details.more summary{cursor:pointer;font-weight:600;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:40px}
 details.more summary::-webkit-details-marker{display:none}
 details.more summary::after{content:"+";font-size:20px;font-weight:400;color:var(--muted)}
 details.more[open] summary::after{content:"−"}
 details.more .sheet-sec{padding-top:2px}
+.menu-sec details.more{border-top:none;padding-top:0}
+.menu-sec details.more[open] .langlist{margin-top:6px}
 #dFuelPart{padding-top:0;gap:12px}
 .row2.single{grid-template-columns:1fr}
 
@@ -212,51 +233,56 @@ details.more .sheet-sec{padding-top:2px}
 </head>
 <body>
 <header class="top">
-  <h1>Fuel Log</h1>
-  <div class="modeseg" role="tablist" id="modeSeg" aria-label="Mode">
-    <button type="button" role="tab" data-mode="garage" aria-selected="true">My vehicles</button>
-    <button type="button" role="tab" data-mode="trips" aria-selected="false">Trips</button>
+  <div class="titlerow">
+    <h1>Fuel Log</h1>
+    <button type="button" class="iconbtn" id="menuBtn" data-i18n-aria="settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+  <div class="modeseg" role="tablist" id="modeSeg" data-i18n-aria="mode">
+    <button type="button" role="tab" data-mode="garage" aria-selected="true" data-i18n="mode_garage">My vehicles</button>
+    <button type="button" role="tab" data-mode="trips" aria-selected="false" data-i18n="mode_trips">Trips</button>
   </div>
   <span class="sub" id="sub"></span>
 </header>
 
 <main class="wrap">
   <div id="installBanner" class="banner" hidden>
-    <strong>Install on your iPhone</strong>
-    <span>Tap the Share button in Safari, then <b>Add to Home Screen</b>. Fuel Log then opens like an app and works offline.</span>
-    <div class="row"><button type="button" class="link" id="hideInstall">Got it</button></div>
+    <strong data-i18n="install_title">Install on your iPhone</strong>
+    <span data-i18n-html="install_body"></span>
+    <div class="row"><button type="button" class="link" id="hideInstall" data-i18n="got_it">Got it</button></div>
   </div>
 
   <div id="sampleBanner" class="banner" hidden>
-    <strong>Showing sample data</strong>
-    <span id="sampleText">These examples aren't saved.</span>
-    <div class="row"><button type="button" class="link" id="hideSample">Hide sample</button></div>
+    <strong data-i18n="sample_title">Showing sample data</strong>
+    <span id="sampleText"></span>
+    <div class="row"><button type="button" class="link" id="hideSample" data-i18n="hide_sample">Hide sample</button></div>
   </div>
 
   <!-- ===== My vehicles ===== -->
   <div class="view" id="garageView">
     <div class="panel" id="garageEmpty" hidden>
       <div class="emptystate">
-        <strong>Add your first vehicle</strong>
-        <span>Add the bike or car you ride or drive, with its current odometer reading. After that, each fill-up only needs the new reading.</span>
-        <button type="button" class="link" id="addFirstVehicle">Add vehicle</button>
+        <strong data-i18n="first_vehicle_title">Add your first vehicle</strong>
+        <span data-i18n="first_vehicle_body"></span>
+        <button type="button" class="link" id="addFirstVehicle" data-i18n="add_vehicle">Add vehicle</button>
       </div>
     </div>
 
     <div class="view" id="garageBody">
-      <section class="stack" aria-label="Your vehicles">
+      <section class="stack" data-i18n-aria="your_vehicles">
         <div class="vchips" role="tablist" id="vehChips"></div>
-        <div class="vdetail" id="vehDetail"><span id="vehDetailText"></span><button type="button" class="link" id="editVehicle">Edit vehicle</button></div>
+        <div class="vdetail" id="vehDetail"><span id="vehDetailText"></span><button type="button" class="link" id="editVehicle" data-i18n="edit_vehicle">Edit vehicle</button></div>
       </section>
 
       <div class="tiles" id="tiles"></div>
 
       <section class="panel stack" aria-labelledby="trendTitle">
-        <h2 id="trendTitle">Trends</h2>
+        <h2 id="trendTitle" data-i18n="trends">Trends</h2>
         <div class="tabs" role="tablist" id="tabs">
-          <button type="button" role="tab" data-tab="cons" aria-selected="true">Consumption</button>
+          <button type="button" role="tab" data-tab="cons" aria-selected="true" data-i18n="tab_cons">Consumption</button>
           <button type="button" role="tab" data-tab="price" aria-selected="false">Price/L</button>
-          <button type="button" role="tab" data-tab="spend" aria-selected="false">Spending</button>
+          <button type="button" role="tab" data-tab="spend" aria-selected="false" data-i18n="tab_spend">Spending</button>
         </div>
         <div class="chart" id="chart"></div>
         <p class="hint" id="chartNote"></p>
@@ -273,48 +299,48 @@ details.more .sheet-sec{padding-top:2px}
   <div class="view" id="tripsView" hidden>
     <div class="panel" id="tripsEmpty" hidden>
       <div class="emptystate">
-        <strong>Start your first trip</strong>
-        <span>Create a trip, like "Okinawa road trip", and pick the currency you'll pay in there. Then log each drive into it. Costs are converted to your home currency with each day's exchange rate.</span>
-        <button type="button" class="link" id="addFirstTrip">New trip</button>
-        <button type="button" class="link" data-sample-trips>Preview with sample trips</button>
+        <strong data-i18n="first_trip_title">Start your first trip</strong>
+        <span data-i18n="first_trip_body"></span>
+        <button type="button" class="link" id="addFirstTrip" data-i18n="new_trip">New trip</button>
+        <button type="button" class="link" data-sample-trips data-i18n="preview_sample_trips">Preview with sample trips</button>
       </div>
     </div>
 
     <div class="view" id="tripsBody">
-      <section class="stack" aria-label="Your trips">
+      <section class="stack" data-i18n-aria="your_trips">
         <div class="vchips" role="tablist" id="tripChips"></div>
-        <div class="vdetail" id="tripDetail"><span id="tripDetailText"></span><button type="button" class="link" id="editTrip">Edit trip</button></div>
+        <div class="vdetail" id="tripDetail"><span id="tripDetailText"></span><button type="button" class="link" id="editTrip" data-i18n="edit_trip">Edit trip</button></div>
       </section>
 
       <div class="tiles" id="tripTiles"></div>
 
       <section class="panel stack" aria-labelledby="cmpTitle">
         <div class="headrow">
-          <h2 id="cmpTitle">Compare models</h2>
-          <div class="seg" role="radiogroup" id="cmpRank" aria-label="Rank by">
-            <button type="button" role="radio" data-rank="eff" aria-checked="true">Efficiency</button>
-            <button type="button" role="radio" data-rank="cost" aria-checked="false">Cost</button>
+          <h2 id="cmpTitle" data-i18n="compare_models">Compare models</h2>
+          <div class="seg" role="radiogroup" id="cmpRank" data-i18n-aria="rank_by">
+            <button type="button" role="radio" data-rank="eff" aria-checked="true" data-i18n="rank_eff">Efficiency</button>
+            <button type="button" role="radio" data-rank="cost" aria-checked="false" data-i18n="rank_cost">Cost</button>
           </div>
         </div>
         <div class="unitrow">
           <label class="unitpick" id="cmpUnitWrap"><span id="cmpUnitLbl">Show as</span>
-            <select id="cmpUnit" aria-label="Unit for fuel">
+            <select id="cmpUnit" data-i18n-aria="unit_fuel">
               <option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option>
             </select>
           </label>
-          <label class="unitpick" id="cmpUnitEVWrap" hidden>Electric as
-            <select id="cmpUnitEV" aria-label="Unit for electric">
+          <label class="unitpick" id="cmpUnitEVWrap" hidden><span data-i18n="electric_as">Electric as</span>
+            <select id="cmpUnitEV" data-i18n-aria="unit_ev">
               <option value="kwh100">kWh/100km</option><option value="kmkwh">km/kWh</option><option value="mikwh">mi/kWh</option><option value="whkm">Wh/km</option><option value="whmi">Wh/mi</option>
             </select>
           </label>
         </div>
-        <div class="tabs" id="cmpFilter" aria-label="Filter by vehicle type">
-          <button type="button" data-cmp="all" aria-pressed="true">All</button>
-          <button type="button" data-cmp="car" aria-pressed="false">Cars</button>
-          <button type="button" data-cmp="motorcycle" aria-pressed="false">Motorcycles</button>
-          <button type="button" data-cmp="other" aria-pressed="false">Other</button>
+        <div class="tabs" id="cmpFilter" data-i18n-aria="filter_type">
+          <button type="button" data-cmp="all" aria-pressed="true" data-i18n="filter_all">All</button>
+          <button type="button" data-cmp="car" aria-pressed="false" data-i18n="filter_cars">Cars</button>
+          <button type="button" data-cmp="motorcycle" aria-pressed="false" data-i18n="filter_motorcycles">Motorcycles</button>
+          <button type="button" data-cmp="other" aria-pressed="false" data-i18n="filter_other">Other</button>
         </div>
-        <label class="check-inline"><input type="checkbox" id="cmpMine"> Include my vehicles</label>
+        <label class="check-inline"><input type="checkbox" id="cmpMine"> <span data-i18n="include_mine">Include my vehicles</span></label>
         <div id="compare"></div>
         <p class="hint" id="cmpNote"></p>
       </section>
@@ -325,22 +351,6 @@ details.more .sheet-sec{padding-top:2px}
       </section>
     </div>
   </div>
-
-  <!-- ===== Settings ===== -->
-  <section class="panel stack" aria-labelledby="setTitle">
-    <h2 id="setTitle">Settings and backup</h2>
-    <div class="setrow"><label for="homeCur">Home currency</label><div class="curpick"><select id="homeCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" placeholder="Code, e.g. KHR" hidden></div></div>
-    <p class="hint" id="homeHint">Trip costs and comparisons are converted to this currency. Each vehicle keeps the currency you pay in (tap <b>Edit vehicle</b>).</p>
-    <p class="hint">Distance and consumption units are set for each vehicle (tap <b>Edit vehicle</b>) and for each drive.</p>
-    <p class="hint">Your data is saved only on this device. Export a backup now and then and keep it in iCloud Drive.</p>
-    <p class="hint" id="backupInfo">Last backup: never</p>
-    <p class="hint" id="appVersion"></p>
-    <div class="btnrow">
-      <button type="button" id="exportBtn">Export backup</button>
-      <button type="button" id="importBtn">Import backup</button>
-    </div>
-    <input type="file" id="importFile" accept=".json,.csv,application/json,text/csv,text/plain" hidden>
-  </section>
 </main>
 
 <button type="button" class="primary fab" id="addBtn">Add fill-up</button>
@@ -349,32 +359,68 @@ details.more .sheet-sec{padding-top:2px}
 <datalist id="makeList"></datalist>
 <datalist id="modelList"></datalist>
 
-<!-- Fill-up sheet -->
+<!-- Settings menu (☰) -->
+<dialog id="menuSheet" aria-labelledby="menuTitle">
+  <div class="sheet-body">
+    <div class="sheet-head">
+      <h2 id="menuTitle" data-i18n="settings">Settings</h2>
+      <button type="button" class="plain" data-close data-i18n="done">Done</button>
+    </div>
+    <section class="menu-sec" aria-labelledby="langTitle">
+      <span class="label" id="langTitle" data-i18n="language">Language</span>
+      <div class="langlist" id="langTop" role="radiogroup" aria-labelledby="langTitle"></div>
+      <details class="more" id="langMoreWrap">
+        <summary data-i18n="more_languages">More languages</summary>
+        <div class="langlist" id="langMore" role="radiogroup" aria-labelledby="langTitle"></div>
+      </details>
+    </section>
+    <section class="menu-sec">
+      <div class="setrow"><label for="homeCur" data-i18n="home_currency">Home currency</label><div class="curpick"><select id="homeCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" data-i18n-ph="code_ph" hidden></div></div>
+      <p class="hint" data-i18n-html="home_hint"></p>
+      <p class="hint" data-i18n-html="units_hint"></p>
+    </section>
+    <section class="menu-sec">
+      <span class="label" data-i18n="backup">Backup</span>
+      <p class="hint" data-i18n="backup_hint"></p>
+      <p class="hint" id="backupInfo"></p>
+      <div class="btnrow">
+        <button type="button" id="exportBtn" data-i18n="export_backup">Export backup</button>
+        <button type="button" id="importBtn" data-i18n="import_backup">Import backup</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,.csv,application/json,text/csv,text/plain" hidden>
+    </section>
+    <section class="menu-sec">
+      <p class="hint" id="appVersion"></p>
+    </section>
+  </div>
+</dialog>
+
+<!-- Fill-up / charge sheet -->
 <dialog id="fillSheet" aria-labelledby="fillTitle">
   <form id="fillForm" novalidate>
     <div class="sheet-head">
       <h2 id="fillTitle">Add fill-up</h2>
-      <button type="button" class="plain" data-close>Cancel</button>
+      <button type="button" class="plain" data-close data-i18n="cancel">Cancel</button>
     </div>
     <p class="sheet-sub" id="fillFor"></p>
     <div class="row2">
-      <div class="field"><label class="label" for="date">Date</label><input type="date" id="date"></div>
-      <div class="field"><label class="label" for="odo" id="odoLbl">Odometer (km)</label><input type="text" id="odo" inputmode="decimal" autocomplete="off" placeholder="e.g. 18420"></div>
+      <div class="field"><label class="label" for="date" data-i18n="date">Date</label><input type="date" id="date"></div>
+      <div class="field"><label class="label" for="odo" id="odoLbl">Odometer (km)</label><input type="text" id="odo" inputmode="decimal" autocomplete="off"></div>
     </div>
     <div class="sheet-sec" id="fillStartWrap" hidden>
-      <div class="field"><label class="label" for="odoStart" id="odoStartLbl">Starting odometer (optional)</label><input type="text" id="odoStart" inputmode="decimal" autocomplete="off" placeholder="Reading when you started tracking"></div>
-      <label class="check"><input type="checkbox" id="odoStartFull" checked> The tank was full at that reading</label>
+      <div class="field"><label class="label" for="odoStart" id="odoStartLbl">Starting odometer</label><input type="text" id="odoStart" inputmode="decimal" autocomplete="off" data-i18n-ph="start_reading_ph"></div>
+      <label class="check"><input type="checkbox" id="odoStartFull" checked> <span id="odoStartFullLbl"></span></label>
     </div>
-    <div class="field" id="fDistWrap" hidden><label class="label" for="fDist" id="fDistLbl">Or distance since last fill-up</label><input type="text" id="fDist" inputmode="decimal" autocomplete="off" placeholder="From your trip meter"></div>
+    <div class="field" id="fDistWrap" hidden><label class="label" for="fDist" id="fDistLbl">Or distance since last fill-up</label><input type="text" id="fDist" inputmode="decimal" autocomplete="off" data-i18n-ph="trip_meter_ph"></div>
     <p class="livehint" id="odoHint"></p>
     <div class="row3">
-      <div class="field"><label class="label" for="litres" id="litresLbl">Litres</label><input type="text" id="litres" inputmode="decimal" autocomplete="off" placeholder="12.4"></div>
+      <div class="field"><label class="label" for="litres" id="litresLbl">Liters</label><input type="text" id="litres" inputmode="decimal" autocomplete="off" placeholder="12.4"></div>
       <div class="field"><label class="label" for="price" id="priceLbl">Price/L</label><input type="text" id="price" inputmode="decimal" autocomplete="off" placeholder="1.89"></div>
       <div class="field"><label class="label" for="total" id="totalLbl">Total</label><input type="text" id="total" inputmode="decimal" autocomplete="off" placeholder="23.44"></div>
     </div>
-    <p class="hint" id="fillHint">Fill in any two of litres, price and total. The third is worked out for you.</p>
-    <label class="check"><input type="checkbox" id="full" checked> Filled the tank to full</label>
-    <div class="field"><label class="label" for="note">Note (optional)</label><input type="text" id="note" maxlength="120" autocomplete="off" placeholder="Station, trip, new tyres…"></div>
+    <p class="hint" id="fillHint"></p>
+    <label class="check"><input type="checkbox" id="full" checked> <span id="fullLbl"></span></label>
+    <div class="field"><label class="label" for="note" data-i18n="note_optional">Note (optional)</label><input type="text" id="note" maxlength="120" autocomplete="off" data-i18n-ph="fill_note_ph"></div>
     <p class="err" id="fillErr" hidden></p>
     <button class="primary" type="submit" id="fillSave">Save fill-up</button>
     <button type="button" class="danger" id="fillDelete" hidden>Delete fill-up</button>
@@ -386,42 +432,42 @@ details.more .sheet-sec{padding-top:2px}
   <form id="vehForm" novalidate>
     <div class="sheet-head">
       <h2 id="vehTitle">Add vehicle</h2>
-      <button type="button" class="plain" data-close>Cancel</button>
+      <button type="button" class="plain" data-close data-i18n="cancel">Cancel</button>
     </div>
-    <div class="field"><label class="label" for="vName">Name</label><input type="text" id="vName" maxlength="40" autocomplete="off" placeholder="e.g. My PCX, Dad's car"></div>
-    <div class="field"><span class="label" id="vTypeLbl">Type</span>
+    <div class="field"><label class="label" for="vName" data-i18n="name">Name</label><input type="text" id="vName" maxlength="40" autocomplete="off" data-i18n-ph="veh_name_ph"></div>
+    <div class="field"><span class="label" id="vTypeLbl" data-i18n="type">Type</span>
       <div class="radioseg" role="radiogroup" aria-labelledby="vTypeLbl">
-        <label><input type="radio" name="vType" value="motorcycle" checked>Motorcycle</label>
-        <label><input type="radio" name="vType" value="car">Car</label>
-        <label><input type="radio" name="vType" value="other">Other</label>
+        <label><input type="radio" name="vType" value="motorcycle" checked><span data-i18n="type_motorcycle">Motorcycle</span></label>
+        <label><input type="radio" name="vType" value="car"><span data-i18n="type_car">Car</span></label>
+        <label><input type="radio" name="vType" value="other"><span data-i18n="type_other">Other</span></label>
       </div>
     </div>
     <div class="row-mm">
-      <div class="field"><label class="label" for="vMake">Make</label><input type="text" id="vMake" list="makeList" maxlength="30" autocomplete="off" placeholder="Honda"></div>
-      <div class="field"><label class="label" for="vModel">Model</label><input type="text" id="vModel" list="modelList" maxlength="40" autocomplete="off" placeholder="PCX 160"></div>
-      <div class="field"><label class="label" for="vYear">Year</label><input type="text" id="vYear" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="2022"></div>
+      <div class="field"><label class="label" for="vMake" data-i18n="make">Make</label><input type="text" id="vMake" list="makeList" maxlength="30" autocomplete="off" placeholder="Honda"></div>
+      <div class="field"><label class="label" for="vModel" data-i18n="model">Model</label><input type="text" id="vModel" list="modelList" maxlength="40" autocomplete="off" placeholder="PCX 160"></div>
+      <div class="field"><label class="label" for="vYear" data-i18n="year">Year</label><input type="text" id="vYear" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="2022"></div>
     </div>
     <div class="row2">
-      <div class="field"><label class="label" for="vFuel">Fuel</label>
-        <select id="vFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="electric">Electric</option><option value="other">Other</option></select>
+      <div class="field"><label class="label" for="vFuel" data-i18n="fuel">Fuel</label>
+        <select id="vFuel"><option value="petrol" data-i18n="fuel_petrol">Gas</option><option value="diesel" data-i18n="fuel_diesel">Diesel</option><option value="hybrid" data-i18n="fuel_hybrid">Hybrid</option><option value="lpg" data-i18n="fuel_lpg">LPG</option><option value="electric" data-i18n="fuel_electric">Electric</option><option value="other" data-i18n="fuel_other_short">Other</option></select>
       </div>
-      <div class="field"><label class="label" for="vCur">You pay in</label><select id="vCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" placeholder="Code, e.g. KHR" hidden></div>
+      <div class="field"><label class="label" for="vCur" data-i18n="you_pay_in">You pay in</label><select id="vCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" data-i18n-ph="code_ph" hidden></div>
     </div>
     <div class="row2">
-      <div class="field"><span class="label" id="vDistLbl">Distance in</span>
+      <div class="field"><span class="label" id="vDistLbl" data-i18n="distance_in">Distance in</span>
         <div class="radioseg" role="radiogroup" aria-labelledby="vDistLbl">
-          <label><input type="radio" name="vDist" value="km" checked>km</label>
-          <label><input type="radio" name="vDist" value="mi">miles</label>
+          <label><input type="radio" name="vDist" value="km" checked><span data-i18n="unit_km">km</span></label>
+          <label><input type="radio" name="vDist" value="mi"><span data-i18n="unit_miles">miles</span></label>
         </div>
       </div>
-      <div class="field"><label class="label" for="vCons">Consumption as</label>
+      <div class="field"><label class="label" for="vCons" data-i18n="consumption_as">Consumption as</label>
         <select id="vCons"><option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option></select>
       </div>
     </div>
     <div class="sheet-sec">
-      <div class="field"><label class="label" for="vOdo" id="vOdoLbl">Current odometer (km)</label><input type="text" id="vOdo" inputmode="decimal" autocomplete="off" placeholder="Optional, e.g. 18100"></div>
-      <label class="check"><input type="checkbox" id="vFull"> The tank is full right now</label>
-      <p class="hint" id="vOdoHint">Enter the reading once. After that, each fill-up only needs the new reading. If the tank is full now, your first fill-up already shows consumption.</p>
+      <div class="field"><label class="label" for="vOdo" id="vOdoLbl">Current odometer (km)</label><input type="text" id="vOdo" inputmode="decimal" autocomplete="off" data-i18n-ph="veh_odo_ph"></div>
+      <label class="check"><input type="checkbox" id="vFull"> <span id="vFullLbl"></span></label>
+      <p class="hint" id="vOdoHint"></p>
     </div>
     <p class="err" id="vehErr" hidden></p>
     <button class="primary" type="submit" id="vehSave">Save vehicle</button>
@@ -429,57 +475,57 @@ details.more .sheet-sec{padding-top:2px}
   </form>
 </dialog>
 
-<!-- Trip sheet (the trip itself: name, local currency, exchange rate) -->
+<!-- Trip sheet (the trip itself: name, local currency, exchange rate, car) -->
 <dialog id="jSheet" aria-labelledby="jTitle">
   <form id="jForm" novalidate>
     <div class="sheet-head">
       <h2 id="jTitle">New trip</h2>
-      <button type="button" class="plain" data-close>Cancel</button>
+      <button type="button" class="plain" data-close data-i18n="cancel">Cancel</button>
     </div>
-    <div class="field"><label class="label" for="jName">Trip name</label><input type="text" id="jName" maxlength="40" autocomplete="off" placeholder="e.g. Okinawa road trip"></div>
-    <div class="field"><label class="label" for="jCur">Currency you'll pay in</label><select id="jCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" placeholder="Code, e.g. KHR" hidden></div>
+    <div class="field"><label class="label" for="jName" data-i18n="trip_name">Trip name</label><input type="text" id="jName" maxlength="40" autocomplete="off" data-i18n-ph="trip_name_ph"></div>
+    <div class="field"><label class="label" for="jCur" data-i18n="currency_pay_in">Currency you'll pay in</label><select id="jCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" data-i18n-ph="code_ph" hidden></div>
     <div class="ratebox" id="jRateWrap">
-      <span class="label" id="jRateLbl">Convert to your home currency with</span>
+      <span class="label" id="jRateLbl" data-i18n="convert_with">Convert to your home currency with</span>
       <div class="radioseg" role="radiogroup" aria-labelledby="jRateLbl">
-        <label><input type="radio" name="jRate" value="daily" checked>Daily rate</label>
-        <label><input type="radio" name="jRate" value="fixed">My own rate</label>
+        <label><input type="radio" name="jRate" value="daily" checked><span data-i18n="daily_rate">Daily rate</span></label>
+        <label><input type="radio" name="jRate" value="fixed"><span data-i18n="own_rate">My own rate</span></label>
       </div>
-      <div class="field" id="jFixedWrap" hidden><label class="label" for="jFixed" id="jFixedLbl">1 JPY = ? HKD</label><input type="text" id="jFixed" inputmode="decimal" autocomplete="off"></div>
-      <div class="field" id="jBackupWrap"><label class="label" for="jBackup" id="jBackupLbl">Backup rate (optional)</label><input type="text" id="jBackup" inputmode="decimal" autocomplete="off"></div>
+      <div class="field" id="jFixedWrap" hidden><label class="label" for="jFixed" id="jFixedLbl"></label><input type="text" id="jFixed" inputmode="decimal" autocomplete="off"></div>
+      <div class="field" id="jBackupWrap"><label class="label" for="jBackup" id="jBackupLbl"></label><input type="text" id="jBackup" inputmode="decimal" autocomplete="off"></div>
       <p class="hint" id="jRateHint"></p>
     </div>
     <details class="more" id="jVehWrap">
-      <summary>Car for this trip (optional)</summary>
+      <summary data-i18n="car_for_trip">Car for this trip (optional)</summary>
       <div class="sheet-sec">
-        <p class="hint">Add the rental or car you'll use and its odometer at pickup. Each drive then only needs the new reading. You can change this any time with <b>Edit trip</b>.</p>
-        <div class="field"><span class="label" id="jTypeLbl">Vehicle type</span>
+        <p class="hint" data-i18n-html="car_for_trip_hint"></p>
+        <div class="field"><span class="label" id="jTypeLbl" data-i18n="vehicle_type">Vehicle type</span>
           <div class="radioseg" role="radiogroup" aria-labelledby="jTypeLbl">
-            <label><input type="radio" name="jType" value="car" checked>Car</label>
-            <label><input type="radio" name="jType" value="motorcycle">Motorcycle</label>
-            <label><input type="radio" name="jType" value="other">Other</label>
+            <label><input type="radio" name="jType" value="car" checked><span data-i18n="type_car">Car</span></label>
+            <label><input type="radio" name="jType" value="motorcycle"><span data-i18n="type_motorcycle">Motorcycle</span></label>
+            <label><input type="radio" name="jType" value="other"><span data-i18n="type_other">Other</span></label>
           </div>
         </div>
         <div class="row-mm">
-          <div class="field"><label class="label" for="jMake">Make</label><input type="text" id="jMake" list="makeList" maxlength="30" autocomplete="off" placeholder="Toyota"></div>
-          <div class="field"><label class="label" for="jModel">Model</label><input type="text" id="jModel" list="modelList" maxlength="40" autocomplete="off" placeholder="Prius"></div>
-          <div class="field"><label class="label" for="jYear">Year</label><input type="text" id="jYear" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="—"></div>
+          <div class="field"><label class="label" for="jMake" data-i18n="make">Make</label><input type="text" id="jMake" list="makeList" maxlength="30" autocomplete="off" placeholder="Toyota"></div>
+          <div class="field"><label class="label" for="jModel" data-i18n="model">Model</label><input type="text" id="jModel" list="modelList" maxlength="40" autocomplete="off" placeholder="Prius"></div>
+          <div class="field"><label class="label" for="jYear" data-i18n="year">Year</label><input type="text" id="jYear" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="—"></div>
         </div>
         <div class="row2">
-          <div class="field"><label class="label" for="jFuel">Fuel</label><select id="jFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="electric">Electric</option><option value="other">Other</option></select></div>
-          <div class="field"><label class="label" for="jConsU">Consumption as</label><select id="jConsU"><option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option></select></div>
+          <div class="field"><label class="label" for="jFuel" data-i18n="fuel">Fuel</label><select id="jFuel"><option value="petrol" data-i18n="fuel_petrol">Gas</option><option value="diesel" data-i18n="fuel_diesel">Diesel</option><option value="hybrid" data-i18n="fuel_hybrid">Hybrid</option><option value="lpg" data-i18n="fuel_lpg">LPG</option><option value="electric" data-i18n="fuel_electric">Electric</option><option value="other" data-i18n="fuel_other_short">Other</option></select></div>
+          <div class="field"><label class="label" for="jConsU" data-i18n="consumption_as">Consumption as</label><select id="jConsU"><option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option></select></div>
         </div>
         <div class="row2">
-          <div class="field"><span class="label" id="jDistULbl">Distance in</span>
+          <div class="field"><span class="label" id="jDistULbl" data-i18n="distance_in">Distance in</span>
             <div class="radioseg" role="radiogroup" aria-labelledby="jDistULbl">
-              <label><input type="radio" name="jDistU" value="km" checked>km</label>
-              <label><input type="radio" name="jDistU" value="mi">miles</label>
+              <label><input type="radio" name="jDistU" value="km" checked><span data-i18n="unit_km">km</span></label>
+              <label><input type="radio" name="jDistU" value="mi"><span data-i18n="unit_miles">miles</span></label>
             </div>
           </div>
-          <div class="field"><label class="label" for="jOdo" id="jOdoLbl">Odometer at pickup</label><input type="text" id="jOdo" inputmode="decimal" autocomplete="off" placeholder="Optional"></div>
+          <div class="field"><label class="label" for="jOdo" id="jOdoLbl">Odometer at pickup</label><input type="text" id="jOdo" inputmode="decimal" autocomplete="off" data-i18n-ph="optional"></div>
         </div>
       </div>
     </details>
-    <div class="field"><label class="label" for="jNote">Note (optional)</label><input type="text" id="jNote" maxlength="120" autocomplete="off" placeholder="Who came, rental company…"></div>
+    <div class="field"><label class="label" for="jNote" data-i18n="note_optional">Note (optional)</label><input type="text" id="jNote" maxlength="120" autocomplete="off" data-i18n-ph="trip_note_ph"></div>
     <p class="err" id="jErr" hidden></p>
     <button class="primary" type="submit" id="jSave">Create trip</button>
     <button type="button" class="danger" id="jDelete" hidden>Delete trip</button>
@@ -491,51 +537,51 @@ details.more .sheet-sec{padding-top:2px}
   <form id="driveForm" novalidate>
     <div class="sheet-head">
       <h2 id="driveTitle">Log drive</h2>
-      <button type="button" class="plain" data-close>Cancel</button>
+      <button type="button" class="plain" data-close data-i18n="cancel">Cancel</button>
     </div>
-    <div class="field"><label class="label" for="dTrip">Trip</label><select id="dTrip"></select></div>
-    <div class="field"><span class="label" id="dKindLbl">What are you logging?</span>
+    <div class="field"><label class="label" for="dTrip" data-i18n="trip">Trip</label><select id="dTrip"></select></div>
+    <div class="field"><span class="label" id="dKindLbl" data-i18n="what_logging">What are you logging?</span>
       <div class="radioseg" role="radiogroup" aria-labelledby="dKindLbl">
-        <label><input type="radio" name="dKind" value="start">Starting odometer</label>
-        <label><input type="radio" name="dKind" value="drive" checked>Drive or fill-up</label>
+        <label><input type="radio" name="dKind" value="start"><span data-i18n="kind_start">Starting odometer</span></label>
+        <label><input type="radio" name="dKind" value="drive" checked><span data-i18n="kind_drive">Drive or fill-up</span></label>
       </div>
     </div>
     <div class="recent" id="tRecentWrap" hidden>
-      <span class="label">Recent vehicles</span>
+      <span class="label" data-i18n="recent_vehicles">Recent vehicles</span>
       <div class="tabs" id="tRecent"></div>
     </div>
-    <div class="field"><span class="label" id="tTypeLbl">Vehicle type</span>
+    <div class="field"><span class="label" id="tTypeLbl" data-i18n="vehicle_type">Vehicle type</span>
       <div class="radioseg" role="radiogroup" aria-labelledby="tTypeLbl">
-        <label><input type="radio" name="tType" value="car" checked>Car</label>
-        <label><input type="radio" name="tType" value="motorcycle">Motorcycle</label>
-        <label><input type="radio" name="tType" value="other">Other</label>
+        <label><input type="radio" name="tType" value="car" checked><span data-i18n="type_car">Car</span></label>
+        <label><input type="radio" name="tType" value="motorcycle"><span data-i18n="type_motorcycle">Motorcycle</span></label>
+        <label><input type="radio" name="tType" value="other"><span data-i18n="type_other">Other</span></label>
       </div>
     </div>
     <div class="row-mm">
-      <div class="field"><label class="label" for="tMake">Make</label><input type="text" id="tMake" list="makeList" maxlength="30" autocomplete="off" placeholder="Optional"></div>
-      <div class="field"><label class="label" for="tModel">Model</label><input type="text" id="tModel" list="modelList" maxlength="40" autocomplete="off" placeholder="Optional"></div>
-      <div class="field"><label class="label" for="tYear">Year</label><input type="text" id="tYear" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="—"></div>
+      <div class="field"><label class="label" for="tMake" data-i18n="make">Make</label><input type="text" id="tMake" list="makeList" maxlength="30" autocomplete="off" data-i18n-ph="optional"></div>
+      <div class="field"><label class="label" for="tModel" data-i18n="model">Model</label><input type="text" id="tModel" list="modelList" maxlength="40" autocomplete="off" data-i18n-ph="optional"></div>
+      <div class="field"><label class="label" for="tYear" data-i18n="year">Year</label><input type="text" id="tYear" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="—"></div>
     </div>
     <div class="row2">
-      <div class="field"><label class="label" for="tDate">Date</label><input type="date" id="tDate"></div>
-      <div class="field"><label class="label" for="tFuel">Fuel</label>
-        <select id="tFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="electric">Electric</option><option value="other">Other</option></select>
+      <div class="field"><label class="label" for="tDate" data-i18n="date">Date</label><input type="date" id="tDate"></div>
+      <div class="field"><label class="label" for="tFuel" data-i18n="fuel">Fuel</label>
+        <select id="tFuel"><option value="petrol" data-i18n="fuel_petrol">Gas</option><option value="diesel" data-i18n="fuel_diesel">Diesel</option><option value="hybrid" data-i18n="fuel_hybrid">Hybrid</option><option value="lpg" data-i18n="fuel_lpg">LPG</option><option value="electric" data-i18n="fuel_electric">Electric</option><option value="other" data-i18n="fuel_other_short">Other</option></select>
       </div>
     </div>
     <div class="row2">
-      <div class="field"><span class="label" id="tDistULbl">Distance in</span>
+      <div class="field"><span class="label" id="tDistULbl" data-i18n="distance_in">Distance in</span>
         <div class="radioseg" role="radiogroup" aria-labelledby="tDistULbl">
-          <label><input type="radio" name="tDistU" value="km" checked>km</label>
-          <label><input type="radio" name="tDistU" value="mi">miles</label>
+          <label><input type="radio" name="tDistU" value="km" checked><span data-i18n="unit_km">km</span></label>
+          <label><input type="radio" name="tDistU" value="mi"><span data-i18n="unit_miles">miles</span></label>
         </div>
       </div>
-      <div class="field"><label class="label" for="tConsU">Consumption as</label>
+      <div class="field"><label class="label" for="tConsU" data-i18n="consumption_as">Consumption as</label>
         <select id="tConsU"><option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option></select>
       </div>
     </div>
     <div class="row2" id="tOdoRow">
-      <div class="field" id="tOdoAWrap"><label class="label" for="tOdoA" id="tOdoALbl">Odometer start</label><input type="text" id="tOdoA" inputmode="decimal" autocomplete="off" placeholder="Optional"></div>
-      <div class="field"><label class="label" for="tOdoB" id="tOdoBLbl">Odometer now</label><input type="text" id="tOdoB" inputmode="decimal" autocomplete="off" placeholder="Optional"></div>
+      <div class="field" id="tOdoAWrap"><label class="label" for="tOdoA" id="tOdoALbl">Odometer start</label><input type="text" id="tOdoA" inputmode="decimal" autocomplete="off" data-i18n-ph="optional"></div>
+      <div class="field"><label class="label" for="tOdoB" id="tOdoBLbl">Odometer now</label><input type="text" id="tOdoB" inputmode="decimal" autocomplete="off"></div>
     </div>
     <p class="livehint" id="tOdoHint"></p>
     <div class="sheet-sec" id="dFuelPart">
@@ -544,30 +590,31 @@ details.more .sheet-sec{padding-top:2px}
       <div class="field"><label class="label" for="tLitres" id="tLitresLbl">Fuel used L</label><input type="text" id="tLitres" inputmode="decimal" autocomplete="off" placeholder="18.5"></div>
       <div class="field"><label class="label" for="tCons" id="tConsLbl">L/100km</label><input type="text" id="tCons" inputmode="decimal" autocomplete="off" placeholder="5.8"></div>
     </div>
-    <p class="hint">Fill in any two of distance, fuel used and consumption. Consumption can come straight from the car's trip computer.</p>
+    <p class="hint" data-i18n="drive_any_two"></p>
     <div class="row-cost">
-      <div class="field"><label class="label" for="tCost">Fuel cost</label><input type="text" id="tCost" inputmode="decimal" autocomplete="off" placeholder="Optional"></div>
-      <div class="field"><label class="label" for="tCurSel">Paid in</label><select id="tCurSel" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" placeholder="Code, e.g. KHR" hidden></div>
+      <div class="field"><label class="label" for="tCost" id="tCostLbl">Fuel cost</label><input type="text" id="tCost" inputmode="decimal" autocomplete="off" data-i18n-ph="optional"></div>
+      <div class="field"><label class="label" for="tCurSel" data-i18n="paid_in">Paid in</label><select id="tCurSel" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" data-i18n-ph="code_ph" hidden></div>
     </div>
     <p class="livehint" id="tHome"></p>
     <div class="ratebox" id="tRateWrap" hidden>
-      <div class="field"><label class="label" for="tRate" id="tRateLbl">Your rate</label><input type="text" id="tRate" inputmode="decimal" autocomplete="off"></div>
+      <div class="field"><label class="label" for="tRate" id="tRateLbl"></label><input type="text" id="tRate" inputmode="decimal" autocomplete="off"></div>
       <p class="hint" id="tRateHint"></p>
     </div>
     </div>
-    <div class="field"><label class="label" for="tPlace">Where (optional)</label><input type="text" id="tPlace" maxlength="60" autocomplete="off" placeholder="Naha → Nago"></div>
-    <div class="field"><label class="label" for="tNote">Note (optional)</label><input type="text" id="tNote" maxlength="120" autocomplete="off" placeholder="Rental, A/C on, 4 passengers…"></div>
+    <div class="field"><label class="label" for="tPlace" data-i18n="where_optional">Where (optional)</label><input type="text" id="tPlace" maxlength="60" autocomplete="off" placeholder="Naha → Nago"></div>
+    <div class="field"><label class="label" for="tNote" data-i18n="note_optional">Note (optional)</label><input type="text" id="tNote" maxlength="120" autocomplete="off" data-i18n-ph="drive_note_ph"></div>
     <p class="err" id="driveErr" hidden></p>
     <button class="primary" type="submit" id="driveSave">Save drive</button>
     <button type="button" class="danger" id="driveDelete" hidden>Delete drive</button>
   </form>
 </dialog>
 
+<script src="lang.js"></script>
 <script>
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
-  const APP_VERSION = 9;   // keep in step with VERSION in sw.js
+  const APP_VERSION = 10;   // keep in step with VERSION in sw.js
   const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx" };
 
   // ---------- small helpers ----------
@@ -578,6 +625,211 @@ details.more .sheet-sec{padding-top:2px}
   const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const arr = v => Array.isArray(v) ? v : [];
   function load(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } }
+
+  // ---------- language ----------
+  // English (US) is the default and the fallback for anything a translation leaves out. Other languages live in lang.js.
+  // {name} is filled in by t(); plural entries have forms picked by the language's own rules ({n} is the number).
+  const EN = {
+    settings: "Settings", done: "Done", cancel: "Cancel", language: "Language", more_languages: "More languages", mode: "Mode",
+    mode_garage: "My vehicles", mode_trips: "Trips",
+    install_title: "Install on your iPhone", install_body: "Tap the Share button in Safari, then <b>Add to Home Screen</b>. Fuel Log then opens like an app and works offline.", got_it: "Got it",
+    sample_title: "Showing sample data", hide_sample: "Hide sample",
+    sample_fills: "These example fill-ups aren't saved. Add your own to start this vehicle's log.", sample_trips: "These example trips aren't saved. Create your own trip to start.", sample_suffix: " (sample)",
+    first_vehicle_title: "Add your first vehicle", first_vehicle_body: "Add the bike or car you ride or drive, with its current odometer reading. After that, each fill-up only needs the new reading.",
+    add_vehicle: "Add vehicle", edit_vehicle: "Edit vehicle", your_vehicles: "Your vehicles", trends: "Trends", tab_cons: "Consumption", tab_spend: "Spending", tab_price: "Price/{amt}",
+    first_trip_title: "Start your first trip", first_trip_body: "Create a trip, like \"Okinawa road trip\", and pick the currency you'll pay in there. Then log each drive into it. Costs are converted to your home currency with each day's exchange rate.",
+    new_trip: "New trip", preview_sample_trips: "Preview with sample trips", your_trips: "Your trips", edit_trip: "Edit trip",
+    compare_models: "Compare models", rank_by: "Rank by", rank_eff: "Efficiency", rank_cost: "Cost", show_as: "Show as", fuel_as: "Fuel as", electric_as: "Electric as",
+    unit_fuel: "Unit for fuel", unit_ev: "Unit for electric", filter_type: "Filter by vehicle type", filter_all: "All", filter_cars: "Cars", filter_motorcycles: "Motorcycles", filter_other: "Other",
+    include_mine: "Include my vehicles",
+    home_currency: "Home currency", code_ph: "Code, e.g. KHR", home_hint: "Trip costs and comparisons are converted to this currency. Each vehicle keeps the currency you pay in (tap <b>Edit vehicle</b>).",
+    units_hint: "Distance and consumption units are set for each vehicle (tap <b>Edit vehicle</b>) and for each drive.",
+    backup: "Backup", backup_hint: "Your data is saved only on this device. Export a backup now and then and keep it in iCloud Drive.", export_backup: "Export backup", import_backup: "Import backup",
+    last_backup_never: "Last backup: never", last_backup_never_has: "Last backup: never. Export one to keep your data safe.", last_backup_today: "Last backup: today", last_backup_yesterday: "Last backup: yesterday",
+    last_backup_days: { one: "Last backup: {n} day ago", other: "Last backup: {n} days ago" }, backup_time_new: "Time for a new one.", app_version: "App version {n}",
+    date: "Date", name: "Name", type: "Type", make: "Make", model: "Model", year: "Year", fuel: "Fuel", you_pay_in: "You pay in", distance_in: "Distance in", consumption_as: "Consumption as",
+    note_optional: "Note (optional)", where_optional: "Where (optional)", optional: "Optional", trip: "Trip", vehicle_type: "Vehicle type",
+    type_motorcycle: "Motorcycle", type_car: "Car", type_other: "Other", vehicle: "Vehicle",
+    unnamed_car: "Unnamed car", unnamed_motorcycle: "Unnamed motorcycle", unnamed_other: "Unnamed vehicle",
+    fuel_petrol: "Gas", fuel_diesel: "Diesel", fuel_hybrid: "Hybrid", fuel_lpg: "LPG", fuel_electric: "Electric", fuel_other_short: "Other", fuel_other: "Other fuel",
+    unit_km: "km", unit_miles: "miles",
+    start_reading_ph: "Reading when you started tracking", trip_meter_ph: "From your trip meter", fill_note_ph: "Station, trip, new tires…", veh_name_ph: "e.g. My PCX, Dad's car",
+    veh_odo_ph: "Optional, e.g. 18100", trip_name_ph: "e.g. Okinawa road trip", trip_note_ph: "Who came, rental company…", drive_note_ph: "Rental, A/C on, 4 passengers…",
+    new_reading_ph: "New reading", eg_odo_ph: "e.g. 18420", eg_start_ph: "e.g. 45210",
+    trip_name: "Trip name", currency_pay_in: "Currency you'll pay in", convert_with: "Convert to your home currency with", daily_rate: "Daily rate", own_rate: "My own rate",
+    car_for_trip: "Car for this trip (optional)", car_for_trip_hint: "Add the rental or car you'll use and its odometer at pickup. Each drive then only needs the new reading. You can change this any time with <b>Edit trip</b>.",
+    what_logging: "What are you logging?", kind_start: "Starting odometer", kind_drive: "Drive or fill-up", recent_vehicles: "Recent vehicles",
+    drive_any_two: "Fill in any two of distance, fuel used and consumption. Consumption can come straight from the car's trip computer.", paid_in: "Paid in",
+    other_currency: "Other currency…", new_trip_opt: "+ New trip…", different_vehicle: "+ Different vehicle", add_vehicle_chip: "+ Add vehicle", new_trip_chip: "+ New trip",
+
+    // vehicles: fill-ups (fuel) and charges (electric)
+    add_fill: "Add fill-up", add_fill_ev: "Add charge", edit_fill: "Edit fill-up", edit_fill_ev: "Edit charge", save_fill: "Save fill-up", save_fill_ev: "Save charge",
+    delete_fill: "Delete fill-up", delete_fill_ev: "Delete charge", fills_title: "Fill-ups", fills_title_ev: "Charges", fill_saved: "Fill-up saved", fill_saved_ev: "Charge saved",
+    n_fill: { one: "{n} fill-up", other: "{n} fill-ups" }, n_fill_ev: { one: "{n} charge", other: "{n} charges" },
+    n_drive: { one: "{n} drive", other: "{n} drives" }, n_trip: { one: "{n} trip", other: "{n} trips" }, n_model: { one: "{n} model", other: "{n} models" }, n_vehicle: { one: "{n} vehicle", other: "{n} vehicles" },
+    liters: "Liters", kwh: "kWh", total_sym: "Total {sym}",
+    fill_hint: "Fill in any two of liters, price and total. The third is worked out for you.", fill_hint_ev: "Fill in any two of kWh, price and total. The third is worked out for you. Free charging? Put 0 as the total.",
+    full_check: "Filled the tank to full", full_check_ev: "Charged to full (or your usual %)",
+    start_full_check: "The tank was full at that reading", start_full_check_ev: "The battery was full (or at your usual %) then",
+    fill_for: "For {name}", odo_lbl: "Odometer ({unit})", odo_now_lbl: "Odometer now ({unit})", start_opt_lbl: "Starting odometer, optional ({unit})",
+    dist_since_lbl: "Or distance since last fill-up ({unit})", dist_since_lbl_ev: "Or distance since last charge ({unit})",
+    odo_last: "Last reading: {reading}", odo_first: "First fill-up: enter the odometer as shown on the bike or car.", odo_first_ev: "First charge: enter the odometer as shown on the car.",
+    odo_since_start: "+{dist} since your starting reading", odo_since_date: "+{dist} since {date}", odo_lower: "That's lower than your earlier readings.",
+    sub_no_vehicle: "Track fill-ups for each vehicle you own", sub_vehicle: "{name} · {count} · last on {date}", sub_vehicle_none: "{name} · no fill-ups yet", sub_vehicle_none_ev: "{name} · no charges yet",
+    tile_average: "Average", last_tank: "Last tank {v}", last_tank_ev: "Last charge {v}", needs_full: "Needs a full tank to measure", needs_full_ev: "Needs a full charge to measure",
+    tile_cost_per: "Cost per {unit}", per_100: "{amount} per 100 {unit}", tile_total: "Total spent", total_sub: "{amount} in {count}", tile_distance: "Distance", avg_price: "Avg {price}", logged_so_far: "Logged so far",
+    cons_aria: "Consumption per tank in {unit}", cons_aria_ev: "Consumption per charge in {unit}",
+    cons_note: "{unit} for each tank, measured between full-tank fill-ups. {better} The dashed line is your average.", cons_note_ev: "{unit} for each charge, measured between full charges. {better} The dashed line is your average.",
+    higher_better: "Higher is better.", lower_better: "Lower is better.",
+    first_full_soon: "Your first full fill-up will show consumption.", first_full_soon_ev: "Your first full charge will show consumption.",
+    log_two: "Log two full-tank fill-ups to see your consumption.", log_two_ev: "Log two full charges to see your consumption.",
+    price_aria: "Price paid per liter at each fill-up", price_aria_ev: "Price paid per kWh at each charge",
+    price_note: "What you paid per liter at each fill-up. The dashed line is your average.", price_note_ev: "What you paid per kWh at each charge. The dashed line is your average.",
+    prices_empty: "Your fuel prices will appear here.", prices_empty_ev: "Your charging prices will appear here.",
+    spend_aria: "Fuel spending per month", spend_aria_ev: "Charging spending per month",
+    spend_note: "Total spent on fuel each month, last 12 months. This month is highlighted.", spend_note_ev: "Total spent on charging each month, last 12 months. This month is highlighted.",
+    spend_empty: "Your monthly spending will appear here.", avg_short: "avg",
+    no_fills: "No fill-ups for {name} yet", no_fills_ev: "No charges for {name} yet",
+    tap_add: "Tap <b>Add fill-up</b> after your next visit to the pump.", tap_add_ev: "Tap <b>Add charge</b> after you charge.",
+    just_type: "Just type the new odometer reading.", two_full: "Two full-tank fill-ups are enough to show consumption.", two_full_ev: "Two full charges are enough to show consumption.",
+    log_start_first: "Log the starting odometer first", preview_sample: "Preview with sample data",
+    edit_fill_on: "Edit fill-up on {date}", edit_fill_on_ev: "Edit charge on {date}", partial: "partial",
+    starting_odometer: "Starting odometer", tank_full: "tank full", battery_full: "battery full", set_on: "set {date}", edit: "Edit", edit_start: "Edit starting odometer",
+
+    // vehicle form
+    veh_add_title: "Add vehicle", veh_edit_title: "Edit vehicle", save_vehicle: "Save vehicle", save_changes: "Save changes", delete_vehicle: "Delete vehicle",
+    veh_odo_current: "Current odometer ({unit})", veh_odo_starting: "Starting odometer ({unit})",
+    veh_full_now: "The tank is full right now", veh_full_now_ev: "The battery is full (or at your usual %) right now",
+    veh_full_then: "The tank was full at that reading", veh_full_then_ev: "The battery was full (or at your usual %) at that reading",
+    veh_odo_hint_new: "Enter the reading once. After that, each fill-up or charge only needs the new reading. If the tank or battery is full now, your first entry already shows consumption.",
+    veh_odo_hint_edit: "The reading before your first fill-up or charge. Each one after that only needs the new reading.",
+    veh_odo_hint_edit_n: "Changing km or miles converts all {count} for this vehicle. The starting odometer is the reading before your first one.",
+
+    // trip form
+    trip_new_title: "New trip", trip_edit_title: "Edit trip", create_trip: "Create trip", delete_trip: "Delete trip",
+    fixed_lbl: "1 {cur} = how many {home}?", backup_lbl: "Backup rate (optional): 1 {cur} = how many {home}?", today_about: "Today about {rate}", eg_rate: "e.g. 0.052",
+    rate_hint_fixed: "Every cost in this trip converts at your rate. Handy when you know what your card charged.",
+    rate_hint_daily: "Each drive's cost converts to {home} at that day's rate, downloaded automatically and saved for offline use. If a day's rate isn't available, your backup rate is used.",
+    pickup_lbl: "Odometer at pickup ({unit})",
+
+    // drive form
+    log_drive: "Log drive", edit_drive: "Edit drive", save_drive: "Save drive", save_start: "Save starting odometer", delete_drive: "Delete drive", delete_start: "Delete starting odometer",
+    odo_reading_lbl: "Odometer reading ({unit})", odo_start_lbl: "Odometer start ({unit})", distance_unit: "Distance {unit}", fuel_used: "Fuel used L", energy_used: "Energy used kWh",
+    cost_fuel_lbl: "Fuel cost", cost_charge_lbl: "Charging cost",
+    start_hint_last: "The last reading for this car was {reading}.",
+    start_hint_none: "Log the reading before you set off. Forgot, and already at your first fill-up? Choose Drive or fill-up instead and enter both readings there.",
+    odo_same: "Same reading twice: no fuel or distance yet, so this will be saved as your starting odometer.", odo_now_higher: "Odometer now should be higher than the start reading.",
+    odo_driven: "+{dist} driven", odo_auto: "Start is {from}. Type the odometer now or the distance, and the other fills in.",
+    odo_forgot: "Forgot to log the start? Enter the reading from when you set off as Odometer start, plus the reading now. Or just type the distance.",
+    from_start: "your starting reading ({date})", from_last: "your last reading ({date})", from_pickup: "the pickup reading",
+    home_converted: "Converted to {home} with the exchange rate for that day.", own_rate_lbl: "Your rate: 1 {cur} = how many {home}?", about_rate: "About {rate}",
+    no_rate_day: "There's no exchange rate for {date}, so the nearest day's is used.", no_rate_avail: "No exchange rate is available for {date}.", no_rate_offline: "No exchange rate is available for {date} while you're offline.",
+    rate_hint_tail: "Type your own rate to use it instead. It's saved for this trip and used whenever a day's rate is missing.",
+    at_your_rate: "≈ {amount} at your rate", at_backup: "≈ {amount} at your backup rate", at_nearest: "≈ {amount} (nearest day's rate)", at_day: "≈ {amount} at the {date} rate",
+    getting_rate: "Getting the exchange rate…", cant_convert: "Can't convert to {home} yet.",
+
+    // trips screen
+    sub_no_trips: "Log drives on trips and compare models", all_trips: "All trips", chip_sub: "{cur} · {count}", sub_trip: "{name} · {count}", start_logged: "starting odometer logged",
+    paid_in_x: "Paid in {cur}", your_rate_x: "your rate: 1 {cur} = {rate} {home}", daily_rates_to: "daily rates to {home}",
+    this_trip: "This trip", across_all: "Across all trips", electric_avg: "Electric: {v} {unit}", this_trip_ev: "This trip, electric", all_trips_ev: "All trips, electric",
+    used: "{list} used", cost_fuel: "Fuel cost", cost_charge: "Charging cost", cost_both: "Fuel and charging", no_costs: "No costs logged yet",
+    no_rate_yet: "No exchange rate yet. Add your own rate in Edit trip", getting_rates: "Getting exchange rates…", paid_local: "{amount} paid", with_costs: "{count} with costs", approx_rate: "approx. rate",
+    cost_per_100: "Cost per 100 {unit}", converted_to: "Converted to {home}", log_costs: "Log costs to see this", most_efficient: "Most efficient", log_to_compare: "Log a drive to compare",
+    mine: "Mine", your_vehicle: "Your vehicle", dist_logged: "{dist} logged", nothing_filter: "Nothing to compare for this filter yet.", log_to_rank: "Log drives in different vehicles to rank them here.",
+    log_paid_rank: "Log what you paid for fuel or charging to rank by cost.",
+    note_cost: "Ranked by what fuel and charging cost per 100 {unit}, converted to {home} with each day's exchange rate. Gas and electric are compared directly.",
+    n_unranked: { one: "{n} model without costs isn't ranked.", other: "{n} models without costs aren't ranked." },
+    sec_fuel: "Gas, diesel and hybrid", sec_ev: "Electric", note_eff: "Ranked from most to least efficient.",
+    note_sep: "Fuel and electric are ranked separately, because liters and kWh can't be compared. Choose Cost to rank them together.",
+    note_conv: "Costs are converted to {home} with each day's exchange rate.", note_mine: "Your own vehicles use their logged average.", per100_short: "/100 {unit}",
+    drives_title: "Drives", trips_title: "Your trips", open_trip: "Open {name}", fuel_and_electric: "fuel and electric", no_drives_yet: "No drives yet", start_logged_cap: "Starting odometer logged",
+    no_drives_in: "No drives in {name} yet", no_drives_body: "Before you set off, tap <b>Log drive</b> and choose <b>Starting odometer</b> to log the car and its reading. After each fill-up or drive, just type the new reading.",
+    edit_drive_on: "Edit drive on {date}", start_tag: "Start",
+
+    // messages
+    changes_saved: "Changes saved", deleted: "Deleted", tap_again: "Tap again to delete", delete: "Delete", tap_again_n: "Tap again to delete it and its {count}",
+    vehicle_updated: "Vehicle updated", vehicle_added: "{name} added", vehicle_deleted: "Vehicle deleted", now_in: "Now in {unit}", now_in_converted: "Now in {unit}. {count} converted", cons_now_in: "Consumption now shown in {unit}",
+    trip_created: "{name} created", trip_created_first: "{name} created. Tap Log drive to add the first one", trip_updated: "Trip updated", trip_updated_n: "Trip updated. {count} updated too", trip_deleted: "Trip deleted",
+    start_saved: "Starting odometer saved. After a fill-up, just type the new reading", drive_saved: "Drive saved", drive_saved_rate: "Drive saved. Your rate is saved for this trip", changes_saved_rate: "Changes saved. Your rate is saved for this trip",
+    home_now: "Home currency is now {name}. Trip costs convert to {code}",
+    backup_exported: "Backup exported", backup_downloads: "Backup saved to Downloads", not_backup: "That file isn't a Fuel Log backup.", nothing_new: "Nothing new to import. It's all in the app already.",
+    import_fail: "Couldn't save the import. Your device may be out of storage.", imported: "Imported {list}", imported_into: "Imported {count} into {name}", imported_into_skipped: "Imported {count} into {name}, skipped {skipped}",
+    read_fail: "Couldn't read that file.", backup_damaged: "That backup file is damaged.",
+
+    // errors
+    err_storage: "Couldn't save. Your device may be out of storage.", err_delete: "Couldn't delete. Try again.", err_code: "Type the 3-letter currency code, like KHR for Cambodian riel.",
+    err_date_fill: "Choose the date of the fill-up.", err_date_fill_ev: "Choose the date of the charge.", err_odo_unit: "Enter your odometer reading in {unit}.",
+    err_litres: "Enter how many liters you filled.", err_litres_ev: "Enter how many kWh you charged.",
+    err_total: "Enter the price per liter or the total you paid.", err_total_ev: "Enter the price per kWh or the total you paid. Use 0 if charging was free.",
+    err_start_num: "Enter the starting odometer as a number, or leave it empty.", err_start_lower: "The starting odometer should be lower than the odometer now.",
+    err_above_start: "The odometer should be higher than your starting reading of {reading}.", err_above: "The odometer should be higher than {reading}, your reading on {date}.", err_below: "The odometer should be lower than {reading}, your reading on {date}.",
+    err_veh_name: "Give the vehicle a name, or enter its make and model.", err_year: "Enter the year as four digits, like 2022.", err_odo_num: "Enter the odometer as a number, or leave it empty.",
+    err_start_first: "The starting odometer should be lower than your first entry, {reading}.",
+    err_trip_name: "Give the trip a name, like \"Okinawa road trip\".", err_own_rate: "Enter your rate: how many {home} you get for 1 {cur}.", err_backup_rate: "Enter the backup rate as a number, or leave it empty.",
+    err_car_year: "Enter the car's year as four digits, like 2022, or leave it empty.", err_pickup_num: "Enter the pickup odometer as a number, or leave it empty.",
+    err_choose_trip: "Choose which trip this belongs to.", err_year_opt: "Enter the year as four digits, like 2022, or leave it empty.", err_date: "Choose the date.",
+    err_reading: "Enter the odometer reading in {unit}.", err_now_higher: "The odometer now should be higher than the start reading.", err_distance: "Enter the distance in {unit}, or both odometer readings.",
+    err_fuel_used: "Enter the fuel used, or the consumption from the trip computer.", err_energy_used: "Enter the energy used (kWh), or the consumption from the car's display.",
+    err_cost_num: "Enter the cost as a number, or leave it empty.",
+
+    // names given to things the app creates
+    name_my_motorcycle: "My motorcycle", name_earlier_trips: "Earlier trips", name_other_drives: "Other drives", name_imported_trips: "Imported trips", name_trip: "Trip"
+  };
+  const LANGS = [
+    { code: "en", name: "English (US)", en: "English (US)", locale: "en-US", top: true },
+    { code: "en-HK", name: "English (Hong Kong)", en: "English (Hong Kong)", locale: "en-HK", top: true, base: "en-GB" },
+    { code: "zh-HK", name: "繁體中文（香港）", en: "Chinese, Traditional (Hong Kong)", locale: "zh-Hant-HK", top: true, base: "zh-TW" },
+    { code: "zh-TW", name: "繁體中文（台灣）", en: "Chinese, Traditional (Taiwan)", locale: "zh-Hant-TW", top: true },
+    { code: "zh-Hans", name: "简体中文", en: "Chinese, Simplified", locale: "zh-Hans-CN", top: true },
+    { code: "ko", name: "한국어", en: "Korean", locale: "ko-KR", top: true },
+    { code: "ja", name: "日本語", en: "Japanese", locale: "ja-JP", top: true },
+    { code: "es", name: "Español", en: "Spanish", locale: "es", top: true },
+    { code: "hi", name: "हिन्दी", en: "Hindi", locale: "hi-IN", top: true },
+    { code: "ar", name: "العربية", en: "Arabic", locale: "ar-u-nu-latn", top: true, rtl: true },
+    { code: "fr", name: "Français", en: "French", locale: "fr-FR", top: true },
+    { code: "pt", name: "Português", en: "Portuguese", locale: "pt-BR", top: true },
+    { code: "ru", name: "Русский", en: "Russian", locale: "ru-RU", top: true },
+    { code: "de", name: "Deutsch", en: "German", locale: "de-DE" },
+    { code: "id", name: "Bahasa Indonesia", en: "Indonesian", locale: "id-ID" },
+    { code: "vi", name: "Tiếng Việt", en: "Vietnamese", locale: "vi-VN" },
+    { code: "it", name: "Italiano", en: "Italian", locale: "it-IT" },
+    { code: "en-GB", name: "English (UK)", en: "English (UK)", locale: "en-GB" }
+  ];
+  const PACKS = window.FUEL_LANGS || {};
+  let LANG = "en", LOCALE = "en-US", DICT = EN, PR = new Intl.PluralRules("en-US"), curDN = null;
+  let f0, f1, f2;
+  const nf = d => new Intl.NumberFormat(LOCALE, { minimumFractionDigits: d, maximumFractionDigits: d });
+  function useLang(code){
+    let L = LANGS.find(l => l.code === code) || LANGS[0];
+    if (L.code !== "en" && !PACKS[L.code] && !(L.base && PACKS[L.base])) L = LANGS[0];   // its translation didn't load
+    LANG = L.code; LOCALE = L.locale;
+    DICT = Object.assign({}, EN, L.base ? PACKS[L.base] : null, PACKS[L.code]);
+    try { PR = new Intl.PluralRules(LOCALE); } catch(e){ PR = new Intl.PluralRules("en-US"); }
+    try { curDN = new Intl.DisplayNames([LOCALE], { type: "currency" }); } catch(e){ curDN = null; }
+    try { f0 = nf(0); f1 = nf(1); f2 = nf(2); } catch(e){ LOCALE = "en-US"; f0 = nf(0); f1 = nf(1); f2 = nf(2); }
+    document.documentElement.lang = LANG;
+    document.documentElement.dir = L.rtl ? "rtl" : "ltr";
+  }
+  function t(key, vars){
+    let s = DICT[key]; if (s == null) s = EN[key]; if (s == null) return key;
+    if (typeof s === "object") s = s.other;
+    return vars ? s.replace(/\{(\w+)\}/g, (m, k) => vars[k] != null ? vars[k] : m) : s;
+  }
+  function tn(key, n, vars){
+    let s = DICT[key]; if (s == null) s = EN[key];
+    const forms = s && typeof s === "object" ? s : { other: s || key };
+    const f = forms[PR.select(n)] ?? forms.other;
+    return f.replace(/\{(\w+)\}/g, (m, k) => k === "n" ? String(n) : vars && vars[k] != null ? vars[k] : m);
+  }
+  // the electric wording of a message, when there is one
+  const tv = (key, v, vars) => t(isEV(v) && (DICT[key + "_ev"] != null || EN[key + "_ev"] != null) ? key + "_ev" : key, vars);
+  const nFill = (n, v) => tn(isEV(v) ? "n_fill_ev" : "n_fill", n);
+  function applyStatic(){
+    document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });   // only our own dictionary text
+    document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+    document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  }
 
   // ---------- units ----------
   // Stored values are always km, and litres (fuel) or kWh (electric) per 100 km. Units only change how numbers are shown and typed.
@@ -612,7 +864,7 @@ details.more .sheet-sec{padding-top:2px}
   const du = u => u === "mi" ? "mi" : "km";
   const distIn = (km, u) => du(u) === "mi" ? km / MI : km;                 // km -> unit
   const distOut = (v, u) => du(u) === "mi" ? v * MI : v;                   // unit -> km
-  const distWord = u => du(u) === "mi" ? "miles" : "km";
+  const distWord = u => du(u) === "mi" ? t("unit_miles") : t("unit_km");
   const fmtIn = (v, d) => String(+(+v).toFixed(d));                        // number for an input field
 
   // ---------- currencies ----------
@@ -627,10 +879,11 @@ details.more .sheet-sec{padding-top:2px}
   };
   const ZERO_DEC = new Set(["JPY", "KRW", "IDR", "VND", "ISK"]);
   const sym = c => CUR[c] ? CUR[c][0] : (c ? c + " " : "");
-  const curName = c => CUR[c] ? CUR[c][1] : c;
+  // currency names come from the phone, in the app's language
+  const curName = c => { try { const n = curDN && curDN.of(c); if (n && n !== c) return n; } catch(e){} return CUR[c] ? CUR[c][1] : c; };
   const CODE = /^[A-Z]{3}$/;
   const isCode = c => !!c && (!!CUR[c] || CODE.test(c));   // listed currencies, plus any 3-letter code typed under "Other currency"
-  const curOptions = Object.keys(CUR).map(c => `<option value="${c}">${c} · ${CUR[c][1]}</option>`).join("");
+  const curOptions = () => Object.keys(CUR).map(c => `<option value="${c}">${c} · ${esc(curName(c))}</option>`).join("");
   const REGION_CUR = { HK: "HKD", US: "USD", GB: "GBP", JP: "JPY", CN: "CNY", TW: "TWD", MO: "MOP", KR: "KRW", SG: "SGD", MY: "MYR", TH: "THB", ID: "IDR",
     PH: "PHP", VN: "VND", IN: "INR", AU: "AUD", NZ: "NZD", CA: "CAD", CH: "CHF", SE: "SEK", NO: "NOK", DK: "DKK", IS: "ISK", AE: "AED", TR: "TRY",
     ZA: "ZAR", MX: "MXN", BR: "BRL", DE: "EUR", FR: "EUR", IT: "EUR", ES: "EUR", NL: "EUR", IE: "EUR", AT: "EUR", BE: "EUR", PT: "EUR", FI: "EUR", GR: "EUR" };
@@ -651,7 +904,8 @@ details.more .sheet-sec{padding-top:2px}
 
   // ---------- settings ----------
   const settings = Object.assign({ currency: "$", tab: "cons", lastBackup: null, installHidden: false,
-    mode: "garage", activeVehicle: null, activeTrip: "all", cmpType: "all", cmpMine: true }, load(K.settings, {}));
+    mode: "garage", activeVehicle: null, activeTrip: "all", cmpType: "all", cmpMine: true, lang: "en" }, load(K.settings, {}));
+  useLang(settings.lang);
   const legacyCons = settings.unit === "kml" ? "kml" : "l100";   // the single unit setting from the earliest version
   settings.cmpUnit = cuE(settings.cmpUnit, "fuel") === settings.cmpUnit ? settings.cmpUnit : legacyCons;
   settings.cmpUnitEV = cuE(settings.cmpUnitEV, "ev");
@@ -663,34 +917,29 @@ details.more .sheet-sec{padding-top:2px}
   const H = () => settings.home;
 
   // ---------- formatting ----------
-  const nf = d => new Intl.NumberFormat(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
-  const f0 = nf(0), f1 = nf(1), f2 = nf(2);
   const money = (v, c = H()) => sym(c) + nf(ZERO_DEC.has(c) ? 0 : 2).format(v);
   const moneyPPL = (v, c = H()) => sym(c) + nf(ZERO_DEC.has(c) ? 1 : 3).format(v);
   const moneyPer = (v, c = H()) => sym(c) + nf(ZERO_DEC.has(c) ? 2 : 3).format(v);
   const parseISO = iso => { const [y,m,d] = iso.split("-").map(Number); return new Date(y, m-1, d); };
-  const fmtDate = iso => parseISO(iso).toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
-  const shortDate = iso => parseISO(iso).toLocaleDateString(undefined, { day:"numeric", month:"short" });
+  const fmtDate = iso => parseISO(iso).toLocaleDateString(LOCALE, { day:"numeric", month:"short", year:"numeric" });
+  const shortDate = iso => parseISO(iso).toLocaleDateString(LOCALE, { day:"numeric", month:"short" });
   const fmtRange = (a, b) => !a ? "" : a === b ? fmtDate(a) : a.slice(0,4) === b.slice(0,4) ? `${shortDate(a)} – ${fmtDate(b)}` : `${fmtDate(a)} – ${fmtDate(b)}`;
-  const toISO = d => { const t = new Date(d); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
+  const toISO = d => { const x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0,10); };
   const todayISO = () => toISO(new Date());
   const daysBetween = (a, b) => Math.round((parseISO(a) - parseISO(b)) / 864e5);
-  const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
   const fmtDist = (km, u) => `${f0.format(distIn(km, u))} ${du(u)}`;
 
-  const TYPES = { motorcycle: "Motorcycle", car: "Car", other: "Other" };
-  const FUELS = { petrol: "Petrol", diesel: "Diesel", hybrid: "Hybrid", lpg: "LPG", electric: "Electric", other: "Other fuel" };
+  const TYPES = { motorcycle: 1, car: 1, other: 1 };
+  const FUELS = { petrol: 1, diesel: 1, hybrid: 1, lpg: 1, electric: 1, other: 1 };
+  const typeName = k => t("type_" + (TYPES[k] ? k : "other"));
+  const fuelName = k => t(k === "other" ? "fuel_other" : "fuel_" + (FUELS[k] ? k : "other"));
   // a vehicle's consumption unit must match what it runs on
   const normCons = (u, o) => CONS[u] && CONS[u].energy === energyOf(o) ? u : (isEV(o) ? "kwh100" : legacyCons);
   const defaultUnit = energy => energy === "ev" ? settings.evUnit : settings.cmpUnit;
-  // words that change for electric vehicles
-  const words = v => isEV(v)
-    ? { fill: "charge", Fill: "Charge", amt: "kWh", per: "kWh", tank: "charge", base: "full charge", fullFills: "full charges", fullCheck: "Charged to full (or your usual %)", when: "after you charge" }
-    : { fill: "fill-up", Fill: "Fill-up", amt: "L", per: "litre", tank: "tank", base: "full tank", fullFills: "full-tank fill-ups", fullCheck: "Filled the tank to full", when: "after your next visit to the pump" };
   const modelName = o => [clean(o.make), clean(o.model)].filter(Boolean).join(" ");
-  const unnamed = o => "Unnamed " + (TYPES[o.type] || "vehicle").toLowerCase();
-  const vehName = v => clean(v.name) || modelName(v) || TYPES[v.type] || "Vehicle";
-  const vehDetail = v => [TYPES[v.type], modelName(v) && modelName(v) !== vehName(v) ? modelName(v) : "", clean(v.year), FUELS[v.fuel], distWord(v.distUnit), consLabel(v.consUnit), v.currency].filter(Boolean).join(" · ");
+  const unnamed = o => t("unnamed_" + (TYPES[o.type] ? o.type : "other"));
+  const vehName = v => clean(v.name) || modelName(v) || typeName(v.type) || t("vehicle");
+  const vehDetail = v => [typeName(v.type), modelName(v) && modelName(v) !== vehName(v) ? modelName(v) : "", clean(v.year), fuelName(v.fuel), distWord(v.distUnit), consLabel(v.consUnit), v.currency].filter(Boolean).join(" · ");
   const modelHTML = o => `${esc(modelName(o) || unnamed(o))}${clean(o.year) ? ` <span class="yr">${esc(clean(o.year))}</span>` : ""}`;
   const modelText = o => [modelName(o) || unnamed(o), clean(o.year)].filter(Boolean).join(" ");
   const yearOk = y => !y || (/^\d{4}$/.test(y) && +y >= 1950 && +y <= new Date().getFullYear() + 1);
@@ -711,16 +960,16 @@ details.more .sheet-sec{padding-top:2px}
   }
   function normJourney(j){
     const fr = +j.fixedRate, br = +j.backupRate;
-    return { id: j.id || newId(), name: clean(j.name) || "Trip", currency: isCode(j.currency) ? j.currency : (isoFrom(j.currency) || H()),
+    return { id: j.id || newId(), name: clean(j.name) || t("name_trip"), currency: isCode(j.currency) ? j.currency : (isoFrom(j.currency) || H()),
       fixedRate: fr > 0 ? fr : null, backupRate: br > 0 ? br : null, fixedTo: isCode(j.fixedTo) ? j.fixedTo : H(),
       vehicle: normTripCar(j.vehicle), note: clean(j.note), created: j.created || new Date().toISOString() };
   }
-  function normDrive(t, fallbackCur){
-    const cost = t.cost == null || t.cost === "" ? null : +t.cost;
-    return { id: t.id || newId(), tripId: t.tripId || null, kind: t.kind === "start" ? "start" : "drive", date: t.date, type: TYPES[t.type] ? t.type : "other", make: clean(t.make), model: clean(t.model), year: clean(t.year),
-      fuel: FUELS[t.fuel] ? t.fuel : "petrol", distance: +t.distance, litres: +t.litres, cost: cost != null && isFinite(cost) ? cost : null,
-      currency: isCode(t.currency) ? t.currency : (isoFrom(t.currency) || fallbackCur || H()), distUnit: du(t.distUnit), consUnit: normCons(t.consUnit, t),
-      odoStart: odoOrNull(t.odoStart), odoEnd: odoOrNull(t.odoEnd), place: clean(t.place), note: clean(t.note), created: t.created || new Date().toISOString() };
+  function normDrive(x, fallbackCur){
+    const cost = x.cost == null || x.cost === "" ? null : +x.cost;
+    return { id: x.id || newId(), tripId: x.tripId || null, kind: x.kind === "start" ? "start" : "drive", date: x.date, type: TYPES[x.type] ? x.type : "other", make: clean(x.make), model: clean(x.model), year: clean(x.year),
+      fuel: FUELS[x.fuel] ? x.fuel : "petrol", distance: +x.distance, litres: +x.litres, cost: cost != null && isFinite(cost) ? cost : null,
+      currency: isCode(x.currency) ? x.currency : (isoFrom(x.currency) || fallbackCur || H()), distUnit: du(x.distUnit), consUnit: normCons(x.consUnit, x),
+      odoStart: odoOrNull(x.odoStart), odoEnd: odoOrNull(x.odoEnd), place: clean(x.place), note: clean(x.note), created: x.created || new Date().toISOString() };
   }
   const mostCommon = list => { const n = {}; list.forEach(x => { n[x] = (n[x] || 0) + 1; }); return Object.keys(n).sort((a,b) => n[b] - n[a])[0] || null; };
 
@@ -740,22 +989,22 @@ details.more .sheet-sec{padding-top:2px}
     // fill-ups saved before vehicles existed go to a first vehicle
     if (entries.some(e => !e.vehicleId)){
       let v = vehicles[0];
-      if (!v){ v = normVehicle({ name: "My motorcycle", type: "motorcycle", distUnit: "km", consUnit: legacyCons }); vehicles = [v]; }
+      if (!v){ v = normVehicle({ name: t("name_my_motorcycle"), type: "motorcycle", distUnit: "km", consUnit: legacyCons }); vehicles = [v]; }
       entries = entries.map(e => e.vehicleId ? e : { ...e, vehicleId: v.id });
     }
     // single drives logged before trips existed go into one trip
     if (localStorage.getItem(K.drives) == null){
       const old = arr(load(K.oldTrips, []));
       if (old.length){
-        const common = mostCommon(old.map(t => isoFrom(t.currency)).filter(Boolean)) || H();
-        const j = normJourney({ name: "Earlier trips", currency: common });
+        const common = mostCommon(old.map(x => isoFrom(x.currency)).filter(Boolean)) || H();
+        const j = normJourney({ name: t("name_earlier_trips"), currency: common });
         journeys = [j, ...journeys];
-        drives = old.map(t => normDrive({ ...t, tripId: j.id }, common));
+        drives = old.map(x => normDrive({ ...x, tripId: j.id }, common));
       }
     }
     const ids = new Set(journeys.map(j => j.id)), orphans = drives.filter(d => !ids.has(d.tripId));
     if (orphans.length){
-      const j = normJourney({ name: "Other drives", currency: H() });
+      const j = normJourney({ name: t("name_other_drives"), currency: H() });
       journeys.push(j); drives = drives.map(d => ids.has(d.tripId) ? d : { ...d, tripId: j.id });
     }
     try { persist(K.vehicles, vehicles); persist(K.entries, entries); persist(K.journeys, journeys); persist(K.drives, drives); } catch(e){}
@@ -809,12 +1058,12 @@ details.more .sheet-sec{padding-top:2px}
     if (from === to) return { r: 1, approx: false };
     const own = j && j.fixedTo === to && from === j.currency;
     if (own && j.fixedRate) return { r: j.fixedRate, approx: false, fixed: true };
-    const f = from.toLowerCase(), t = to.toLowerCase(), ok = k => fx[k] && fx[k][f] && fx[k][t];
-    if (ok(date)) return { r: fx[date][t] / fx[date][f], approx: false };
+    const f = from.toLowerCase(), tt = to.toLowerCase(), ok = k => fx[k] && fx[k][f] && fx[k][tt];
+    if (ok(date)) return { r: fx[date][tt] / fx[date][f], approx: false };
     if (own && j.backupRate) return { r: j.backupRate, approx: false, backup: true };
     const ks = Object.keys(fx).filter(ok); if (!ks.length) return null;
     const key = ks.sort((a,b) => Math.abs(daysBetween(a, date)) - Math.abs(daysBetween(b, date)))[0];
-    return { r: fx[key][t] / fx[key][f], approx: true };
+    return { r: fx[key][tt] / fx[key][f], approx: true };
   }
   const needsDailyRate = (d, j) => d.cost != null && d.currency !== H() && !(j && j.fixedRate && j.fixedTo === H() && d.currency === j.currency);
 
@@ -840,7 +1089,7 @@ details.more .sheet-sec{padding-top:2px}
       ["sj3","2026-07-08","motorcycle","Yamaha","NMAX 155","2023","petrol",146,3.5,35000,"IDR","km","kml","Ubud","Scooter rental"],
       ["sj4","2026-08-11","car","Ford","Mustang","2024","petrol",483,46.0,62.4,"USD","mi","mpgus","Highway 1",""],
       ["sj4","2026-08-12","car","Tesla","Model 3","2024","electric",320,48.0,18.5,"USD","mi","whmi","Big Sur","Supercharger"],
-      ["sj4","2026-08-13","car","","","","petrol",120,9.1,null,"USD","km","l100","Airport shuttle","Didn't catch the model"]
+      ["sj4","2026-08-13","car","","","","petrol",120,9.1,null,"USD","km","l100","Airport shuttle",""]
     ].map((r, i) => normDrive({ id: "sd" + i, tripId: r[0], date: r[1], type: r[2], make: r[3], model: r[4], year: r[5], fuel: r[6], distance: r[7], litres: r[8], cost: r[9], currency: r[10], distUnit: r[11], consUnit: r[12], place: r[13], note: r[14], created: r[1] + "T12:00:00Z" }));
     return { j, d };
   })();
@@ -887,7 +1136,7 @@ details.more .sheet-sec{padding-top:2px}
   }
 
   function chartSVG(points, opts, W){
-    const H = 220, T = 18, B = 28;
+    const HT = 220, T = 18, B = 28;
     const ys = points.map(p => p.y).concat(opts.avg != null ? [opts.avg] : []);
     let lo = Math.min(...ys), hi = Math.max(...ys);
     // keep small differences from looking like big swings: show at least ±10% around the middle
@@ -895,18 +1144,18 @@ details.more .sheet-sec{padding-top:2px}
     if (!opts.bars && hi - lo < minSpan){ lo = mid - minSpan / 2; hi = mid + minSpan / 2; }
     const sc = niceScale(lo, hi, 4, opts.bars);
     const dec = sc.step < 0.1 ? 2 : sc.step < 1 ? 1 : 0;
-    const tickTxt = t => (opts.prefix || "") + nf(dec).format(t);
-    const L = Math.max(...sc.ticks.map(t => tickTxt(t).length)) * 7 + 10;
+    const tickTxt = x => (opts.prefix || "") + nf(dec).format(x);
+    const L = Math.max(...sc.ticks.map(x => tickTxt(x).length)) * 7 + 10;
     const endTxt = opts.bars ? "" : (opts.short || opts.fmt)(points[points.length - 1].y);
     const R = opts.bars ? 10 : endTxt.length * 7.5 + 14;
-    const iw = W - L - R, ih = H - T - B, n = points.length;
+    const iw = W - L - R, ih = HT - T - B, n = points.length;
     const yPos = v => T + ih - (v - sc.lo) / (sc.hi - sc.lo) * ih;
     const xPos = i => opts.bars ? L + (i + 0.5) * iw / n : (n === 1 ? L + iw / 2 : L + i * iw / (n - 1));
     let g = "";
-    sc.ticks.forEach(t => {
-      const y = yPos(t);
-      g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"${t === sc.lo ? "" : ' stroke-dasharray="2 4"'}/>`;
-      g += `<text x="${L - 8}" y="${y + 4}" text-anchor="end">${esc(tickTxt(t))}</text>`;
+    sc.ticks.forEach(x => {
+      const y = yPos(x);
+      g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"${x === sc.lo ? "" : ' stroke-dasharray="2 4"'}/>`;
+      g += `<text x="${L - 8}" y="${y + 4}" text-anchor="end">${esc(tickTxt(x))}</text>`;
     });
     const slots = Math.max(2, Math.floor(iw / 58)), every = Math.max(1, Math.ceil(n / slots));
     points.forEach((p,i) => {
@@ -915,7 +1164,7 @@ details.more .sheet-sec{padding-top:2px}
       const show = last || (i % every === 0 && xPos(n - 1) - xPos(i) >= 54);
       if (!show) return;
       const anchor = opts.bars || n === 1 ? "middle" : last ? "end" : i === 0 ? "start" : "middle";
-      g += `<text x="${xPos(i)}" y="${H - 8}" text-anchor="${anchor}">${esc(p.label)}</text>`;
+      g += `<text x="${xPos(i)}" y="${HT - 8}" text-anchor="${anchor}">${esc(p.label)}</text>`;
     });
     let m = "";
     if (opts.bars){
@@ -933,7 +1182,7 @@ details.more .sheet-sec{padding-top:2px}
       if (opts.avg != null){
         const y = yPos(opts.avg);
         m += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
-        m += `<text class="avglbl" x="${L + 4}" y="${y - 5}">avg</text>`;
+        m += `<text class="avglbl" x="${L + 4}" y="${y - 5}">${esc(t("avg_short"))}</text>`;
       }
       points.forEach((p,i) => {
         const last = i === n - 1;
@@ -941,37 +1190,37 @@ details.more .sheet-sec{padding-top:2px}
       });
       m += `<text class="endlbl" x="${xPos(n - 1) + 9}" y="${yPos(points[n - 1].y) + 4}">${esc(endTxt)}</text>`;
     }
-    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(opts.aria)}">${g}${m}</svg>`;
+    return `<svg viewBox="0 0 ${W} ${HT}" width="${W}" height="${HT}" role="img" aria-label="${esc(opts.aria)}">${g}${m}</svg>`;
   }
 
   function renderChart(c, v){
-    const el = $("#chart"), note = $("#chartNote"), tab = settings.tab, u = v.consUnit, w = words(v);
+    const el = $("#chart"), note = $("#chartNote"), tab = settings.tab, u = v.consUnit;
     const W = Math.max(260, Math.round(el.clientWidth || 320));
     let pts, opts;
     if (tab === "cons"){
       pts = c.rows.filter(r => r.cons != null).map(r => ({ label: shortDate(r.date), y: consIn(r.cons, u) }));
-      opts = { fmt: x => f1.format(x) + " " + consLabel(u), short: x => f1.format(x), avg: c.avgCons != null ? consIn(c.avgCons, u) : null, aria: `Consumption per ${w.tank} in ` + consLabel(u) };
-      note.textContent = `${consLabel(u)} for each ${w.tank}, measured between ${w.fullFills}. ${higherBetter(u) ? "Higher" : "Lower"} is better. The dashed line is your average.`;
-      if (!pts.length){ el.innerHTML = `<div class="empty-chart">${v.startOdo != null && v.startFull ? `Your first ${w.base} will show consumption.` : `Log two ${w.fullFills} to see your consumption.`}</div>`; return; }
+      opts = { fmt: x => f1.format(x) + " " + consLabel(u), short: x => f1.format(x), avg: c.avgCons != null ? consIn(c.avgCons, u) : null, aria: tv("cons_aria", v, { unit: consLabel(u) }) };
+      note.textContent = tv("cons_note", v, { unit: consLabel(u), better: t(higherBetter(u) ? "higher_better" : "lower_better") });
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">${esc(tv(v.startOdo != null && v.startFull ? "first_full_soon" : "log_two", v))}</div>`; return; }
     } else if (tab === "price"){
       pts = c.fills.map(r => ({ label: shortDate(r.date), y: r.ppl }));
-      opts = { fmt: x => moneyPPL(x, v.currency), prefix: sym(v.currency), avg: c.avgPrice, aria: `Price paid per ${w.per} at each ${w.fill}` };
-      note.textContent = `What you paid per ${w.per} at each ${w.fill}. The dashed line is your average.`;
-      if (!pts.length){ el.innerHTML = `<div class="empty-chart">Your fuel prices will appear here.</div>`; return; }
+      opts = { fmt: x => moneyPPL(x, v.currency), prefix: sym(v.currency), avg: c.avgPrice, aria: tv("price_aria", v) };
+      note.textContent = tv("price_note", v);
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">${esc(tv("prices_empty", v))}</div>`; return; }
     } else {
       const byMonth = {};
       c.fills.forEach(r => { const k = r.date.slice(0,7); byMonth[k] = (byMonth[k] || 0) + r.total; });
-      pts = Object.keys(byMonth).sort().slice(-12).map(k => ({ label: parseISO(k + "-01").toLocaleDateString(undefined, { month: "short" }), y: byMonth[k] }));
-      opts = { bars: true, fmt: x => money(x, v.currency), prefix: sym(v.currency), aria: `${isEV(v) ? "Charging" : "Fuel"} spending per month` };
-      note.textContent = `Total spent on ${isEV(v) ? "charging" : "fuel"} each month, last 12 months. This month is highlighted.`;
-      if (!pts.length){ el.innerHTML = `<div class="empty-chart">Your monthly spending will appear here.</div>`; return; }
+      pts = Object.keys(byMonth).sort().slice(-12).map(k => ({ label: parseISO(k + "-01").toLocaleDateString(LOCALE, { month: "short" }), y: byMonth[k] }));
+      opts = { bars: true, fmt: x => money(x, v.currency), prefix: sym(v.currency), aria: tv("spend_aria", v) };
+      note.textContent = tv("spend_note", v);
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">${esc(t("spend_empty"))}</div>`; return; }
     }
     el.innerHTML = chartSVG(pts, opts, W);
   }
 
   // ---------- render: shared ----------
   // long values (big amounts in yen or rupiah) get a smaller size so they stay on one line
-  const tile = (label, val, unit, sub, cls) => `<div class="tile${cls && cls.hero ? " hero" : ""}"><span class="label">${label}</span><span class="v${cls && cls.sm ? " sm" : String(val).replace(/<[^>]*>/g, "").length > 8 ? " md" : ""}">${val}${unit && val !== "–" ? `<small>${unit}</small>` : ""}</span><span class="s">${sub}</span></div>`;
+  const tile = (label, val, unit, sub, cls) => `<div class="tile${cls && cls.hero ? " hero" : ""}"><span class="label">${esc(label)}</span><span class="v${cls && cls.sm ? " sm" : String(val).replace(/<[^>]*>/g, "").length > 8 ? " md" : ""}">${val}${unit && val !== "–" ? `<small>${esc(unit)}</small>` : ""}</span><span class="s">${esc(sub)}</span></div>`;
 
   function render(){
     const garage = settings.mode !== "trips";
@@ -980,9 +1229,9 @@ details.more .sheet-sec{padding-top:2px}
     $("#modeSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String((b.dataset.mode === "trips") !== garage)));
     if (garage) renderGarage(); else renderTrips();
     $("#sampleBanner").hidden = !(garage ? sample : sampleTrip);
-    $("#sampleText").textContent = garage ? "These example fill-ups aren't saved. Add your own to start this vehicle's log." : "These example trips aren't saved. Create your own trip to start.";
+    $("#sampleText").textContent = t(garage ? "sample_fills" : "sample_trips");
     const av = vehicles.find(x => x.id === settings.activeVehicle);
-    $("#addBtn").textContent = garage ? (av ? `Add ${words(av).fill}` : "Add vehicle") : (journeys.length ? "Log drive" : "New trip");
+    $("#addBtn").textContent = garage ? (av ? tv("add_fill", av) : t("add_vehicle")) : t(journeys.length ? "log_drive" : "new_trip");
     renderSettings();
   }
 
@@ -991,27 +1240,27 @@ details.more .sheet-sec{padding-top:2px}
     const v = vehicles.find(x => x.id === settings.activeVehicle) || null;
     $("#garageEmpty").hidden = !!vehicles.length;
     $("#garageBody").hidden = !vehicles.length;
-    if (!v){ $("#sub").textContent = "Track fill-ups for each vehicle you own"; return; }
-    const u = v.distUnit, vu = v.consUnit, vc = v.currency, w = words(v);
-    $("#histTitle").textContent = w.Fill + "s";
-    $('#tabs [data-tab="price"]').textContent = "Price/" + w.amt;
+    if (!v){ $("#sub").textContent = t("sub_no_vehicle"); return; }
+    const u = v.distUnit, vu = v.consUnit, vc = v.currency, amt = amtUnit(v);
+    $("#histTitle").textContent = tv("fills_title", v);
+    $('#tabs [data-tab="price"]').textContent = t("tab_price", { amt });
     const own = entries.filter(e => e.vehicleId === v.id);
     if (own.length) sample = false;
     const c = sample ? compute(sampleEntries(), null) : compute(own, v);
 
-    $("#vehChips").innerHTML = vehicles.map(x => `<button type="button" class="vchip" role="tab" aria-selected="${x.id === v.id}" data-v="${esc(x.id)}"><span class="vc-name">${esc(vehName(x))}</span><span class="vc-sub">${esc([TYPES[x.type], clean(x.year)].filter(Boolean).join(" · ")) || "&nbsp;"}</span></button>`).join("")
-      + `<button type="button" class="vchip add" data-add>+ Add vehicle</button>`;
+    $("#vehChips").innerHTML = vehicles.map(x => `<button type="button" class="vchip" role="tab" aria-selected="${x.id === v.id}" data-v="${esc(x.id)}"><span class="vc-name">${esc(vehName(x))}</span><span class="vc-sub">${esc([typeName(x.type), clean(x.year)].filter(Boolean).join(" · ")) || "&nbsp;"}</span></button>`).join("")
+      + `<button type="button" class="vchip add" data-add>${esc(t("add_vehicle_chip"))}</button>`;
     $("#vehDetailText").textContent = vehDetail(v);
 
     const last = c.fills[c.fills.length - 1];
-    $("#sub").textContent = c.fills.length ? `${vehName(v)} · ${plural(c.fills.length, w.fill)} · last on ${fmtDate(last.date)}${sample ? " (sample)" : ""}` : `${vehName(v)} · no ${w.fill}s yet`;
+    $("#sub").textContent = c.fills.length ? t("sub_vehicle", { name: vehName(v), count: nFill(c.fills.length, v), date: fmtDate(last.date) }) + (sample ? t("sample_suffix") : "") : tv("sub_vehicle_none", v, { name: vehName(v) });
 
     const perU = c.costPerKm != null ? (du(u) === "mi" ? c.costPerKm * MI : c.costPerKm) : null;
     $("#tiles").innerHTML =
-      tile("Average", c.avgCons != null ? f1.format(consIn(c.avgCons, vu)) : "–", consLabel(vu), c.lastCons != null ? `Last ${w.tank} ${f1.format(consIn(c.lastCons, vu))}` : `Needs a ${w.base} to measure`, { hero: true }) +
-      tile("Cost per " + du(u), perU != null ? moneyPer(perU, vc) : "–", "", perU != null ? `${money(perU * 100, vc)} per 100 ${du(u)}` : `Needs a ${w.base} to measure`) +
-      tile("Total spent", c.fills.length ? money(c.totalSpent, vc) : "–", "", `${f1.format(c.totalL)} ${w.amt} in ${plural(c.fills.length, w.fill)}`) +
-      tile("Distance", c.distance ? f0.format(distIn(c.distance, u)) : "–", du(u), c.avgPrice != null ? `Avg ${moneyPPL(c.avgPrice, vc)}/${w.amt}` : "Logged so far");
+      tile(t("tile_average"), c.avgCons != null ? f1.format(consIn(c.avgCons, vu)) : "–", consLabel(vu), c.lastCons != null ? tv("last_tank", v, { v: f1.format(consIn(c.lastCons, vu)) }) : tv("needs_full", v), { hero: true }) +
+      tile(t("tile_cost_per", { unit: du(u) }), perU != null ? moneyPer(perU, vc) : "–", "", perU != null ? t("per_100", { amount: money(perU * 100, vc), unit: du(u) }) : tv("needs_full", v)) +
+      tile(t("tile_total"), c.fills.length ? money(c.totalSpent, vc) : "–", "", t("total_sub", { amount: `${f1.format(c.totalL)} ${amt}`, count: nFill(c.fills.length, v) })) +
+      tile(t("tile_distance"), c.distance ? f0.format(distIn(c.distance, u)) : "–", du(u), c.avgPrice != null ? t("avg_price", { price: `${moneyPPL(c.avgPrice, vc)}/${amt}` }) : t("logged_so_far"));
 
     $("#tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === settings.tab)));
     renderChart(c, v);
@@ -1019,31 +1268,31 @@ details.more .sheet-sec{padding-top:2px}
     const el = $("#history");
     if (!c.fills.length){
       const startRow = c.rows.find(r => r.start);
-      el.innerHTML = `<div class="list">${startRow ? startHTML(startRow, v) : ""}<div class="emptystate"><strong>No ${w.fill}s for ${esc(vehName(v))} yet</strong><span>Tap <b>Add ${w.fill}</b> ${w.when}${startRow ? ". Just type the new odometer reading." : `. Two ${w.fullFills} are enough to show consumption.`}</span>${startRow ? "" : '<button type="button" class="link" data-editveh>Log the starting odometer first</button><button type="button" class="link" data-sample>Preview with sample data</button>'}</div></div>`;
+      el.innerHTML = `<div class="list">${startRow ? startHTML(startRow, v) : ""}<div class="emptystate"><strong>${esc(tv("no_fills", v, { name: vehName(v) }))}</strong><span>${tv("tap_add", v)} ${esc(startRow ? t("just_type") : tv("two_full", v))}</span>${startRow ? "" : `<button type="button" class="link" data-editveh>${esc(t("log_start_first"))}</button><button type="button" class="link" data-sample>${esc(t("preview_sample"))}</button>`}</div></div>`;
       return;
     }
     const avg = c.avgCons;
     el.innerHTML = `<div class="list">${[...c.rows].reverse().map(r => {
       if (r.start) return startHTML(r, v);
       const cls = r.cons != null && avg != null ? (r.cons <= avg ? "good" : "bad") : "";
-      return `<button type="button" class="entry${sample ? " static" : " tap"}" data-id="${esc(r.id)}" ${sample ? 'tabindex="-1"' : `aria-label="Edit fill-up on ${esc(fmtDate(r.date))}"`}>
+      return `<button type="button" class="entry${sample ? " static" : " tap"}" data-id="${esc(r.id)}" ${sample ? 'tabindex="-1"' : `aria-label="${esc(tv("edit_fill_on", v, { date: fmtDate(r.date) }))}"`}>
         <span class="e-main">
-          <span class="e-date">${esc(fmtDate(r.date))}${r.full ? "" : '<span class="pill">partial</span>'}</span>
+          <span class="e-date">${esc(fmtDate(r.date))}${r.full ? "" : `<span class="pill">${esc(t("partial"))}</span>`}</span>
           <span class="e-meta">${fmtDist(r.odo, u)}${r.dist != null ? ` · +${fmtDist(r.dist, u)}` : ""}</span>
           ${r.note ? `<span class="e-note">${esc(r.note)}</span>` : ""}
         </span>
         <span class="e-side">
           <span class="e-cons ${cls}">${r.cons != null ? f1.format(consIn(r.cons, vu)) : "–"}<small>${consLabel(vu)}</small></span>
-          <span class="e-meta">${f2.format(r.litres)} ${w.amt} · ${money(r.total, vc)}</span>
+          <span class="e-meta">${f2.format(r.litres)} ${amt} · ${esc(money(r.total, vc))}</span>
         </span>
       </button>`;
     }).join("")}</div>`;
   }
   function startHTML(r, v){
-    return `<button type="button" class="entry start tap" data-editveh aria-label="Edit starting odometer">
-      <span class="e-main"><span class="e-date">Starting odometer${r.full ? `<span class="pill">${isEV(v) ? "battery full" : "tank full"}</span>` : ""}</span>
-      <span class="e-meta">${fmtDist(r.odo, v.distUnit)}${r.date ? " · set " + esc(fmtDate(r.date)) : ""}</span></span>
-      <span class="e-side"><span class="e-meta">Edit</span></span>
+    return `<button type="button" class="entry start tap" data-editveh aria-label="${esc(t("edit_start"))}">
+      <span class="e-main"><span class="e-date">${esc(t("starting_odometer"))}${r.full ? `<span class="pill">${esc(t(isEV(v) ? "battery_full" : "tank_full"))}</span>` : ""}</span>
+      <span class="e-meta">${fmtDist(r.odo, v.distUnit)}${r.date ? " · " + esc(t("set_on", { date: fmtDate(r.date) })) : ""}</span></span>
+      <span class="e-side"><span class="e-meta">${esc(t("edit"))}</span></span>
     </button>`;
   }
 
@@ -1069,11 +1318,11 @@ details.more .sheet-sec{padding-top:2px}
 
   function groupDrives(list){
     const groups = new Map();
-    list.forEach(t => {
-      const k = modelKey(t);
-      const g = groups.get(k) || { ref: t, energy: energyOf(t), trips: 0, dist: 0, litres: 0, fuels: new Set(), costHome: 0, costDist: 0 };
-      g.trips++; g.dist += t.distance; g.litres += t.litres; g.fuels.add(FUELS[t.fuel] || "");
-      const hc = homeCost(t); if (hc && hc.v != null){ g.costHome += hc.v; g.costDist += t.distance; }
+    list.forEach(x => {
+      const k = modelKey(x);
+      const g = groups.get(k) || { ref: x, energy: energyOf(x), trips: 0, dist: 0, litres: 0, fuels: new Set(), costHome: 0, costDist: 0 };
+      g.trips++; g.dist += x.distance; g.litres += x.litres; g.fuels.add(fuelName(x.fuel));
+      const hc = homeCost(x); if (hc && hc.v != null){ g.costHome += hc.v; g.costDist += x.distance; }
       groups.set(k, g);
     });
     return [...groups.values()].map(g => ({ ...g, cons: g.litres / g.dist * 100 }));
@@ -1084,7 +1333,7 @@ details.more .sheet-sec{padding-top:2px}
     viewJ = sampleTrip ? SAMPLE.j : journeys; viewD = sampleTrip ? SAMPLE.d : drives;
     $("#tripsEmpty").hidden = !!viewJ.length;
     $("#tripsBody").hidden = !viewJ.length;
-    if (!viewJ.length){ $("#sub").textContent = "Log drives on trips and compare models"; return; }
+    if (!viewJ.length){ $("#sub").textContent = t("sub_no_trips"); return; }
 
     const U = settings.cmpUnit, UE = settings.cmpUnitEV, D = U.startsWith("mpg") ? "mi" : "km";
     const unitFor = e => e === "ev" ? UE : U;
@@ -1097,43 +1346,44 @@ details.more .sheet-sec{padding-top:2px}
 
     // trip switcher
     const ordered = sortedJourneys(viewJ, viewD);
-    $("#tripChips").innerHTML = `<button type="button" class="vchip" role="tab" aria-selected="${!jSel}" data-j="all"><span class="vc-name">All trips</span><span class="vc-sub">${plural(viewJ.length, "trip")}</span></button>`
+    $("#tripChips").innerHTML = `<button type="button" class="vchip" role="tab" aria-selected="${!jSel}" data-j="all"><span class="vc-name">${esc(t("all_trips"))}</span><span class="vc-sub">${esc(tn("n_trip", viewJ.length))}</span></button>`
       + ordered.map(j => { const n = viewD.filter(d => d.tripId === j.id && isFuel(d)).length;
-          return `<button type="button" class="vchip" role="tab" aria-selected="${jSel && j.id === jSel.id}" data-j="${esc(j.id)}"><span class="vc-name">${esc(j.name)}</span><span class="vc-sub">${esc(j.currency)} · ${plural(n, "drive")}</span></button>`; }).join("")
-      + `<button type="button" class="vchip add" data-newtrip>+ New trip</button>`;
+          return `<button type="button" class="vchip" role="tab" aria-selected="${jSel && j.id === jSel.id}" data-j="${esc(j.id)}"><span class="vc-name">${esc(j.name)}</span><span class="vc-sub">${esc(t("chip_sub", { cur: j.currency, count: tn("n_drive", n) }))}</span></button>`; }).join("")
+      + `<button type="button" class="vchip add" data-newtrip>${esc(t("new_trip_chip"))}</button>`;
     $("#tripDetail").hidden = !jSel;
     if (jSel){
       const ds = inSel.map(d => d.date).sort();
-      const rateTxt = jSel.currency === H() ? "" : jSel.fixedRate && jSel.fixedTo === H() ? `your rate: 1 ${jSel.currency} = ${fmtIn(jSel.fixedRate, 6)} ${H()}` : `daily rates to ${H()}`;
-      $("#tripDetailText").textContent = [`Paid in ${jSel.currency}`, rateTxt, jSel.vehicle ? modelText(jSel.vehicle) : "", ds.length ? fmtRange(ds[0], ds[ds.length - 1]) : ""].filter(Boolean).join(" · ");
+      const rateTxt = jSel.currency === H() ? "" : jSel.fixedRate && jSel.fixedTo === H() ? t("your_rate_x", { cur: jSel.currency, rate: fmtIn(jSel.fixedRate, 6), home: H() }) : t("daily_rates_to", { home: H() });
+      $("#tripDetailText").textContent = [t("paid_in_x", { cur: jSel.currency }), rateTxt, jSel.vehicle ? modelText(jSel.vehicle) : "", ds.length ? fmtRange(ds[0], ds[ds.length - 1]) : ""].filter(Boolean).join(" · ");
     }
-    const sampleTag = sampleTrip ? " (sample)" : "";
-    $("#sub").textContent = jSel ? `${jSel.name} · ${!scope.length && inSel.length ? "starting odometer logged" : plural(scope.length, "drive")}${sampleTag}`
-      : `${plural(viewJ.length, "trip")} · ${plural(viewD.filter(isFuel).length, "drive")}${sampleTag}`;
+    const sampleTag = sampleTrip ? t("sample_suffix") : "";
+    $("#sub").textContent = jSel ? t("sub_trip", { name: jSel.name, count: !scope.length && inSel.length ? t("start_logged") : tn("n_drive", scope.length) }) + sampleTag
+      : `${tn("n_trip", viewJ.length)} · ${tn("n_drive", viewD.filter(isFuel).length)}${sampleTag}`;
 
     // tiles
     const P = split(scope), totD = P.fD + P.eD;
     const fAvg = P.fD ? f1.format(consIn(P.fL / P.fD * 100, U)) : null, eAvg = P.eD ? f1.format(consIn(P.eK / P.eD * 100, UE)) : null;
     const cs = costSummary(scope);
     const costVal = !cs.n ? "–" : cs.missing ? "…" : money(cs.total);
-    const ratesNote = cs.missing ? (navigator.onLine === false || !viewD.some(d => ratePending(d.date)) ? "No exchange rate yet. Add your own rate in Edit trip" : "Getting exchange rates…") : "";
+    const ratesNote = cs.missing ? t(navigator.onLine === false || !viewD.some(d => ratePending(d.date)) ? "no_rate_yet" : "getting_rates") : "";
     const avgTile = fAvg || !eAvg
-      ? tile("Average", fAvg || "–", consLabel(U), eAvg ? `Electric: ${eAvg} ${consLabel(UE)}` : jSel ? "This trip" : "Across all trips", { hero: true })
-      : tile("Average", eAvg, consLabel(UE), jSel ? "This trip, electric" : "All trips, electric", { hero: true });
+      ? tile(t("tile_average"), fAvg || "–", consLabel(U), eAvg ? t("electric_avg", { v: eAvg, unit: consLabel(UE) }) : t(jSel ? "this_trip" : "across_all"), { hero: true })
+      : tile(t("tile_average"), eAvg, consLabel(UE), t(jSel ? "this_trip_ev" : "all_trips_ev"), { hero: true });
     const used = [P.fL ? `${f1.format(P.fL)} L` : "", P.eK ? `${f1.format(P.eK)} kWh` : ""].filter(Boolean).join(" · ");
-    const distTile = tile("Distance", totD ? f0.format(distIn(totD, D)) : "–", D, used ? used + " used" : "Logged so far");
-    const costLabel = P.eD ? (P.fD ? "Fuel and charging" : "Charging cost") : "Fuel cost";
+    const distTile = tile(t("tile_distance"), totD ? f0.format(distIn(totD, D)) : "–", D, used ? t("used", { list: used }) : t("logged_so_far"));
+    const costLabel = t(P.eD ? (P.fD ? "cost_both" : "cost_charge") : "cost_fuel");
     if (jSel){
       const localAll = scope.filter(d => d.cost != null).every(d => d.currency === jSel.currency);
       const localTotal = scope.filter(d => d.cost != null).reduce((a,d) => a + d.cost, 0);
-      const costSub = !cs.n ? "No costs logged yet" : ratesNote || [jSel.currency !== H() && localAll ? `${money(localTotal, jSel.currency)} paid` : plural(cs.n, "drive") + " with costs", cs.approx ? "approx. rate" : ""].filter(Boolean).join(" · ");
-      const perD = cs.n && !cs.missing ? (() => { const dd = scope.filter(d => d.cost != null).reduce((a,d) => a + d.distance, 0); return dd ? `${money(cs.total / dd * 100 * (D === "mi" ? MI : 1))} per 100 ${D}` : ""; })() : "";
-      $("#tripTiles").innerHTML = avgTile + tile(costLabel, costVal, "", costSub) + distTile + tile("Cost per 100 " + D, perD ? perD.split(" per")[0] : "–", "", perD ? `Converted to ${H()}` : "Log costs to see this");
+      const costSub = !cs.n ? t("no_costs") : ratesNote || [jSel.currency !== H() && localAll ? t("paid_local", { amount: money(localTotal, jSel.currency) }) : t("with_costs", { count: tn("n_drive", cs.n) }), cs.approx ? t("approx_rate") : ""].filter(Boolean).join(" · ");
+      const dd = scope.filter(d => d.cost != null).reduce((a,d) => a + d.distance, 0);
+      const perD = cs.n && !cs.missing && dd ? money(cs.total / dd * 100 * (D === "mi" ? MI : 1)) : "";
+      $("#tripTiles").innerHTML = avgTile + tile(costLabel, costVal, "", costSub) + distTile + tile(t("cost_per_100", { unit: D }), perD || "–", "", perD ? t("converted_to", { home: H() }) : t("log_costs"));
     } else {
       const gs = groupDrives(scope).sort((a,b) => a.cons - b.cons), best = gs.find(g => g.energy === "fuel") || gs[0], bu = best ? unitFor(best.energy) : U;
-      const costSub = !cs.n ? "No costs logged yet" : ratesNote || `${plural(cs.n, "drive")} with costs${cs.approx ? " · approx. rate" : ""}`;
+      const costSub = !cs.n ? t("no_costs") : ratesNote || [t("with_costs", { count: tn("n_drive", cs.n) }), cs.approx ? t("approx_rate") : ""].filter(Boolean).join(" · ");
       $("#tripTiles").innerHTML = avgTile +
-        tile("Most efficient", best ? modelHTML(best.ref) : "–", "", best ? `${f1.format(consIn(best.cons, bu))} ${consLabel(bu)}` : "Log a drive to compare", { sm: !!best }) +
+        tile(t("most_efficient"), best ? modelHTML(best.ref) : "–", "", best ? `${f1.format(consIn(best.cons, bu))} ${consLabel(bu)}` : t("log_to_compare"), { sm: !!best }) +
         tile(costLabel, costVal, "", costSub) + distTile;
     }
 
@@ -1143,10 +1393,10 @@ details.more .sheet-sec{padding-top:2px}
     $("#cmpUnit").value = U; $("#cmpUnitEV").value = UE;
     $("#cmpMine").checked = !!settings.cmpMine;
     $("#cmpFilter").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.cmp === settings.cmpType)));
-    const typeOk = t => settings.cmpType === "all" || t === settings.cmpType;
+    const typeOk = x => settings.cmpType === "all" || x === settings.cmpType;
     const per100 = costKm => money(costKm * 100 * (D === "mi" ? MI : 1));
-    const rows = groupDrives(scope.filter(t => typeOk(t.type))).map(g => ({ name: modelHTML(g.ref), type: g.ref.type, energy: g.energy, cons: g.cons, mine: false,
-      costKm: g.costDist ? g.costHome / g.costDist : null, meta: [plural(g.trips, "drive"), fmtDist(g.dist, D), [...g.fuels].filter(Boolean).join(", ")] }));
+    const rows = groupDrives(scope.filter(x => typeOk(x.type))).map(g => ({ name: modelHTML(g.ref), type: g.ref.type, energy: g.energy, cons: g.cons, mine: false,
+      costKm: g.costDist ? g.costHome / g.costDist : null, meta: [tn("n_drive", g.trips), fmtDist(g.dist, D), [...g.fuels].filter(Boolean).join(", ")] }));
     if (settings.cmpMine){
       vehicles.forEach(v => {
         if (!typeOk(v.type)) return;
@@ -1154,19 +1404,19 @@ details.more .sheet-sec{padding-top:2px}
         if (c.avgCons == null) return;
         if (c.costPerKm != null && v.currency !== H()){ const x = rate(v.currency, H(), todayISO(), null); c.costPerKm = x ? c.costPerKm * x.r : null; if (!x || x.approx) ensureRates([todayISO()]); }
         rows.push({ name: esc(vehName(v)) + (modelName(v) && modelName(v) !== vehName(v) ? ` <span class="yr">${esc(modelName(v))}</span>` : clean(v.year) ? ` <span class="yr">${esc(clean(v.year))}</span>` : ""),
-          type: v.type, energy: energyOf(v), cons: c.avgCons, costKm: c.costPerKm, mine: true, meta: ["Your vehicle", fmtDist(c.distance, D) + " logged"] });
+          type: v.type, energy: energyOf(v), cons: c.avgCons, costKm: c.costPerKm, mine: true, meta: [t("your_vehicle"), t("dist_logged", { dist: fmtDist(c.distance, D) })] });
       });
     }
     const hasFuel = rows.some(r => r.energy === "fuel"), hasEV = rows.some(r => r.energy === "ev");
     $("#cmpUnitWrap").hidden = rank === "cost" || (!hasFuel && hasEV);
     $("#cmpUnitEVWrap").hidden = rank === "cost" || !hasEV;
-    $("#cmpUnitLbl").textContent = hasEV ? "Fuel as" : "Show as";
+    $("#cmpUnitLbl").textContent = t(hasEV ? "fuel_as" : "show_as");
     const rankRows = (list, valueOf, valueHTML, extra) => {
       const max = Math.max(...list.map(valueOf));
       return `<div class="rank-list">${list.map((r,i) => `<div class="rank-row${i === 0 ? " first" : ""}${r.mine ? " mine" : ""}">
           <span class="rank-n">${i + 1}</span>
           <div>
-            <div class="rank-top"><span class="rank-name">${r.name}<span class="tag">${esc(TYPES[r.type] || "Other")}</span>${r.mine ? '<span class="tag mine">Mine</span>' : ""}</span>
+            <div class="rank-top"><span class="rank-name">${r.name}<span class="tag">${esc(typeName(r.type))}</span>${r.mine ? `<span class="tag mine">${esc(t("mine"))}</span>` : ""}</span>
               <span class="rank-val">${valueHTML(r)}</span></div>
             <div class="bar"><span style="width:${Math.max(4, valueOf(r) / max * 100).toFixed(1)}%"></span></div>
             <div class="rank-meta">${esc([...r.meta, extra(r)].filter(Boolean).join(" · "))}</div>
@@ -1176,65 +1426,65 @@ details.more .sheet-sec{padding-top:2px}
     const el = $("#compare");
     let note = "";
     if (!rows.length){
-      el.innerHTML = `<div class="empty-chart">${scope.length || vehicles.length ? "Nothing to compare for this filter yet." : "Log drives in different vehicles to rank them here."}</div>`;
+      el.innerHTML = `<div class="empty-chart">${esc(t(scope.length || vehicles.length ? "nothing_filter" : "log_to_rank"))}</div>`;
     } else if (rank === "cost"){
       const list = rows.filter(r => r.costKm != null).sort((a,b) => a.costKm - b.costKm), missing = rows.length - list.length;
       el.innerHTML = list.length
-        ? rankRows(list, r => r.costKm, r => `${per100(r.costKm)}<small>/100 ${D}</small>`, r => `${f1.format(consIn(r.cons, unitFor(r.energy)))} ${consLabel(unitFor(r.energy))}`)
-        : `<div class="empty-chart">Log what you paid for fuel or charging to rank by cost.</div>`;
-      note = `Ranked by what fuel and charging cost per 100 ${D}, converted to ${H()} with each day's exchange rate. Petrol and electric are compared directly.${missing ? ` ${plural(missing, "model")} without costs ${missing === 1 ? "isn't" : "aren't"} ranked.` : ""}`;
+        ? rankRows(list, r => r.costKm, r => `${esc(per100(r.costKm))}<small>${esc(t("per100_short", { unit: D }))}</small>`, r => `${f1.format(consIn(r.cons, unitFor(r.energy)))} ${consLabel(unitFor(r.energy))}`)
+        : `<div class="empty-chart">${esc(t("log_paid_rank"))}</div>`;
+      note = t("note_cost", { unit: D, home: H() }) + (missing ? " " + tn("n_unranked", missing) : "");
     } else {
       const section = (energy, title) => {
         const list = rows.filter(r => r.energy === energy).sort((a,b) => a.cons - b.cons), u = unitFor(energy);
         if (!list.length) return "";
-        return (hasFuel && hasEV ? `<h3 class="rank-h">${title}</h3>` : "")
-          + rankRows(list, r => consIn(r.cons, u), r => `${f1.format(consIn(r.cons, u))}<small>${consLabel(u)}</small>`, r => r.costKm != null ? `${per100(r.costKm)}/100 ${D}` : "");
+        return (hasFuel && hasEV ? `<h3 class="rank-h">${esc(title)}</h3>` : "")
+          + rankRows(list, r => consIn(r.cons, u), r => `${f1.format(consIn(r.cons, u))}<small>${consLabel(u)}</small>`, r => r.costKm != null ? per100(r.costKm) + t("per100_short", { unit: D }) : "");
       };
-      el.innerHTML = section("fuel", "Petrol, diesel and hybrid") + section("ev", "Electric");
-      note = `Ranked from most to least efficient.${hasFuel && hasEV ? " Fuel and electric are ranked separately, because litres and kWh can't be compared. Choose Cost to rank them together." : ""} Costs are converted to ${H()} with each day's exchange rate.`;
+      el.innerHTML = section("fuel", t("sec_fuel")) + section("ev", t("sec_ev"));
+      note = [t("note_eff"), hasFuel && hasEV ? t("note_sep") : "", t("note_conv", { home: H() })].filter(Boolean).join(" ");
     }
-    $("#cmpNote").textContent = rows.length ? note + (settings.cmpMine ? " Your own vehicles use their logged average." : "") : "";
+    $("#cmpNote").textContent = rows.length ? note + (settings.cmpMine ? " " + t("note_mine") : "") : "";
 
     // list: trips (All) or this trip's drives
     const tl = $("#tripList");
-    $("#tripListTitle").textContent = jSel ? "Drives" : "Your trips";
+    $("#tripListTitle").textContent = t(jSel ? "drives_title" : "trips_title");
     if (!jSel){
       tl.innerHTML = `<div class="list">${ordered.map(j => {
         const inTrip = viewD.filter(d => d.tripId === j.id), ds = inTrip.filter(isFuel), S = split(ds), mainEV = S.eD > S.fD;
         const dd = S.fD + S.eD, cons = mainEV ? S.eK / S.eD * 100 : S.fL / S.fD * 100, cu2 = unitFor(mainEV ? "ev" : "fuel");
         const dates = inTrip.map(d => d.date).sort(), c2 = costSummary(ds);
-        return `<button type="button" class="entry tap" data-open="${esc(j.id)}" aria-label="Open ${esc(j.name)}">
+        return `<button type="button" class="entry tap" data-open="${esc(j.id)}" aria-label="${esc(t("open_trip", { name: j.name }))}">
           <span class="e-main"><span class="e-date">${esc(j.name)}</span>
-            <span class="e-meta">${dates.length ? esc(fmtRange(dates[0], dates[dates.length - 1])) + " · " : ""}${plural(ds.length, "drive")} · ${esc(j.currency)}${S.fD && S.eD ? " · fuel and electric" : ""}</span>
+            <span class="e-meta">${esc([dates.length ? fmtRange(dates[0], dates[dates.length - 1]) : "", tn("n_drive", ds.length), j.currency, S.fD && S.eD ? t("fuel_and_electric") : ""].filter(Boolean).join(" · "))}</span>
             ${j.note ? `<span class="e-note">${esc(j.note)}</span>` : ""}</span>
-          <span class="e-side">${dd ? `<span class="e-cons">${f1.format(consIn(cons, cu2))}<small>${consLabel(cu2)}</small></span><span class="e-meta">${fmtDist(dd, D)}</span>` : `<span class="e-meta">${inTrip.length ? "Starting odometer logged" : "No drives yet"}</span>`}
-            ${c2.n ? `<span class="e-home">${c2.missing ? "…" : (c2.approx ? "≈ " : "") + money(c2.total)}</span>` : ""}</span>
+          <span class="e-side">${dd ? `<span class="e-cons">${f1.format(consIn(cons, cu2))}<small>${consLabel(cu2)}</small></span><span class="e-meta">${fmtDist(dd, D)}</span>` : `<span class="e-meta">${esc(t(inTrip.length ? "start_logged_cap" : "no_drives_yet"))}</span>`}
+            ${c2.n ? `<span class="e-home">${c2.missing ? "…" : (c2.approx ? "≈ " : "") + esc(money(c2.total))}</span>` : ""}</span>
         </button>`; }).join("")}</div>`;
       return;
     }
     if (!inSel.length){
-      tl.innerHTML = `<div class="list"><div class="emptystate"><strong>No drives in ${esc(jSel.name)} yet</strong><span>Before you set off, tap <b>Log drive</b> and choose <b>Starting odometer</b> to log the car and its reading. After each fill-up or drive, just type the new reading.</span></div></div>`;
+      tl.innerHTML = `<div class="list"><div class="emptystate"><strong>${esc(t("no_drives_in", { name: jSel.name }))}</strong><span>${t("no_drives_body")}</span></div></div>`;
       return;
     }
     const sorted = [...inSel].sort((a,b) => b.date.localeCompare(a.date) || (a.kind === "start") - (b.kind === "start") || String(b.created || "").localeCompare(String(a.created || "")));
-    tl.innerHTML = `<div class="list">${sorted.map(t => { const hc = homeCost(t);
-      if (!isFuel(t)) return `<button type="button" class="entry start${sampleTrip ? " static" : " tap"}" data-drive="${esc(t.id)}" aria-label="Edit starting odometer">
-        <span class="e-main"><span class="e-model">${modelHTML(t)}</span>
-          <span class="e-meta">${esc(fmtDate(t.date))} · Starting odometer${t.place ? " · " + esc(t.place) : ""}</span>
-          ${t.note ? `<span class="e-note">${esc(t.note)}</span>` : ""}</span>
-        <span class="e-side"><span class="e-cons">${f0.format(distIn(t.odoEnd, t.distUnit))}<small>${du(t.distUnit)}</small></span><span class="e-meta">Start</span></span>
+    tl.innerHTML = `<div class="list">${sorted.map(x => { const hc = homeCost(x);
+      if (!isFuel(x)) return `<button type="button" class="entry start${sampleTrip ? " static" : " tap"}" data-drive="${esc(x.id)}" aria-label="${esc(t("edit_start"))}">
+        <span class="e-main"><span class="e-model">${modelHTML(x)}</span>
+          <span class="e-meta">${esc([fmtDate(x.date), t("starting_odometer"), x.place].filter(Boolean).join(" · "))}</span>
+          ${x.note ? `<span class="e-note">${esc(x.note)}</span>` : ""}</span>
+        <span class="e-side"><span class="e-cons">${f0.format(distIn(x.odoEnd, x.distUnit))}<small>${du(x.distUnit)}</small></span><span class="e-meta">${esc(t("start_tag"))}</span></span>
       </button>`;
-      return `<button type="button" class="entry${sampleTrip ? " static" : " tap"}" data-drive="${esc(t.id)}" ${sampleTrip ? 'tabindex="-1"' : `aria-label="Edit drive on ${esc(fmtDate(t.date))}"`}>
+      return `<button type="button" class="entry${sampleTrip ? " static" : " tap"}" data-drive="${esc(x.id)}" ${sampleTrip ? 'tabindex="-1"' : `aria-label="${esc(t("edit_drive_on", { date: fmtDate(x.date) }))}"`}>
         <span class="e-main">
-          <span class="e-model">${modelHTML(t)}</span>
-          <span class="e-meta">${esc(fmtDate(t.date))}${t.place ? " · " + esc(t.place) : ""}</span>
-          ${t.note ? `<span class="e-note">${esc(t.note)}</span>` : ""}
+          <span class="e-model">${modelHTML(x)}</span>
+          <span class="e-meta">${esc([fmtDate(x.date), x.place].filter(Boolean).join(" · "))}</span>
+          ${x.note ? `<span class="e-note">${esc(x.note)}</span>` : ""}
         </span>
         <span class="e-side">
-          <span class="e-cons">${f1.format(consIn(t.litres / t.distance * 100, t.consUnit))}<small>${consLabel(t.consUnit)}</small></span>
-          <span class="e-meta">${fmtDist(t.distance, t.distUnit)} · ${f1.format(t.litres)} ${amtUnit(t)}</span>
-          ${t.cost != null ? `<span class="e-meta">${esc(money(t.cost, t.currency))}</span>` : ""}
-          ${t.cost != null && t.currency !== H() ? `<span class="e-home">${hc && hc.v != null ? "≈ " + money(hc.v) : "…"}</span>` : ""}
+          <span class="e-cons">${f1.format(consIn(x.litres / x.distance * 100, x.consUnit))}<small>${consLabel(x.consUnit)}</small></span>
+          <span class="e-meta">${fmtDist(x.distance, x.distUnit)} · ${f1.format(x.litres)} ${amtUnit(x)}</span>
+          ${x.cost != null ? `<span class="e-meta">${esc(money(x.cost, x.currency))}</span>` : ""}
+          ${x.cost != null && x.currency !== H() ? `<span class="e-home">${hc && hc.v != null ? "≈ " + esc(money(hc.v)) : "…"}</span>` : ""}
         </span>
       </button>`; }).join("")}</div>`;
   }
@@ -1246,10 +1496,11 @@ details.more .sheet-sec{padding-top:2px}
     $("#exportBtn").disabled = !has;
     if (settings.lastBackup){
       const days = Math.floor((Date.now() - new Date(settings.lastBackup)) / 864e5);
-      $("#backupInfo").textContent = `Last backup: ${days <= 0 ? "today" : days === 1 ? "yesterday" : days + " days ago"}` + (days > 30 && has ? ". Time for a new one." : "");
+      $("#backupInfo").textContent = (days <= 0 ? t("last_backup_today") : days === 1 ? t("last_backup_yesterday") : tn("last_backup_days", days)) + (days > 30 && has ? " " + t("backup_time_new") : "");
     } else {
-      $("#backupInfo").textContent = has ? "Last backup: never. Export one to keep your data safe." : "Last backup: never";
+      $("#backupInfo").textContent = t(has ? "last_backup_never_has" : "last_backup_never");
     }
+    $("#appVersion").textContent = t("app_version", { n: APP_VERSION });
     // suggestions for make/model fields
     const all = [...drives, ...vehicles];
     const uniq = key => [...new Set(all.map(o => clean(o[key])).filter(Boolean))].sort((a,b) => a.localeCompare(b));
@@ -1259,8 +1510,8 @@ details.more .sheet-sec{padding-top:2px}
 
   let toastTimer;
   function toast(msg){
-    const t = $("#toast"); t.textContent = msg; t.hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3000);
+    const el = $("#toast"); el.textContent = msg; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3000);
   }
 
   // ---------- sheet helpers ----------
@@ -1287,7 +1538,22 @@ details.more .sheet-sec{padding-top:2px}
     return order;
   }
 
-  // ---------- fill-up sheet ----------
+  // ---------- settings menu (☰): language, home currency, backup ----------
+  const menuSheet = $("#menuSheet");
+  function renderLangs(){
+    const row = L => `<button type="button" class="langopt" role="radio" aria-checked="${L.code === LANG}" data-lang="${L.code}" lang="${L.code}"><span><span class="ln">${esc(L.name)}</span>${L.name !== L.en ? `<span class="le" lang="en">${esc(L.en)}</span>` : ""}</span></button>`;
+    $("#langTop").innerHTML = LANGS.filter(L => L.top).map(row).join("");
+    $("#langMore").innerHTML = LANGS.filter(L => !L.top).map(row).join("");
+    if (LANGS.some(L => !L.top && L.code === LANG)) $("#langMoreWrap").open = true;
+  }
+  $("#menuBtn").onclick = () => { renderLangs(); renderSettings(); openDialog(menuSheet); };
+  menuSheet.addEventListener("click", e => {
+    const b = e.target.closest("[data-lang]"); if (!b) return;
+    settings.lang = b.dataset.lang; saveSettings();
+    useLang(settings.lang); applyStatic(); renderLangs(); render();
+  });
+
+  // ---------- fill-up / charge sheet ----------
   const fillSheet = $("#fillSheet");
   let editingFill = null;
   const fillOrder = linkThree(["litres", "price", "total"], third => {
@@ -1319,16 +1585,16 @@ details.more .sheet-sec{padding-top:2px}
     const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return;
     const u = v.distUnit, val = num($("#odo").value), pts = fillPoints(v), h = $("#odoHint");
     $("#fDistWrap").hidden = !pts.length;
-    $("#fDistLbl").textContent = `Or distance since last ${words(v).fill} (${du(u)})`;
+    $("#fDistLbl").textContent = tv("dist_since_lbl", v, { unit: du(u) });
     if (!(val > 0)){
       const last = pts.sort((a,b) => b.odo - a.odo)[0];
-      h.textContent = last ? `Last reading: ${fmtDist(last.odo, u)}` : `First ${words(v).fill}: enter the odometer as shown on the bike or car.`;
+      h.textContent = last ? t("odo_last", { reading: fmtDist(last.odo, u) }) : tv("odo_first", v);
       if (syncDist) $("#fDist").value = "";
       return;
     }
     const km = distOut(val, u), prev = pts.filter(p => p.odo < km).sort((a,b) => b.odo - a.odo)[0];
     if (syncDist) $("#fDist").value = prev ? fmtIn(distIn(km - prev.odo, u), 1) : "";
-    h.textContent = prev ? `+${fmtDist(km - prev.odo, u)} since ${prev.start ? "your starting reading" : shortDate(prev.date)}` : (pts.length ? "That's lower than your earlier readings." : "");
+    h.textContent = prev ? t(prev.start ? "odo_since_start" : "odo_since_date", { dist: fmtDist(km - prev.odo, u), date: prev.start ? "" : shortDate(prev.date) }) : (pts.length ? t("odo_lower") : "");
   }
   $("#odo").addEventListener("input", () => updateOdoHint(true));
   $("#odoStart").addEventListener("input", () => updateOdoHint(true));
@@ -1343,21 +1609,20 @@ details.more .sheet-sec{padding-top:2px}
     const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return openVehicle(null);
     editingFill = id || null;
     const e = id ? entries.find(x => x.id === id) : null;
-    const u = v.distUnit;
-    const w = words(v), ev = isEV(v);
-    $("#fillTitle").textContent = e ? `Edit ${w.fill}` : `Add ${w.fill}`;
-    $("#litresLbl").textContent = ev ? "kWh" : "Litres";
-    $("#litres").placeholder = ev ? "35" : "12.4";
-    $("#price").placeholder = ev ? "1.20" : "1.89";
-    $("#fillHint").textContent = `Fill in any two of ${ev ? "kWh" : "litres"}, price and total. The third is worked out for you.${ev ? " Free charging? Put 0 as the total." : ""}`;
-    $("#full").parentElement.lastChild.textContent = " " + w.fullCheck;
-    $("#odoStartFull").parentElement.lastChild.textContent = ev ? " The battery was full (or at your usual %) then" : " The tank was full at that reading";
-    $("#fillFor").textContent = "For " + vehName(v);
-    $("#odoLbl").textContent = `Odometer (${du(u)})`;
-    $("#priceLbl").textContent = `${sym(v.currency).trim()}/${w.amt}`;
-    $("#totalLbl").textContent = `Total ${sym(v.currency).trim()}`;
-    $("#fillSave").textContent = e ? "Save changes" : `Save ${w.fill}`;
-    $("#fillDelete").hidden = !e; armButton($("#fillDelete"), false, `Delete ${w.fill}`);
+    const u = v.distUnit, elec = isEV(v), amt = amtUnit(v);
+    $("#fillTitle").textContent = tv(e ? "edit_fill" : "add_fill", v);
+    $("#litresLbl").textContent = elec ? t("kwh") : t("liters");
+    $("#litres").placeholder = elec ? "35" : "12.4";
+    $("#price").placeholder = elec ? "1.20" : "1.89";
+    $("#fillHint").textContent = tv("fill_hint", v);
+    $("#fullLbl").textContent = tv("full_check", v);
+    $("#odoStartFullLbl").textContent = tv("start_full_check", v);
+    $("#fillFor").textContent = t("fill_for", { name: vehName(v) });
+    $("#odoLbl").textContent = t("odo_lbl", { unit: du(u) });
+    $("#priceLbl").textContent = `${sym(v.currency).trim()}/${amt}`;
+    $("#totalLbl").textContent = t("total_sym", { sym: sym(v.currency).trim() });
+    $("#fillSave").textContent = e ? t("save_changes") : tv("save_fill", v);
+    $("#fillDelete").hidden = !e; armButton($("#fillDelete"), false, tv("delete_fill", v));
     $("#date").value = e ? e.date : todayISO();
     $("#odo").value = e ? fmtIn(distIn(e.odo, u), 1) : "";
     $("#litres").value = e ? e.litres : "";
@@ -1365,12 +1630,12 @@ details.more .sheet-sec{padding-top:2px}
     $("#price").value = e ? (e.total / e.litres).toFixed(3) : "";
     $("#full").checked = e ? !!e.full : true;
     $("#note").value = e ? e.note || "" : "";
-    $("#odo").placeholder = readings(v, editingFill).length ? "New reading" : "e.g. 18420";
+    $("#odo").placeholder = t(readings(v, editingFill).length ? "new_reading_ph" : "eg_odo_ph");
     const first = !e && !readings(v, null).length;
     $("#fillStartWrap").hidden = !first;
     $("#odoStart").value = ""; $("#odoStartFull").checked = true;
-    $("#odoStartLbl").textContent = `Starting odometer, optional (${du(u)})`;
-    if (first) $("#odoLbl").textContent = `Odometer now (${du(u)})`;
+    $("#odoStartLbl").textContent = t("start_opt_lbl", { unit: du(u) });
+    if (first) $("#odoLbl").textContent = t("odo_now_lbl", { unit: du(u) });
     fillOrder.length = 0; if (e) fillOrder.push("litres", "total");
     setErr("#fillErr", "");
     $("#fDist").value = "";
@@ -1382,25 +1647,24 @@ details.more .sheet-sec{padding-top:2px}
     ev.preventDefault();
     const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return;
     const u = v.distUnit;
-    const w = words(v), elec = isEV(v);
     const date = $("#date").value, odoIn = num($("#odo").value), litres = num($("#litres").value), price = num($("#price").value);
     let total = $("#total").value.trim() === "" ? NaN : num($("#total").value);
     if (!(total >= 0) && litres > 0 && price >= 0 && $("#price").value.trim() !== "") total = litres * price;
-    if (!date) return setErr("#fillErr", `Choose the date of the ${w.fill}.`);
-    if (!(odoIn > 0)) return setErr("#fillErr", `Enter your odometer reading in ${distWord(u)}.`);
-    if (!(litres > 0)) return setErr("#fillErr", elec ? "Enter how many kWh you charged." : "Enter how many litres you filled.");
-    if (!(total >= 0)) return setErr("#fillErr", elec ? "Enter the price per kWh or the total you paid. Use 0 if charging was free." : "Enter the price per litre or the total you paid.");
+    if (!date) return setErr("#fillErr", tv("err_date_fill", v));
+    if (!(odoIn > 0)) return setErr("#fillErr", t("err_odo_unit", { unit: distWord(u) }));
+    if (!(litres > 0)) return setErr("#fillErr", tv("err_litres", v));
+    if (!(total >= 0)) return setErr("#fillErr", tv("err_total", v));
     const odo = Math.round(distOut(odoIn, u) * 1000) / 1000;
     const sRaw = !$("#fillStartWrap").hidden ? $("#odoStart").value.trim() : "", sIn = num(sRaw);
-    if (sRaw && !(sIn >= 0)) return setErr("#fillErr", "Enter the starting odometer as a number, or leave it empty.");
+    if (sRaw && !(sIn >= 0)) return setErr("#fillErr", t("err_start_num"));
     const startOdo = sRaw ? Math.round(distOut(sIn, u) * 1000) / 1000 : null;
-    if (startOdo != null && startOdo >= odo) return setErr("#fillErr", "The starting odometer should be lower than the odometer now.");
-    if (v.startOdo != null && odo <= v.startOdo) return setErr("#fillErr", `The odometer should be higher than your starting reading of ${fmtDist(v.startOdo, u)}.`);
+    if (startOdo != null && startOdo >= odo) return setErr("#fillErr", t("err_start_lower"));
+    if (v.startOdo != null && odo <= v.startOdo) return setErr("#fillErr", t("err_above_start", { reading: fmtDist(v.startOdo, u) }));
     const others = entries.filter(e => e.vehicleId === v.id && e.id !== editingFill);
     const before = others.filter(e => e.date <= date).sort((a,b) => b.odo - a.odo)[0];
     const after = others.filter(e => e.date > date).sort((a,b) => a.odo - b.odo)[0];
-    if (before && odo <= before.odo) return setErr("#fillErr", `The odometer should be higher than ${fmtDist(before.odo, u)}, your reading on ${fmtDate(before.date)}.`);
-    if (after && odo >= after.odo) return setErr("#fillErr", `The odometer should be lower than ${fmtDist(after.odo, u)}, your reading on ${fmtDate(after.date)}.`);
+    if (before && odo <= before.odo) return setErr("#fillErr", t("err_above", { reading: fmtDist(before.odo, u), date: fmtDate(before.date) }));
+    if (after && odo >= after.odo) return setErr("#fillErr", t("err_below", { reading: fmtDist(after.odo, u), date: fmtDate(after.date) }));
     const data = { date, odo, litres: +litres.toFixed(2), total: +total.toFixed(2), full: $("#full").checked, note: $("#note").value.trim() };
     const next = editingFill
       ? entries.map(e => e.id === editingFill ? { ...e, ...data } : e)
@@ -1408,16 +1672,16 @@ details.more .sheet-sec{padding-top:2px}
     try {
       if (startOdo != null) commitVehicles(vehicles.map(x => x.id === v.id ? { ...x, startOdo, startFull: $("#odoStartFull").checked, startDate: date } : x));
       commitEntries(next);
-    } catch(e){ return setErr("#fillErr", "Couldn't save. Your device may be out of storage."); }
+    } catch(e){ return setErr("#fillErr", t("err_storage")); }
     const wasEdit = !!editingFill;
-    sample = false; closeDialog(fillSheet); render(); toast(wasEdit ? "Changes saved" : `${w.Fill} saved`);
+    sample = false; closeDialog(fillSheet); render(); toast(wasEdit ? t("changes_saved") : tv("fill_saved", v));
   });
 
   $("#fillDelete").onclick = () => {
     const b = $("#fillDelete");
-    if (!b.dataset.armed){ armButton(b, true, "Delete", "Tap again to delete"); return; }
-    try { commitEntries(entries.filter(e => e.id !== editingFill)); } catch(e){ return setErr("#fillErr", "Couldn't delete. Try again."); }
-    closeDialog(fillSheet); render(); toast("Deleted");
+    if (!b.dataset.armed){ armButton(b, true, t("delete"), t("tap_again")); return; }
+    try { commitEntries(entries.filter(e => e.id !== editingFill)); } catch(e){ return setErr("#fillErr", t("err_delete")); }
+    closeDialog(fillSheet); render(); toast(t("deleted"));
   };
 
   // ---------- vehicle sheet ----------
@@ -1427,23 +1691,21 @@ details.more .sheet-sec{padding-top:2px}
     const val = num($("#vOdo").value);
     if (u !== vehFormUnit && val >= 0 && $("#vOdo").value.trim() !== "") $("#vOdo").value = fmtIn(distIn(distOut(val, vehFormUnit), u), 1);
     vehFormUnit = u; setRadio("vDist", u);
-    $("#vOdoLbl").textContent = `${editingVeh ? "Starting" : "Current"} odometer (${du(u)})`;
+    $("#vOdoLbl").textContent = t(editingVeh ? "veh_odo_starting" : "veh_odo_current", { unit: du(u) });
   }
   onRadio("vDist", () => setVehUnit(radioVal("vDist")));
   function vehFuelUI(){
     const e = energyOf({ fuel: $("#vFuel").value });
     if ($("#vCons").dataset.energy !== e) setConsSelect($("#vCons"), e, defaultUnit(e));
-    $("#vFull").parentElement.lastChild.textContent = e === "ev"
-      ? (editingVeh ? " The battery was full (or at your usual %) at that reading" : " The battery is full (or at your usual %) right now")
-      : (editingVeh ? " The tank was full at that reading" : " The tank is full right now");
+    $("#vFullLbl").textContent = tv(editingVeh ? "veh_full_then" : "veh_full_now", { fuel: $("#vFuel").value });
   }
   $("#vFuel").addEventListener("change", vehFuelUI);
 
   function openVehicle(id){
     editingVeh = id || null;
     const v = id ? vehicles.find(x => x.id === id) : null, d = settings.newVeh;
-    $("#vehTitle").textContent = v ? "Edit vehicle" : "Add vehicle";
-    $("#vehSave").textContent = v ? "Save changes" : "Save vehicle";
+    $("#vehTitle").textContent = t(v ? "veh_edit_title" : "veh_add_title");
+    $("#vehSave").textContent = t(v ? "save_changes" : "save_vehicle");
     $("#vName").value = v ? v.name : "";
     setRadio("vType", v ? v.type : d.type);
     $("#vMake").value = v ? v.make : "";
@@ -1458,10 +1720,8 @@ details.more .sheet-sec{padding-top:2px}
     vehFuelUI();
     setVehUnit(vehFormUnit);
     const n = v ? entries.filter(e => e.vehicleId === v.id).length : 0;
-    $("#vOdoHint").textContent = v
-      ? (n ? `Changing km or miles converts all ${plural(n, "fill-up")} for this vehicle. The starting odometer is the reading before your first fill-up.` : "The reading before your first fill-up. Each fill-up then only needs the new reading.")
-      : "Enter the reading once. After that, each fill-up only needs the new reading. If the tank is full now, your first fill-up already shows consumption.";
-    $("#vehDelete").hidden = !v; armButton($("#vehDelete"), false, "Delete vehicle");
+    $("#vOdoHint").textContent = v ? (n ? t("veh_odo_hint_edit_n", { count: nFill(n, v) }) : t("veh_odo_hint_edit")) : t("veh_odo_hint_new");
+    $("#vehDelete").hidden = !v; armButton($("#vehDelete"), false, t("delete_vehicle"));
     setErr("#vehErr", "");
     openDialog(vehSheet);
   }
@@ -1471,50 +1731,49 @@ details.more .sheet-sec{padding-top:2px}
     const u = radioVal("vDist") || "km";
     const data = { name: $("#vName").value.trim(), type: radioVal("vType") || "motorcycle", make: $("#vMake").value.trim(), model: $("#vModel").value.trim(), year: $("#vYear").value.trim(),
       fuel: $("#vFuel").value, distUnit: u, consUnit: $("#vCons").value, currency: curVal($("#vCur")) };
-    if (!data.currency) return setErr("#vehErr", CODE_ERR);
-    if (!data.name && !data.make && !data.model) return setErr("#vehErr", "Give the vehicle a name, or enter its make and model.");
-    if (!yearOk(data.year)) return setErr("#vehErr", "Enter the year as four digits, like 2022.");
+    if (!data.currency) return setErr("#vehErr", t("err_code"));
+    if (!data.name && !data.make && !data.model) return setErr("#vehErr", t("err_veh_name"));
+    if (!yearOk(data.year)) return setErr("#vehErr", t("err_year"));
     const odoRaw = $("#vOdo").value.trim(), odoIn = num(odoRaw);
-    if (odoRaw && !(odoIn >= 0)) return setErr("#vehErr", "Enter the odometer as a number, or leave it empty.");
+    if (odoRaw && !(odoIn >= 0)) return setErr("#vehErr", t("err_odo_num"));
     const old = editingVeh ? vehicles.find(v => v.id === editingVeh) : null;
     let startOdo = odoRaw ? Math.round(distOut(odoIn, u) * 1000) / 1000 : null;
     // same reading, only shown in another unit: keep the stored value exactly
     if (startOdo != null && old && old.startOdo != null && Math.abs(distIn(old.startOdo, u) - odoIn) < 0.051) startOdo = old.startOdo;
     if (startOdo != null && old){
       const first = entries.filter(e => e.vehicleId === old.id).sort((a,b) => a.odo - b.odo)[0];
-      if (first && startOdo >= first.odo) return setErr("#vehErr", `The starting odometer should be lower than your first fill-up, ${fmtDist(first.odo, u)}.`);
+      if (first && startOdo >= first.odo) return setErr("#vehErr", t("err_start_first", { reading: fmtDist(first.odo, u) }));
     }
     const startDate = startOdo == null ? null : old && old.startOdo === startOdo && old.startDate ? old.startDate : todayISO();
     Object.assign(data, { startOdo, startFull: startOdo != null && $("#vFull").checked, startDate });
     let next, id = editingVeh;
     if (id) next = vehicles.map(v => v.id === id ? { ...v, ...data } : v);
     else { id = newId(); next = [...vehicles, { id, ...data }]; }
-    try { commitVehicles(next); } catch(e){ return setErr("#vehErr", "Couldn't save. Your device may be out of storage."); }
+    try { commitVehicles(next); } catch(e){ return setErr("#vehErr", t("err_storage")); }
     settings.activeVehicle = id; settings.mode = "garage"; sample = false;
     settings.newVeh = { type: data.type, fuel: data.fuel, distUnit: data.distUnit, consUnit: data.consUnit, currency: data.currency };
     if (isEV(data)) settings.evUnit = data.consUnit;
     saveSettings();
     closeDialog(vehSheet); render();
     const n = entries.filter(e => e.vehicleId === id).length;
-    if (old && old.distUnit !== data.distUnit) toast(`Now in ${distWord(data.distUnit)}${n ? `. ${plural(n, "fill-up")} converted` : ""}`);
-    else if (old && old.consUnit !== data.consUnit) toast(`Consumption now shown in ${consLabel(data.consUnit)}`);
-    else toast(old ? "Vehicle updated" : `${vehName(next.find(v => v.id === id))} added`);
+    if (old && old.distUnit !== data.distUnit) toast(n ? t("now_in_converted", { unit: distWord(data.distUnit), count: nFill(n, data) }) : t("now_in", { unit: distWord(data.distUnit) }));
+    else if (old && old.consUnit !== data.consUnit) toast(t("cons_now_in", { unit: consLabel(data.consUnit) }));
+    else toast(old ? t("vehicle_updated") : t("vehicle_added", { name: vehName(next.find(v => v.id === id)) }));
   });
 
   $("#vehDelete").onclick = () => {
-    const b = $("#vehDelete");
+    const b = $("#vehDelete"), v = vehicles.find(x => x.id === editingVeh);
     const n = entries.filter(e => e.vehicleId === editingVeh).length;
-    if (!b.dataset.armed){ armButton(b, true, "Delete vehicle", n ? `Tap again to delete it and its ${plural(n, "fill-up")}` : "Tap again to delete"); return; }
+    if (!b.dataset.armed){ armButton(b, true, t("delete_vehicle"), n ? t("tap_again_n", { count: nFill(n, v) }) : t("tap_again")); return; }
     try {
       commitEntries(entries.filter(e => e.vehicleId !== editingVeh));
-      commitVehicles(vehicles.filter(v => v.id !== editingVeh));
-    } catch(e){ return setErr("#vehErr", "Couldn't delete. Try again."); }
+      commitVehicles(vehicles.filter(x => x.id !== editingVeh));
+    } catch(e){ return setErr("#vehErr", t("err_delete")); }
     settings.activeVehicle = vehicles.length ? vehicles[0].id : null; saveSettings();
-    closeDialog(vehSheet); render(); toast("Vehicle deleted");
+    closeDialog(vehSheet); render(); toast(t("vehicle_deleted"));
   };
 
   // ---------- currency pickers: the list, plus "Other currency…" for any 3-letter code ----------
-  const CODE_ERR = "Type the 3-letter currency code, like KHR for Cambodian riel.";
   function customCodes(){
     return [...new Set([H(), ...journeys.map(j => j.currency), ...drives.map(d => d.currency), ...vehicles.map(v => v.currency)].filter(c => c && !CUR[c]))].sort();
   }
@@ -1524,7 +1783,7 @@ details.more .sheet-sec{padding-top:2px}
     else { sel.value = "__other"; other.hidden = false; other.value = code || ""; }
   }
   function prepCur(sel, code){
-    sel.innerHTML = curOptions + customCodes().map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("") + `<option value="__other">Other currency…</option>`;
+    sel.innerHTML = curOptions() + customCodes().map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("") + `<option value="__other">${esc(t("other_currency"))}</option>`;
     setCur(sel, code);
   }
   function curVal(sel){
@@ -1545,15 +1804,13 @@ details.more .sheet-sec{padding-top:2px}
     $("#jRateWrap").hidden = same || !c;
     $("#jFixedWrap").hidden = !fixed;
     $("#jBackupWrap").hidden = fixed;
-    $("#jFixedLbl").textContent = `1 ${c} = how many ${H()}?`;
-    $("#jBackupLbl").textContent = `Backup rate (optional): 1 ${c} = how many ${H()}?`;
+    $("#jFixedLbl").textContent = t("fixed_lbl", { cur: c, home: H() });
+    $("#jBackupLbl").textContent = t("backup_lbl", { cur: c, home: H() });
     const x = same || !c ? null : rate(c, H(), todayISO(), null);
     if (c && !same && (!x || x.approx)) ensureRates([todayISO()]);
-    const ph = x ? `Today about ${fmtIn(x.r, x.r < 0.1 ? 5 : 4)}` : "e.g. 0.052";
+    const ph = x ? t("today_about", { rate: fmtIn(x.r, x.r < 0.1 ? 5 : 4) }) : t("eg_rate");
     $("#jFixed").placeholder = ph; $("#jBackup").placeholder = ph;
-    $("#jRateHint").textContent = fixed
-      ? "Every cost in this trip converts at your rate. Handy when you know what your card charged."
-      : `Each drive's cost converts to ${H()} at that day's rate, downloaded automatically and saved for offline use. If a day's rate isn't available, your backup rate is used.`;
+    $("#jRateHint").textContent = fixed ? t("rate_hint_fixed") : t("rate_hint_daily", { home: H() });
   }
   $("#jCur").addEventListener("change", updateJRate);
   $("#jCur").parentElement.querySelector(".curother").addEventListener("input", updateJRate);
@@ -1562,7 +1819,7 @@ details.more .sheet-sec{padding-top:2px}
     const val = num($("#jOdo").value);
     if (du(u) !== jUnit && val >= 0 && $("#jOdo").value.trim() !== "") $("#jOdo").value = fmtIn(distIn(distOut(val, jUnit), u), 1);
     jUnit = du(u); setRadio("jDistU", jUnit);
-    $("#jOdoLbl").textContent = `Odometer at pickup (${jUnit})`;
+    $("#jOdoLbl").textContent = t("pickup_lbl", { unit: jUnit });
   }
   onRadio("jDistU", () => setJUnit(radioVal("jDistU")));
   $("#jFuel").addEventListener("change", () => { const e = energyOf({ fuel: $("#jFuel").value }); if ($("#jConsU").dataset.energy !== e) setConsSelect($("#jConsU"), e, defaultUnit(e)); });
@@ -1570,8 +1827,8 @@ details.more .sheet-sec{padding-top:2px}
   function openJourney(id, fromDrive){
     editingJ = id || null; jFromDrive = !!fromDrive;
     const j = id ? journeys.find(x => x.id === id) : null, car = j && j.vehicle, own = j && j.fixedTo === H();
-    $("#jTitle").textContent = j ? "Edit trip" : "New trip";
-    $("#jSave").textContent = j ? "Save changes" : "Create trip";
+    $("#jTitle").textContent = t(j ? "trip_edit_title" : "trip_new_title");
+    $("#jSave").textContent = t(j ? "save_changes" : "create_trip");
     $("#jName").value = j ? j.name : "";
     prepCur($("#jCur"), j ? j.currency : (isCode(settings.lastTripCur) ? settings.lastTripCur : H()));
     setRadio("jRate", own && j.fixedRate ? "fixed" : "daily");
@@ -1586,7 +1843,7 @@ details.more .sheet-sec{padding-top:2px}
     setJUnit(jUnit);
     $("#jVehWrap").open = !!car;
     $("#jNote").value = j ? j.note : "";
-    $("#jDelete").hidden = !j; armButton($("#jDelete"), false, "Delete trip");
+    $("#jDelete").hidden = !j; armButton($("#jDelete"), false, t("delete_trip"));
     setErr("#jErr", "");
     updateJRate();
     openDialog(jSheet);
@@ -1596,17 +1853,17 @@ details.more .sheet-sec{padding-top:2px}
   $("#jForm").addEventListener("submit", ev => {
     ev.preventDefault();
     const name = $("#jName").value.trim(), currency = curVal($("#jCur")), fixedMode = radioVal("jRate") === "fixed";
-    if (!name) return setErr("#jErr", "Give the trip a name, like \"Okinawa road trip\".");
-    if (!currency) return setErr("#jErr", CODE_ERR);
+    if (!name) return setErr("#jErr", t("err_trip_name"));
+    if (!currency) return setErr("#jErr", t("err_code"));
     const same = currency === H(), fr = num($("#jFixed").value), brRaw = $("#jBackup").value.trim(), br = num(brRaw);
-    if (!same && fixedMode && !(fr > 0)) return setErr("#jErr", `Enter your rate: how many ${H()} you get for 1 ${currency}.`);
-    if (!same && !fixedMode && brRaw && !(br > 0)) return setErr("#jErr", "Enter the backup rate as a number, or leave it empty.");
+    if (!same && fixedMode && !(fr > 0)) return setErr("#jErr", t("err_own_rate", { home: H(), cur: currency }));
+    if (!same && !fixedMode && brRaw && !(br > 0)) return setErr("#jErr", t("err_backup_rate"));
     // the car for this trip (optional)
     const car = { type: radioVal("jType") || "car", make: $("#jMake").value.trim(), model: $("#jModel").value.trim(), year: $("#jYear").value.trim(),
       fuel: $("#jFuel").value, distUnit: jUnit, consUnit: $("#jConsU").value };
     const odoRaw = $("#jOdo").value.trim(), odoIn = num(odoRaw);
-    if (!yearOk(car.year)) return setErr("#jErr", "Enter the car's year as four digits, like 2022, or leave it empty.");
-    if (odoRaw && !(odoIn >= 0)) return setErr("#jErr", "Enter the pickup odometer as a number, or leave it empty.");
+    if (!yearOk(car.year)) return setErr("#jErr", t("err_car_year"));
+    if (odoRaw && !(odoIn >= 0)) return setErr("#jErr", t("err_pickup_num"));
     const old = editingJ ? journeys.find(j => j.id === editingJ) : null, oldCar = old && old.vehicle;
     car.startOdo = odoRaw ? Math.round(distOut(odoIn, jUnit) * 1000) / 1000 : null;
     if (car.startOdo != null && oldCar && oldCar.startOdo != null && Math.abs(distIn(oldCar.startOdo, jUnit) - odoIn) < 0.051) car.startOdo = oldCar.startOdo;
@@ -1627,40 +1884,40 @@ details.more .sheet-sec{padding-top:2px}
       if (n !== d) changed++;
       return n;
     });
-    try { commitJourneys(nextJ); if (changed) commitDrives(nextD); } catch(e){ return setErr("#jErr", "Couldn't save. Your device may be out of storage."); }
+    try { commitJourneys(nextJ); if (changed) commitDrives(nextD); } catch(e){ return setErr("#jErr", t("err_storage")); }
     settings.lastTripCur = currency; sampleTrip = false;
     if (jFromDrive){
       fillTripSelect(id); prepCur($("#tCurSel"), currency);
       if (hasCar){ applyVehicle(car); markRecent(-1); }
       prefillOdo(); if (!editingDrive) setKind(defaultKind(id)); updateHomeHint();
-      closeDialog(jSheet); saveSettings(); render(); toast(`${name} created`);
+      closeDialog(jSheet); saveSettings(); render(); toast(t("trip_created", { name }));
       return;
     }
     settings.activeTrip = id; settings.mode = "trips"; saveSettings();
     closeDialog(jSheet); render(); window.scrollTo(0, 0);
-    toast(old ? `Trip updated${changed ? `. ${plural(changed, "drive")} updated too` : ""}` : `${name} created. Tap Log drive to add the first one`);
+    toast(old ? (changed ? t("trip_updated_n", { count: tn("n_drive", changed) }) : t("trip_updated")) : t("trip_created_first", { name }));
   });
 
   $("#jDelete").onclick = () => {
     const b = $("#jDelete"), n = drives.filter(d => d.tripId === editingJ).length;
-    if (!b.dataset.armed){ armButton(b, true, "Delete trip", n ? `Tap again to delete it and its ${plural(n, "drive")}` : "Tap again to delete"); return; }
-    try { commitDrives(drives.filter(d => d.tripId !== editingJ)); commitJourneys(journeys.filter(j => j.id !== editingJ)); } catch(e){ return setErr("#jErr", "Couldn't delete. Try again."); }
+    if (!b.dataset.armed){ armButton(b, true, t("delete_trip"), n ? t("tap_again_n", { count: tn("n_drive", n) }) : t("tap_again")); return; }
+    try { commitDrives(drives.filter(d => d.tripId !== editingJ)); commitJourneys(journeys.filter(j => j.id !== editingJ)); } catch(e){ return setErr("#jErr", t("err_delete")); }
     settings.activeTrip = "all"; saveSettings();
-    closeDialog(jSheet); render(); toast("Trip deleted");
+    closeDialog(jSheet); render(); toast(t("trip_deleted"));
   };
 
   // ---------- drive sheet ----------
   const driveSheet = $("#driveSheet");
   let editingDrive = null, driveTripId = null, tripDU = "km", tripCU = "l100", recentList = [], odoAuto = false, odoFrom = "", driveKind = "drive";
   // "Starting odometer": only the car and its reading, before you set off. "Drive or fill-up": the usual entry.
-  const odoNowLabel = () => driveKind === "start" ? `Odometer reading (${tripDU})` : `Odometer now (${tripDU})`;
+  const odoNowLabel = () => t(driveKind === "start" ? "odo_reading_lbl" : "odo_now_lbl", { unit: tripDU });
   function setKind(k){
     driveKind = k === "start" ? "start" : "drive"; setRadio("dKind", driveKind);
     const start = driveKind === "start";
     $("#dFuelPart").hidden = start; $("#tOdoAWrap").hidden = start; $("#tOdoRow").classList.toggle("single", start);
     $("#tOdoBLbl").textContent = odoNowLabel();
-    $("#tOdoB").placeholder = start ? "e.g. 45210" : "Optional";
-    $("#driveSave").textContent = editingDrive ? "Save changes" : start ? "Save starting odometer" : "Save drive";
+    $("#tOdoB").placeholder = t(start ? "eg_start_ph" : "optional");
+    $("#driveSave").textContent = t(editingDrive ? "save_changes" : start ? "save_start" : "save_drive");
     updateOdo(false);
   }
   onRadio("dKind", () => setKind(radioVal("dKind")));
@@ -1684,11 +1941,12 @@ details.more .sheet-sec{padding-top:2px}
     if (c !== tripCU && C > 0) $("#tCons").value = CONS[c].energy === CONS[tripCU].energy ? fmtIn(consIn(consOut(C, tripCU), c), 1) : "";
     tripDU = du(d); tripCU = c;
     setRadio("tDistU", tripDU); setConsSelect($("#tConsU"), CONS[tripCU].energy, tripCU);
-    const ev = CONS[tripCU].energy === "ev";
-    $("#tLitresLbl").textContent = ev ? "Energy used kWh" : "Fuel used L";
-    $("#tLitres").placeholder = ev ? "48" : "18.5";
-    $("#tDistLbl").textContent = "Distance " + tripDU;
-    $("#tOdoALbl").textContent = `Odometer start (${tripDU})`;
+    const elec = CONS[tripCU].energy === "ev";
+    $("#tLitresLbl").textContent = t(elec ? "energy_used" : "fuel_used");
+    $("#tCostLbl").textContent = t(elec ? "cost_charge_lbl" : "cost_fuel_lbl");
+    $("#tLitres").placeholder = elec ? "48" : "18.5";
+    $("#tDistLbl").textContent = t("distance_unit", { unit: tripDU });
+    $("#tOdoALbl").textContent = t("odo_start_lbl", { unit: tripDU });
     $("#tOdoBLbl").textContent = odoNowLabel();
     $("#tConsLbl").textContent = consLabel(tripCU);
     $("#tDist").placeholder = tripDU === "mi" ? "200" : "320";
@@ -1703,10 +1961,10 @@ details.more .sheet-sec{padding-top:2px}
     prefillOdo();
   });
 
-  function applyVehicle(t){
-    setRadio("tType", t.type); $("#tMake").value = t.make || ""; $("#tModel").value = t.model || ""; $("#tYear").value = t.year || "";
-    $("#tFuel").value = t.fuel || "petrol";
-    setTripUnits(t.distUnit, t.consUnit);
+  function applyVehicle(x){
+    setRadio("tType", x.type); $("#tMake").value = x.make || ""; $("#tModel").value = x.model || ""; $("#tYear").value = x.year || "";
+    $("#tFuel").value = x.fuel || "petrol";
+    setTripUnits(x.distUnit, x.consUnit);
   }
   function markRecent(i){ $("#tRecent").querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-pressed", String(j === i))); }
 
@@ -1716,9 +1974,9 @@ details.more .sheet-sec{padding-top:2px}
   function lastReading(jid, veh){
     const k = modelKey(veh);
     const best = drives.filter(d => d.tripId === jid && d.odoEnd != null && modelKey(d) === k).sort((a,b) => b.odoEnd - a.odoEnd)[0];
-    if (best) return { km: best.odoEnd, from: best.kind === "start" ? `your starting reading (${shortDate(best.date)})` : `your last reading (${shortDate(best.date)})` };
+    if (best) return { km: best.odoEnd, from: t(best.kind === "start" ? "from_start" : "from_last", { date: shortDate(best.date) }) };
     const car = tripCarOf(jid);
-    if (car && car.startOdo != null && modelKey(car) === k) return { km: car.startOdo, from: "the pickup reading" };
+    if (car && car.startOdo != null && modelKey(car) === k) return { km: car.startOdo, from: t("from_pickup") };
     return null;
   }
   function prefillOdo(){
@@ -1733,19 +1991,17 @@ details.more .sheet-sec{padding-top:2px}
     const aRaw = $("#tOdoA").value.trim(), a = num(aRaw), b = num($("#tOdoB").value), h = $("#tOdoHint");
     if (driveKind === "start"){
       const p = editingDrive ? null : lastReading(driveTripId, formVehicle());
-      h.textContent = p ? `The last reading for this car was ${fmtIn(distIn(p.km, tripDU), 1)} ${tripDU}.`
-        : "Log the reading before you set off. Forgot, and already at your first fill-up? Choose Drive or fill-up instead and enter both readings there.";
+      h.textContent = p ? t("start_hint_last", { reading: `${fmtIn(distIn(p.km, tripDU), 1)} ${tripDU}` }) : t("start_hint_none");
       return;
     }
     if (aRaw !== "" && a >= 0 && b > 0){
-      if (b === a && !editingDrive){ h.textContent = "Same reading twice: no fuel or distance yet, so this will be saved as your starting odometer."; return; }
-      if (b < a){ h.textContent = "Odometer now should be higher than the start reading."; return; }
+      if (b === a && !editingDrive){ h.textContent = t("odo_same"); return; }
+      if (b < a){ h.textContent = t("odo_now_higher"); return; }
       if (applyDist){ $("#tDist").value = fmtIn(b - a, 1); odoSync = true; $("#tDist").dispatchEvent(new Event("input")); odoSync = false; }
-      h.textContent = `+${fmtIn(b - a, 1)} ${tripDU} driven`;
+      h.textContent = t("odo_driven", { dist: `${fmtIn(b - a, 1)} ${tripDU}` });
       return;
     }
-    h.textContent = odoAuto ? `Start is ${odoFrom}. Type the odometer now or the distance, and the other fills in.`
-      : aRaw === "" && !editingDrive ? "Forgot to log the start? Enter the reading from when you set off as Odometer start, plus the reading now. Or just type the distance." : "";
+    h.textContent = odoAuto ? t("odo_auto", { from: odoFrom }) : aRaw === "" && !editingDrive ? t("odo_forgot") : "";
   }
   // the other direction: a distance (typed, or worked out from fuel and consumption) moves "Odometer now" to start + distance
   let odoSync = false;
@@ -1763,7 +2019,7 @@ details.more .sheet-sec{padding-top:2px}
   onRadio("tType", prefillOdo);
 
   function fillTripSelect(selected){
-    $("#dTrip").innerHTML = sortedJourneys(journeys, drives).map(j => `<option value="${esc(j.id)}">${esc(j.name)} (${esc(j.currency)})</option>`).join("") + `<option value="__new">+ New trip…</option>`;
+    $("#dTrip").innerHTML = sortedJourneys(journeys, drives).map(j => `<option value="${esc(j.id)}">${esc(j.name)} (${esc(j.currency)})</option>`).join("") + `<option value="__new">${esc(t("new_trip_opt"))}</option>`;
     $("#dTrip").value = selected; driveTripId = selected;
   }
 
@@ -1773,20 +2029,20 @@ details.more .sheet-sec{padding-top:2px}
     const j = journeys.find(x => x.id === driveTripId);
     wrap.hidden = true;
     if (!c || c === H()){ h.textContent = ""; return; }
-    if (!(cost > 0)){ h.textContent = `Converted to ${H()} with the exchange rate for that day.`; return; }
+    if (!(cost > 0)){ h.textContent = t("home_converted", { home: H() }); return; }
     const x = rate(c, H(), date, j);
     if (!x || x.approx) ensureRates([date]);
     if ((!x || x.approx) && !ratePending(date) && j && c === j.currency){
       wrap.hidden = false;
-      $("#tRateLbl").textContent = `Your rate: 1 ${c} = how many ${H()}?`;
-      $("#tRate").placeholder = x ? `About ${fmtIn(x.r, x.r < 0.1 ? 5 : 4)}` : "e.g. 0.052";
-      $("#tRateHint").textContent = (x ? `There's no exchange rate for ${fmtDate(date)}, so the nearest day's is used.` : `No exchange rate is available for ${fmtDate(date)}${navigator.onLine === false ? " while you're offline" : ""}.`)
-        + " Type your own rate to use it instead. It's saved for this trip and used whenever a day's rate is missing.";
+      $("#tRateLbl").textContent = t("own_rate_lbl", { cur: c, home: H() });
+      $("#tRate").placeholder = x ? t("about_rate", { rate: fmtIn(x.r, x.r < 0.1 ? 5 : 4) }) : t("eg_rate");
+      $("#tRateHint").textContent = t(x ? "no_rate_day" : navigator.onLine === false ? "no_rate_offline" : "no_rate_avail", { date: fmtDate(date) }) + " " + t("rate_hint_tail");
       const typed = num($("#tRate").value);
-      if (typed > 0){ h.textContent = `≈ ${money(cost * typed)} at your rate`; return; }
+      if (typed > 0){ h.textContent = t("at_your_rate", { amount: money(cost * typed) }); return; }
     }
-    if (!x){ h.textContent = ratePending(date) ? "Getting the exchange rate…" : `Can't convert to ${H()} yet.`; return; }
-    h.textContent = `≈ ${money(cost * x.r)} ${x.fixed ? "at your rate" : x.backup ? "at your backup rate" : x.approx ? "(nearest day's rate)" : "at the " + shortDate(date) + " rate"}`;
+    if (!x){ h.textContent = ratePending(date) ? t("getting_rate") : t("cant_convert", { home: H() }); return; }
+    const amount = money(cost * x.r);
+    h.textContent = x.fixed ? t("at_your_rate", { amount }) : x.backup ? t("at_backup", { amount }) : x.approx ? t("at_nearest", { amount }) : t("at_day", { amount, date: shortDate(date) });
   }
   ["tCost", "tDate", "tRate"].forEach(id => $("#" + id).addEventListener("input", updateHomeHint));
   $("#tDate").addEventListener("change", updateHomeHint);
@@ -1802,39 +2058,39 @@ details.more .sheet-sec{padding-top:2px}
 
   function openDrive(id){
     editingDrive = id || null;
-    const t = id ? drives.find(x => x.id === id) : null;
+    const x = id ? drives.find(d => d.id === id) : null;
     const pick = settings.activeTrip !== "all" && journeys.some(j => j.id === settings.activeTrip) ? settings.activeTrip : (sortedJourneys(journeys, drives)[0] || {}).id;
-    const jid = t ? t.tripId : pick;
+    const jid = x ? x.tripId : pick;
     if (!jid) return openJourney(null);
     fillTripSelect(jid);
-    $("#driveTitle").textContent = t ? (t.kind === "start" ? "Edit starting odometer" : "Edit drive") : "Log drive";
+    $("#driveTitle").textContent = t(x ? (x.kind === "start" ? "edit_start" : "edit_drive") : "log_drive");
     ["tDist", "tLitres", "tCons", "tCost", "tPlace", "tNote", "tOdoA", "tOdoB", "tRate"].forEach(f => { $("#" + f).value = ""; });
     tripOrder.length = 0; odoAuto = false;
     // recent vehicles: this trip's car first, then this trip's drives, then others; newest first, one per model
     const byNew = (a,b) => String(b.created).localeCompare(String(a.created)) || b.date.localeCompare(a.date);
     const car = tripCarOf(jid), seen = new Set();
     recentList = [...(car ? [car] : []), ...drives.filter(d => d.tripId === jid).sort(byNew), ...drives.filter(d => d.tripId !== jid).sort(byNew)]
-      .filter(x => { const k = modelKey(x); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 6);
-    $("#tRecentWrap").hidden = !!t || !recentList.length;
-    $("#tRecent").innerHTML = recentList.map((x, i) => `<button type="button" data-r="${i}" aria-pressed="false">${esc(modelText(x))}</button>`).join("")
-      + (recentList.length ? `<button type="button" data-r="new" aria-pressed="false">+ Different vehicle</button>` : "");
-    const j = journeys.find(x => x.id === jid);
-    if (t){
-      tripDU = t.distUnit; tripCU = t.consUnit;   // show this drive in its own units
-      applyVehicle(t);
-      $("#tDate").value = t.date;
-      $("#tOdoA").value = t.odoStart != null ? fmtIn(distIn(t.odoStart, t.distUnit), 1) : "";
-      $("#tOdoB").value = t.odoEnd != null ? fmtIn(distIn(t.odoEnd, t.distUnit), 1) : "";
-      if (t.kind !== "start"){
-        $("#tDist").value = fmtIn(distIn(t.distance, t.distUnit), 1);
-        $("#tLitres").value = t.litres;
-        $("#tCons").value = consIn(t.litres / t.distance * 100, t.consUnit).toFixed(1);
+      .filter(o => { const k = modelKey(o); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 6);
+    $("#tRecentWrap").hidden = !!x || !recentList.length;
+    $("#tRecent").innerHTML = recentList.map((o, i) => `<button type="button" data-r="${i}" aria-pressed="false">${esc(modelText(o))}</button>`).join("")
+      + (recentList.length ? `<button type="button" data-r="new" aria-pressed="false">${esc(t("different_vehicle"))}</button>` : "");
+    const j = journeys.find(o => o.id === jid);
+    if (x){
+      tripDU = x.distUnit; tripCU = x.consUnit;   // show this drive in its own units
+      applyVehicle(x);
+      $("#tDate").value = x.date;
+      $("#tOdoA").value = x.odoStart != null ? fmtIn(distIn(x.odoStart, x.distUnit), 1) : "";
+      $("#tOdoB").value = x.odoEnd != null ? fmtIn(distIn(x.odoEnd, x.distUnit), 1) : "";
+      if (x.kind !== "start"){
+        $("#tDist").value = fmtIn(distIn(x.distance, x.distUnit), 1);
+        $("#tLitres").value = x.litres;
+        $("#tCons").value = consIn(x.litres / x.distance * 100, x.consUnit).toFixed(1);
       }
-      $("#tCost").value = t.cost != null ? t.cost : "";
-      prepCur($("#tCurSel"), t.currency);
-      $("#tPlace").value = t.place; $("#tNote").value = t.note;
+      $("#tCost").value = x.cost != null ? x.cost : "";
+      prepCur($("#tCurSel"), x.currency);
+      $("#tPlace").value = x.place; $("#tNote").value = x.note;
       tripOrder.push("tDist", "tLitres");
-      setKind(t.kind);
+      setKind(x.kind);
     } else {
       $("#tDate").value = todayISO();
       if (recentList.length){ applyVehicle(recentList[0]); markRecent(0); }
@@ -1843,7 +2099,7 @@ details.more .sheet-sec{padding-top:2px}
       prefillOdo();
       setKind(defaultKind(jid));
     }
-    $("#driveDelete").hidden = !t; armButton($("#driveDelete"), false, t && t.kind === "start" ? "Delete starting odometer" : "Delete drive");
+    $("#driveDelete").hidden = !x; armButton($("#driveDelete"), false, t(x && x.kind === "start" ? "delete_start" : "delete_drive"));
     setErr("#driveErr", "");
     updateHomeHint();
     openDialog(driveSheet);
@@ -1859,7 +2115,7 @@ details.more .sheet-sec{padding-top:2px}
   $("#tModel").addEventListener("change", () => {
     const make = clean($("#tMake").value).toLowerCase(), model = clean($("#tModel").value).toLowerCase();
     if (!model) return;
-    const prev = [...drives].reverse().find(t => clean(t.model).toLowerCase() === model && (!make || clean(t.make).toLowerCase() === make));
+    const prev = [...drives].reverse().find(d => clean(d.model).toLowerCase() === model && (!make || clean(d.make).toLowerCase() === make));
     if (!prev) return;
     if (!$("#tMake").value.trim()) $("#tMake").value = prev.make;
     if (!$("#tYear").value.trim()) $("#tYear").value = prev.year;
@@ -1880,54 +2136,55 @@ details.more .sheet-sec{padding-top:2px}
       && $("#tOdoB").value.trim() !== "" && B >= 0 && (aRaw === "" || A === B);
     if (onlyReading) setKind("start");
     if (driveKind === "start"){
-      if (!journeys.some(j => j.id === tripId)) return setErr("#driveErr", "Choose which trip this belongs to.");
-      if (!yearOk(year)) return setErr("#driveErr", "Enter the year as four digits, like 2022, or leave it empty.");
-      if (!date) return setErr("#driveErr", "Choose the date.");
-      if (!(B >= 0) || $("#tOdoB").value.trim() === "") return setErr("#driveErr", `Enter the odometer reading in ${distWord(tripDU)}.`);
+      if (!journeys.some(j => j.id === tripId)) return setErr("#driveErr", t("err_choose_trip"));
+      if (!yearOk(year)) return setErr("#driveErr", t("err_year_opt"));
+      if (!date) return setErr("#driveErr", t("err_date"));
+      if (!(B >= 0) || $("#tOdoB").value.trim() === "") return setErr("#driveErr", t("err_reading", { unit: distWord(tripDU) }));
       const trip = journeys.find(j => j.id === tripId);
       const sData = { tripId, kind: "start", date, type: radioVal("tType") || "car", make: $("#tMake").value.trim(), model: $("#tModel").value.trim(), year, fuel: $("#tFuel").value,
         distance: 0, litres: 0, cost: null, currency: trip.currency, distUnit: tripDU, consUnit: tripCU, odoStart: null, odoEnd: km(B),
         place: $("#tPlace").value.trim(), note: $("#tNote").value.trim() };
       const wasEdit = !!editingDrive;
-      const nextS = wasEdit ? drives.map(t => t.id === editingDrive ? { ...t, ...sData } : t) : [...drives, { id: newId(), ...sData, created: new Date().toISOString() }];
-      try { commitDrives(nextS); } catch(e){ return setErr("#driveErr", "Couldn't save. Your device may be out of storage."); }
+      const nextS = wasEdit ? drives.map(d => d.id === editingDrive ? { ...d, ...sData } : d) : [...drives, { id: newId(), ...sData, created: new Date().toISOString() }];
+      try { commitDrives(nextS); } catch(e){ return setErr("#driveErr", t("err_storage")); }
       sampleTrip = false; settings.activeTrip = tripId; saveSettings();
       closeDialog(driveSheet); render();
-      toast(wasEdit ? "Changes saved" : "Starting odometer saved. After a fill-up, just type the new reading");
+      toast(t(wasEdit ? "changes_saved" : "start_saved"));
       return;
     }
     if (!(Lt > 0) && Dkm > 0 && l100 > 0) Lt = Dkm * l100 / 100;
     if (!(Dkm > 0) && Lt > 0 && l100 > 0) Dkm = Lt * 100 / l100;
-    if (!journeys.some(j => j.id === tripId)) return setErr("#driveErr", "Choose which trip this drive belongs to.");
-    if (!yearOk(year)) return setErr("#driveErr", "Enter the year as four digits, like 2022, or leave it empty.");
-    if (!date) return setErr("#driveErr", "Choose the date of the drive.");
-    if (aRaw !== "" && B > 0 && B <= A) return setErr("#driveErr", "The odometer now should be higher than the start reading.");
-    if (!(Dkm > 0)) return setErr("#driveErr", `Enter the distance in ${distWord(tripDU)}, or both odometer readings.`);
-    if (!(Lt > 0)) return setErr("#driveErr", CONS[tripCU].energy === "ev" ? "Enter the energy used (kWh), or the consumption from the car's display." : "Enter the fuel used, or the consumption from the trip computer.");
-    if (costRaw && !(cost >= 0)) return setErr("#driveErr", "Enter the fuel cost as a number, or leave it empty.");
-    if (!currency) return setErr("#driveErr", CODE_ERR);
+    if (!journeys.some(j => j.id === tripId)) return setErr("#driveErr", t("err_choose_trip"));
+    if (!yearOk(year)) return setErr("#driveErr", t("err_year_opt"));
+    if (!date) return setErr("#driveErr", t("err_date"));
+    if (aRaw !== "" && B > 0 && B <= A) return setErr("#driveErr", t("err_now_higher"));
+    if (!(Dkm > 0)) return setErr("#driveErr", t("err_distance", { unit: distWord(tripDU) }));
+    if (!(Lt > 0)) return setErr("#driveErr", t(CONS[tripCU].energy === "ev" ? "err_energy_used" : "err_fuel_used"));
+    if (costRaw && !(cost >= 0)) return setErr("#driveErr", t("err_cost_num"));
+    if (!currency) return setErr("#driveErr", t("err_code"));
     const ownRate = !$("#tRateWrap").hidden ? num($("#tRate").value) : NaN;
     const data = { tripId, date, type: radioVal("tType") || "car", make: $("#tMake").value.trim(), model: $("#tModel").value.trim(), year, fuel: $("#tFuel").value,
       distance: Math.round(Dkm * 1000) / 1000, litres: +Lt.toFixed(2), cost: costRaw ? +cost.toFixed(2) : null, currency,
       kind: "drive", distUnit: tripDU, consUnit: tripCU, odoStart: aRaw !== "" && A >= 0 ? km(A) : null, odoEnd: B > 0 ? km(B) : null,
       place: $("#tPlace").value.trim(), note: $("#tNote").value.trim() };
-    const next = editingDrive ? drives.map(t => t.id === editingDrive ? { ...t, ...data } : t)
+    const next = editingDrive ? drives.map(d => d.id === editingDrive ? { ...d, ...data } : d)
       : [...drives, { id: newId(), ...data, created: new Date().toISOString() }];
     try {
       commitDrives(next);
       if (ownRate > 0) commitJourneys(journeys.map(j => j.id === tripId ? { ...j, backupRate: ownRate, fixedTo: H() } : j));
-    } catch(e){ return setErr("#driveErr", "Couldn't save. Your device may be out of storage."); }
+    } catch(e){ return setErr("#driveErr", t("err_storage")); }
     const wasEdit = !!editingDrive;
     if (CONS[tripCU].energy === "ev") settings.evUnit = tripCU;
     sampleTrip = false; settings.activeTrip = tripId; saveSettings();
-    closeDialog(driveSheet); render(); toast((wasEdit ? "Changes saved" : "Drive saved") + (ownRate > 0 ? ". Your rate is saved for this trip" : ""));
+    closeDialog(driveSheet); render();
+    toast(t(wasEdit ? (ownRate > 0 ? "changes_saved_rate" : "changes_saved") : (ownRate > 0 ? "drive_saved_rate" : "drive_saved")));
   });
 
   $("#driveDelete").onclick = () => {
     const b = $("#driveDelete");
-    if (!b.dataset.armed){ armButton(b, true, "Delete", "Tap again to delete"); return; }
-    try { commitDrives(drives.filter(t => t.id !== editingDrive)); } catch(e){ return setErr("#driveErr", "Couldn't delete. Try again."); }
-    closeDialog(driveSheet); render(); toast("Deleted");
+    if (!b.dataset.armed){ armButton(b, true, t("delete"), t("tap_again")); return; }
+    try { commitDrives(drives.filter(d => d.id !== editingDrive)); } catch(e){ return setErr("#driveErr", t("err_delete")); }
+    closeDialog(driveSheet); render(); toast(t("deleted"));
   };
 
   // ---------- page events ----------
@@ -1967,27 +2224,27 @@ details.more .sheet-sec{padding-top:2px}
   function setHome(){
     const c = curVal($("#homeCur")); if (!c || c === H()) return;
     settings.home = c; saveSettings(); render();
-    toast(`Home currency is now ${curName(c)}. Trip costs convert to ${c}`);
+    toast(t("home_now", { name: curName(c), code: c }));
   }
   $("#homeCur").addEventListener("change", () => { if ($("#homeCur").value !== "__other") setHome(); });
   $("#homeCur").parentElement.querySelector(".curother").addEventListener("change", setHome);
 
   // ---------- backup ----------
   $("#exportBtn").onclick = async () => {
-    const backup = { app: "fuel-log", version: 5, exported: new Date().toISOString(), note: "Distances in km, fuel in litres. Units show how each vehicle and drive is displayed.",
+    const backup = { app: "fuel-log", version: 5, exported: new Date().toISOString(), note: "Distances in km, fuel in litres (kWh for electric). Units show how each vehicle and drive is displayed.",
       home: H(), vehicles, fillups: entries, journeys, drives, rates: fx };
     const name = `fuel-log-backup-${todayISO()}.json`;
     const file = new File([JSON.stringify(backup, null, 1)], name, { type: "application/json" });
     const done = () => { settings.lastBackup = new Date().toISOString(); saveSettings(); renderSettings(); };
     const touch = window.matchMedia && matchMedia("(pointer: coarse)").matches;
     if (touch && navigator.canShare && navigator.canShare({ files: [file] })){
-      try { await navigator.share({ files: [file], title: "Fuel Log backup" }); done(); toast("Backup exported"); return; }
+      try { await navigator.share({ files: [file], title: "Fuel Log backup" }); done(); toast(t("backup_exported")); return; }
       catch(e){ if (e && e.name === "AbortError") return; }
     }
     const url = URL.createObjectURL(file), a = document.createElement("a");
     a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
-    done(); toast("Backup saved to Downloads");
+    done(); toast(t("backup_downloads"));
   };
 
   function parseCSV(text){
@@ -2006,10 +2263,10 @@ details.more .sheet-sec{padding-top:2px}
     return rows.filter(r => r.some(c => c.trim() !== ""));
   }
   const validFill = e => e && ISO.test(e.date) && e.odo > 0 && e.litres > 0 && e.total >= 0;
-  const validDrive = t => t && ISO.test(t.date) && (t.kind === "start" ? +t.odoEnd >= 0 : t.distance > 0 && t.litres > 0);
+  const validDrive = x => x && ISO.test(x.date) && (x.kind === "start" ? +x.odoEnd >= 0 : x.distance > 0 && x.litres > 0);
 
   function importJSON(b){
-    if (!b || b.app !== "fuel-log") return toast("That file isn't a Fuel Log backup.");
+    if (!b || b.app !== "fuel-log") return toast(t("not_backup"));
     const nv = [...vehicles], vIds = new Set(nv.map(v => v.id));
     let addV = 0, addF = 0, addJ = 0, addD = 0;
     arr(b.vehicles).forEach(v => { if (v && v.id && !vIds.has(v.id)){ nv.push(normVehicle(v)); vIds.add(v.id); addV++; } });
@@ -2026,24 +2283,24 @@ details.more .sheet-sec{padding-top:2px}
     const nd = [...drives], dIds = new Set(nd.map(d => d.id));
     let incoming = arr(b.drives);
     if (!b.journeys && arr(b.trips).length){   // backups from before trips existed: their drives go into one trip
-      const fresh = arr(b.trips).filter(t => validDrive(t) && !dIds.has(t.id));
+      const fresh = arr(b.trips).filter(x => validDrive(x) && !dIds.has(x.id));
       if (fresh.length){
-        const common = mostCommon(fresh.map(t => CUR[t.currency] ? t.currency : isoFrom(t.currency)).filter(Boolean)) || H();
-        const j = normJourney({ name: "Imported trips", currency: common }); nj.push(j); jIds.add(j.id); addJ++;
-        incoming = fresh.map(t => ({ ...t, tripId: j.id, currency: CUR[t.currency] ? t.currency : (isoFrom(t.currency) || common) }));
+        const common = mostCommon(fresh.map(x => CUR[x.currency] ? x.currency : isoFrom(x.currency)).filter(Boolean)) || H();
+        const j = normJourney({ name: t("name_imported_trips"), currency: common }); nj.push(j); jIds.add(j.id); addJ++;
+        incoming = fresh.map(x => ({ ...x, tripId: j.id, currency: CUR[x.currency] ? x.currency : (isoFrom(x.currency) || common) }));
       }
     }
-    incoming.forEach(t => {
-      if (!validDrive(t) || dIds.has(t.id) || !jIds.has(t.tripId)) return;
-      nd.push(normDrive(t, (nj.find(j => j.id === t.tripId) || {}).currency)); dIds.add(t.id); addD++;
+    incoming.forEach(x => {
+      if (!validDrive(x) || dIds.has(x.id) || !jIds.has(x.tripId)) return;
+      nd.push(normDrive(x, (nj.find(j => j.id === x.tripId) || {}).currency)); dIds.add(x.id); addD++;
     });
     if (b.rates && typeof b.rates === "object") Object.keys(b.rates).forEach(k => { if (ISO.test(k) && !fx[k]) fx[k] = b.rates[k]; });
     saveFx();
-    if (!addV && !addF && !addJ && !addD) return toast("Nothing new to import. It's all in the app already.");
-    try { commitVehicles(nv); commitEntries(ne); commitJourneys(nj); commitDrives(nd); } catch(e){ return toast("Couldn't save the import. Your device may be out of storage."); }
+    if (!addV && !addF && !addJ && !addD) return toast(t("nothing_new"));
+    try { commitVehicles(nv); commitEntries(ne); commitJourneys(nj); commitDrives(nd); } catch(e){ return toast(t("import_fail")); }
     if (!vehicles.some(v => v.id === settings.activeVehicle) && vehicles.length){ settings.activeVehicle = vehicles[0].id; saveSettings(); }
     render();
-    toast(`Imported ${[addV && plural(addV, "vehicle"), addF && plural(addF, "fill-up"), addJ && plural(addJ, "trip"), addD && plural(addD, "drive")].filter(Boolean).join(", ")}`);
+    toast(t("imported", { list: [addV && tn("n_vehicle", addV), addF && tn("n_fill", addF), addJ && tn("n_trip", addJ), addD && tn("n_drive", addD)].filter(Boolean).join(", ") }));
   }
 
   // backups from the first version of the app (CSV of fill-ups, in km) go into the selected vehicle
@@ -2051,9 +2308,9 @@ details.more .sheet-sec{padding-top:2px}
     const rows = parseCSV(text.replace(/^﻿/, ""));
     const head = (rows.shift() || []).map(h => h.trim().toLowerCase());
     const ix = name => head.indexOf(name);
-    if (ix("date") < 0 || ix("odometer_km") < 0 || ix("litres") < 0 || ix("total_cost") < 0) return toast("That file isn't a Fuel Log backup.");
+    if (ix("date") < 0 || ix("odometer_km") < 0 || ix("litres") < 0 || ix("total_cost") < 0) return toast(t("not_backup"));
     let v = vehicles.find(x => x.id === settings.activeVehicle), nv = vehicles;
-    if (!v){ v = normVehicle({ name: "My motorcycle", type: "motorcycle", distUnit: "km", consUnit: settings.newVeh.consUnit }); nv = [...vehicles, v]; }
+    if (!v){ v = normVehicle({ name: t("name_my_motorcycle"), type: "motorcycle", distUnit: "km", consUnit: settings.newVeh.consUnit }); nv = [...vehicles, v]; }
     const keys = new Set(entries.filter(e => e.vehicleId === v.id).map(e => e.date + "|" + e.odo));
     const next = [...entries]; let added = 0, skipped = 0;
     rows.forEach(r => {
@@ -2063,10 +2320,10 @@ details.more .sheet-sec{padding-top:2px}
       next.push({ id: newId(), vehicleId: v.id, ...e, full: ix("full_tank") < 0 || !/^(no|false|0|n)$/i.test((r[ix("full_tank")] || "").trim()), note: ix("note") < 0 ? "" : (r[ix("note")] || "").trim(), created: new Date().toISOString() });
       added++;
     });
-    if (!added) return toast("Nothing new to import. It's all in the app already.");
-    try { if (nv !== vehicles) commitVehicles(nv); commitEntries(next); } catch(e){ return toast("Couldn't save the import. Your device may be out of storage."); }
+    if (!added) return toast(t("nothing_new"));
+    try { if (nv !== vehicles) commitVehicles(nv); commitEntries(next); } catch(e){ return toast(t("import_fail")); }
     settings.activeVehicle = v.id; settings.mode = "garage"; saveSettings();
-    render(); toast(`Imported ${plural(added, "fill-up")} into ${vehName(v)}${skipped ? `, skipped ${skipped}` : ""}`);
+    render(); toast(t(skipped ? "imported_into_skipped" : "imported_into", { count: nFill(added, v), name: vehName(v), skipped }));
   }
 
   $("#importBtn").onclick = () => $("#importFile").click();
@@ -2074,9 +2331,9 @@ details.more .sheet-sec{padding-top:2px}
     const file = e.target.files && e.target.files[0]; e.target.value = "";
     if (!file) return;
     let text;
-    try { text = await file.text(); } catch(err){ return toast("Couldn't read that file."); }
+    try { text = await file.text(); } catch(err){ return toast(t("read_fail")); }
     if (/^\s*\{/.test(text)){
-      let b; try { b = JSON.parse(text); } catch(err){ return toast("That backup file is damaged."); }
+      let b; try { b = JSON.parse(text); } catch(err){ return toast(t("backup_damaged")); }
       importJSON(b);
     } else importCSV(text);
   });
@@ -2087,7 +2344,6 @@ details.more .sheet-sec{padding-top:2px}
   $("#installBanner").hidden = !(isiOS && !standalone && !settings.installHidden);
   $("#hideInstall").onclick = () => { settings.installHidden = true; saveSettings(); $("#installBanner").hidden = true; };
 
-  $("#appVersion").textContent = `App version ${APP_VERSION}`;
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")){
     // when an update is installed, refresh once so the new version shows straight away
     const hadController = !!navigator.serviceWorker.controller; let refreshed = false;
@@ -2110,6 +2366,7 @@ details.more .sheet-sec{padding-top:2px}
   });
 
   saveSettings();
+  applyStatic();
   render();
 })();
 </script>

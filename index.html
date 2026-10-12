@@ -66,6 +66,8 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .vc-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vchip.add{display:flex;align-items:center;justify-content:center;color:var(--accent);border-style:dashed;font-weight:600;min-width:0}
 .vdetail{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:13.5px;color:var(--muted)}
+.vdetail > span{min-width:0}
+.vdetail > button{flex:none;white-space:nowrap}
 
 /* summary tiles */
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
@@ -174,15 +176,6 @@ input:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid 
 .sheet-body{display:grid;gap:14px;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
 .menu-sec{display:grid;gap:10px}
 .menu-sec + .menu-sec{border-top:1px solid var(--line);padding-top:14px}
-.langlist{display:grid;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.langopt{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;min-height:48px}
-.langopt:first-child{border-top:none}
-.langopt:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.langopt span{display:grid}
-.langopt .ln{font-weight:600}
-.langopt .le{font-size:12.5px;color:var(--muted)}
-.langopt[aria-checked=true]{background:var(--accent-soft)}
-.langopt[aria-checked=true]::after{content:"✓";color:var(--accent);font-weight:700;font-size:18px}
 
 /* bottom sheets */
 dialog{border:none;padding:0;background:var(--surface);color:var(--fg);width:100%;max-width:560px;max-height:92dvh;
@@ -221,8 +214,6 @@ details.more summary::-webkit-details-marker{display:none}
 details.more summary::after{content:"+";font-size:20px;font-weight:400;color:var(--muted)}
 details.more[open] summary::after{content:"−"}
 details.more .sheet-sec{padding-top:2px}
-.menu-sec details.more{border-top:none;padding-top:0}
-.menu-sec details.more[open] .langlist{margin-top:6px}
 #dFuelPart{padding-top:0;gap:12px}
 .row2.single{grid-template-columns:1fr}
 
@@ -366,13 +357,8 @@ details.more .sheet-sec{padding-top:2px}
       <h2 id="menuTitle" data-i18n="settings">Settings</h2>
       <button type="button" class="plain" data-close data-i18n="done">Done</button>
     </div>
-    <section class="menu-sec" aria-labelledby="langTitle">
-      <span class="label" id="langTitle" data-i18n="language">Language</span>
-      <div class="langlist" id="langTop" role="radiogroup" aria-labelledby="langTitle"></div>
-      <details class="more" id="langMoreWrap">
-        <summary data-i18n="more_languages">More languages</summary>
-        <div class="langlist" id="langMore" role="radiogroup" aria-labelledby="langTitle"></div>
-      </details>
+    <section class="menu-sec">
+      <div class="setrow"><label for="langSel" data-i18n="language">Language</label><select id="langSel"></select></div>
     </section>
     <section class="menu-sec">
       <div class="setrow"><label for="homeCur" data-i18n="home_currency">Home currency</label><div class="curpick"><select id="homeCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" data-i18n-ph="code_ph" hidden></div></div>
@@ -614,7 +600,7 @@ details.more .sheet-sec{padding-top:2px}
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
-  const APP_VERSION = 10;   // keep in step with VERSION in sw.js
+  const APP_VERSION = 11;   // keep in step with VERSION in sw.js
   const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx" };
 
   // ---------- small helpers ----------
@@ -1411,14 +1397,15 @@ details.more .sheet-sec{padding-top:2px}
     $("#cmpUnitWrap").hidden = rank === "cost" || (!hasFuel && hasEV);
     $("#cmpUnitEVWrap").hidden = rank === "cost" || !hasEV;
     $("#cmpUnitLbl").textContent = t(hasEV ? "fuel_as" : "show_as");
-    const rankRows = (list, valueOf, valueHTML, extra) => {
-      const max = Math.max(...list.map(valueOf));
+    // bars show how good each row is next to the best one (higher is better), whatever unit is shown
+    const rankRows = (list, scoreOf, valueHTML, extra) => {
+      const max = Math.max(...list.map(scoreOf));
       return `<div class="rank-list">${list.map((r,i) => `<div class="rank-row${i === 0 ? " first" : ""}${r.mine ? " mine" : ""}">
           <span class="rank-n">${i + 1}</span>
           <div>
             <div class="rank-top"><span class="rank-name">${r.name}<span class="tag">${esc(typeName(r.type))}</span>${r.mine ? `<span class="tag mine">${esc(t("mine"))}</span>` : ""}</span>
               <span class="rank-val">${valueHTML(r)}</span></div>
-            <div class="bar"><span style="width:${Math.max(4, valueOf(r) / max * 100).toFixed(1)}%"></span></div>
+            <div class="bar"><span style="width:${Math.max(4, scoreOf(r) / max * 100).toFixed(1)}%"></span></div>
             <div class="rank-meta">${esc([...r.meta, extra(r)].filter(Boolean).join(" · "))}</div>
           </div>
         </div>`).join("")}</div>`;
@@ -1429,8 +1416,9 @@ details.more .sheet-sec{padding-top:2px}
       el.innerHTML = `<div class="empty-chart">${esc(t(scope.length || vehicles.length ? "nothing_filter" : "log_to_rank"))}</div>`;
     } else if (rank === "cost"){
       const list = rows.filter(r => r.costKm != null).sort((a,b) => a.costKm - b.costKm), missing = rows.length - list.length;
+      const cheapest = Math.min(...list.map(r => r.costKm).filter(c => c > 0));  // free charging gets a full bar
       el.innerHTML = list.length
-        ? rankRows(list, r => r.costKm, r => `${esc(per100(r.costKm))}<small>${esc(t("per100_short", { unit: D }))}</small>`, r => `${f1.format(consIn(r.cons, unitFor(r.energy)))} ${consLabel(unitFor(r.energy))}`)
+        ? rankRows(list, r => r.costKm > 0 ? cheapest / r.costKm : 1, r => `${esc(per100(r.costKm))}<small>${esc(t("per100_short", { unit: D }))}</small>`, r => `${f1.format(consIn(r.cons, unitFor(r.energy)))} ${consLabel(unitFor(r.energy))}`)
         : `<div class="empty-chart">${esc(t("log_paid_rank"))}</div>`;
       note = t("note_cost", { unit: D, home: H() }) + (missing ? " " + tn("n_unranked", missing) : "");
     } else {
@@ -1438,7 +1426,7 @@ details.more .sheet-sec{padding-top:2px}
         const list = rows.filter(r => r.energy === energy).sort((a,b) => a.cons - b.cons), u = unitFor(energy);
         if (!list.length) return "";
         return (hasFuel && hasEV ? `<h3 class="rank-h">${esc(title)}</h3>` : "")
-          + rankRows(list, r => consIn(r.cons, u), r => `${f1.format(consIn(r.cons, u))}<small>${consLabel(u)}</small>`, r => r.costKm != null ? per100(r.costKm) + t("per100_short", { unit: D }) : "");
+          + rankRows(list, r => 1 / r.cons, r => `${f1.format(consIn(r.cons, u))}<small>${consLabel(u)}</small>`, r => r.costKm != null ? per100(r.costKm) + t("per100_short", { unit: D }) : "");
       };
       el.innerHTML = section("fuel", t("sec_fuel")) + section("ev", t("sec_ev"));
       note = [t("note_eff"), hasFuel && hasEV ? t("note_sep") : "", t("note_conv", { home: H() })].filter(Boolean).join(" ");
@@ -1540,16 +1528,15 @@ details.more .sheet-sec{padding-top:2px}
 
   // ---------- settings menu (☰): language, home currency, backup ----------
   const menuSheet = $("#menuSheet");
+  // a dropdown: the top languages first, then a "More languages" group (each name in its own language)
   function renderLangs(){
-    const row = L => `<button type="button" class="langopt" role="radio" aria-checked="${L.code === LANG}" data-lang="${L.code}" lang="${L.code}"><span><span class="ln">${esc(L.name)}</span>${L.name !== L.en ? `<span class="le" lang="en">${esc(L.en)}</span>` : ""}</span></button>`;
-    $("#langTop").innerHTML = LANGS.filter(L => L.top).map(row).join("");
-    $("#langMore").innerHTML = LANGS.filter(L => !L.top).map(row).join("");
-    if (LANGS.some(L => !L.top && L.code === LANG)) $("#langMoreWrap").open = true;
+    const opt = L => `<option value="${L.code}" lang="${L.code}"${L.code === LANG ? " selected" : ""}>${esc(L.name)}</option>`;
+    $("#langSel").innerHTML = LANGS.filter(L => L.top).map(opt).join("")
+      + `<optgroup label="${esc(t("more_languages"))}">${LANGS.filter(L => !L.top).map(opt).join("")}</optgroup>`;
   }
   $("#menuBtn").onclick = () => { renderLangs(); renderSettings(); openDialog(menuSheet); };
-  menuSheet.addEventListener("click", e => {
-    const b = e.target.closest("[data-lang]"); if (!b) return;
-    settings.lang = b.dataset.lang; saveSettings();
+  $("#langSel").addEventListener("change", e => {
+    settings.lang = e.target.value; saveSettings();
     useLang(settings.lang); applyStatic(); renderLangs(); render();
   });
 

@@ -90,6 +90,13 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 /* model ranking */
 .unitpick{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
 .unitpick select{width:auto;min-height:36px;padding:6px 10px;font-size:15px}
+.unitrow{display:flex;flex-wrap:wrap;gap:8px 16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:none;border-radius:0;padding:7px 14px;font-size:14px;background:transparent}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button[aria-checked=true]{background:var(--accent);color:var(--on-accent);font-weight:600}
+#compare{display:grid;gap:12px}
+.rank-h{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 -2px}
 .rank-list{display:grid;gap:14px}
 .rank-row{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start}
 .rank-n{font-family:var(--display);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.45}
@@ -284,9 +291,20 @@ details.more .sheet-sec{padding-top:2px}
       <section class="panel stack" aria-labelledby="cmpTitle">
         <div class="headrow">
           <h2 id="cmpTitle">Compare models</h2>
-          <label class="unitpick">Show as
-            <select id="cmpUnit" aria-label="Unit for comparing models">
+          <div class="seg" role="radiogroup" id="cmpRank" aria-label="Rank by">
+            <button type="button" role="radio" data-rank="eff" aria-checked="true">Efficiency</button>
+            <button type="button" role="radio" data-rank="cost" aria-checked="false">Cost</button>
+          </div>
+        </div>
+        <div class="unitrow">
+          <label class="unitpick" id="cmpUnitWrap"><span id="cmpUnitLbl">Show as</span>
+            <select id="cmpUnit" aria-label="Unit for fuel">
               <option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option>
+            </select>
+          </label>
+          <label class="unitpick" id="cmpUnitEVWrap" hidden>Electric as
+            <select id="cmpUnitEV" aria-label="Unit for electric">
+              <option value="kwh100">kWh/100km</option><option value="kmkwh">km/kWh</option><option value="mikwh">mi/kWh</option><option value="whkm">Wh/km</option><option value="whmi">Wh/mi</option>
             </select>
           </label>
         </div>
@@ -350,11 +368,11 @@ details.more .sheet-sec{padding-top:2px}
     <div class="field" id="fDistWrap" hidden><label class="label" for="fDist" id="fDistLbl">Or distance since last fill-up</label><input type="text" id="fDist" inputmode="decimal" autocomplete="off" placeholder="From your trip meter"></div>
     <p class="livehint" id="odoHint"></p>
     <div class="row3">
-      <div class="field"><label class="label" for="litres">Litres</label><input type="text" id="litres" inputmode="decimal" autocomplete="off" placeholder="12.4"></div>
+      <div class="field"><label class="label" for="litres" id="litresLbl">Litres</label><input type="text" id="litres" inputmode="decimal" autocomplete="off" placeholder="12.4"></div>
       <div class="field"><label class="label" for="price" id="priceLbl">Price/L</label><input type="text" id="price" inputmode="decimal" autocomplete="off" placeholder="1.89"></div>
       <div class="field"><label class="label" for="total" id="totalLbl">Total</label><input type="text" id="total" inputmode="decimal" autocomplete="off" placeholder="23.44"></div>
     </div>
-    <p class="hint">Fill in any two of litres, price and total. The third is worked out for you.</p>
+    <p class="hint" id="fillHint">Fill in any two of litres, price and total. The third is worked out for you.</p>
     <label class="check"><input type="checkbox" id="full" checked> Filled the tank to full</label>
     <div class="field"><label class="label" for="note">Note (optional)</label><input type="text" id="note" maxlength="120" autocomplete="off" placeholder="Station, trip, new tyres…"></div>
     <p class="err" id="fillErr" hidden></p>
@@ -385,7 +403,7 @@ details.more .sheet-sec{padding-top:2px}
     </div>
     <div class="row2">
       <div class="field"><label class="label" for="vFuel">Fuel</label>
-        <select id="vFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="other">Other</option></select>
+        <select id="vFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="electric">Electric</option><option value="other">Other</option></select>
       </div>
       <div class="field"><label class="label" for="vCur">You pay in</label><select id="vCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" placeholder="Code, e.g. KHR" hidden></div>
     </div>
@@ -447,7 +465,7 @@ details.more .sheet-sec{padding-top:2px}
           <div class="field"><label class="label" for="jYear">Year</label><input type="text" id="jYear" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="—"></div>
         </div>
         <div class="row2">
-          <div class="field"><label class="label" for="jFuel">Fuel</label><select id="jFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="other">Other</option></select></div>
+          <div class="field"><label class="label" for="jFuel">Fuel</label><select id="jFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="electric">Electric</option><option value="other">Other</option></select></div>
           <div class="field"><label class="label" for="jConsU">Consumption as</label><select id="jConsU"><option value="l100">L/100km</option><option value="kml">km/L</option><option value="mpgus">mpg (US)</option><option value="mpguk">mpg (UK)</option></select></div>
         </div>
         <div class="row2">
@@ -501,7 +519,7 @@ details.more .sheet-sec{padding-top:2px}
     <div class="row2">
       <div class="field"><label class="label" for="tDate">Date</label><input type="date" id="tDate"></div>
       <div class="field"><label class="label" for="tFuel">Fuel</label>
-        <select id="tFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="other">Other</option></select>
+        <select id="tFuel"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="lpg">LPG</option><option value="electric">Electric</option><option value="other">Other</option></select>
       </div>
     </div>
     <div class="row2">
@@ -523,7 +541,7 @@ details.more .sheet-sec{padding-top:2px}
     <div class="sheet-sec" id="dFuelPart">
     <div class="row3">
       <div class="field"><label class="label" for="tDist" id="tDistLbl">Distance km</label><input type="text" id="tDist" inputmode="decimal" autocomplete="off" placeholder="320"></div>
-      <div class="field"><label class="label" for="tLitres">Fuel used L</label><input type="text" id="tLitres" inputmode="decimal" autocomplete="off" placeholder="18.5"></div>
+      <div class="field"><label class="label" for="tLitres" id="tLitresLbl">Fuel used L</label><input type="text" id="tLitres" inputmode="decimal" autocomplete="off" placeholder="18.5"></div>
       <div class="field"><label class="label" for="tCons" id="tConsLbl">L/100km</label><input type="text" id="tCons" inputmode="decimal" autocomplete="off" placeholder="5.8"></div>
     </div>
     <p class="hint">Fill in any two of distance, fuel used and consumption. Consumption can come straight from the car's trip computer.</p>
@@ -549,7 +567,7 @@ details.more .sheet-sec{padding-top:2px}
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
-  const APP_VERSION = 8;   // keep in step with VERSION in sw.js
+  const APP_VERSION = 9;   // keep in step with VERSION in sw.js
   const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx" };
 
   // ---------- small helpers ----------
@@ -562,14 +580,35 @@ details.more .sheet-sec{padding-top:2px}
   function load(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } }
 
   // ---------- units ----------
-  // Stored values are always km, litres and L/100km. Units only change how numbers are shown and typed.
+  // Stored values are always km, and litres (fuel) or kWh (electric) per 100 km. Units only change how numbers are shown and typed.
+  // The "litres" field of a fill-up or drive holds kWh when the vehicle is electric.
   const MI = 1.609344;
-  const CONS = { l100: { label: "L/100km", k: 0 }, kml: { label: "km/L", k: 100 }, mpgus: { label: "mpg (US)", k: 235.214583 }, mpguk: { label: "mpg (UK)", k: 282.480936 } };
+  const CONS = {
+    l100:   { label: "L/100km",   energy: "fuel", to: x => x,                from: v => v },
+    kml:    { label: "km/L",      energy: "fuel", to: x => 100 / x,          from: v => 100 / v,          up: true },
+    mpgus:  { label: "mpg (US)",  energy: "fuel", to: x => 235.214583 / x,   from: v => 235.214583 / v,   up: true },
+    mpguk:  { label: "mpg (UK)",  energy: "fuel", to: x => 282.480936 / x,   from: v => 282.480936 / v,   up: true },
+    kwh100: { label: "kWh/100km", energy: "ev",   to: x => x,                from: v => v },
+    kmkwh:  { label: "km/kWh",    energy: "ev",   to: x => 100 / x,          from: v => 100 / v,          up: true },
+    mikwh:  { label: "mi/kWh",    energy: "ev",   to: x => 100 / MI / x,     from: v => 100 / MI / v,     up: true },
+    whkm:   { label: "Wh/km",     energy: "ev",   to: x => x * 10,           from: v => v / 10 },
+    whmi:   { label: "Wh/mi",     energy: "ev",   to: x => x * 10 * MI,      from: v => v / (10 * MI) }
+  };
   const cu = u => CONS[u] ? u : "l100";
-  const consIn = (l100, u) => cu(u) === "l100" ? l100 : CONS[u].k / l100;   // L/100km -> unit
-  const consOut = (v, u) => cu(u) === "l100" ? v : CONS[u].k / v;          // unit -> L/100km
+  const cuE = (u, energy) => CONS[u] && CONS[u].energy === energy ? u : (energy === "ev" ? "kwh100" : "l100");
+  const consIn = (x, u) => CONS[cu(u)].to(x);      // per 100 km -> unit
+  const consOut = (v, u) => CONS[cu(u)].from(v);   // unit -> per 100 km
   const consLabel = u => CONS[cu(u)].label;
-  const higherBetter = u => cu(u) !== "l100";
+  const higherBetter = u => !!CONS[cu(u)].up;
+  const isEV = o => !!o && o.fuel === "electric";
+  const energyOf = o => isEV(o) ? "ev" : "fuel";
+  const amtUnit = o => isEV(o) ? "kWh" : "L";
+  const consOptions = energy => Object.keys(CONS).filter(k => CONS[k].energy === energy).map(k => `<option value="${k}">${CONS[k].label}</option>`).join("");
+  // a unit picker that offers fuel units or electric units to match the vehicle
+  function setConsSelect(sel, energy, unit){
+    if (sel.dataset.energy !== energy){ sel.innerHTML = consOptions(energy); sel.dataset.energy = energy; }
+    sel.value = cuE(unit, energy);
+  }
   const du = u => u === "mi" ? "mi" : "km";
   const distIn = (km, u) => du(u) === "mi" ? km / MI : km;                 // km -> unit
   const distOut = (v, u) => du(u) === "mi" ? v * MI : v;                   // unit -> km
@@ -614,7 +653,10 @@ details.more .sheet-sec{padding-top:2px}
   const settings = Object.assign({ currency: "$", tab: "cons", lastBackup: null, installHidden: false,
     mode: "garage", activeVehicle: null, activeTrip: "all", cmpType: "all", cmpMine: true }, load(K.settings, {}));
   const legacyCons = settings.unit === "kml" ? "kml" : "l100";   // the single unit setting from the earliest version
-  if (!CONS[settings.cmpUnit]) settings.cmpUnit = legacyCons;
+  settings.cmpUnit = cuE(settings.cmpUnit, "fuel") === settings.cmpUnit ? settings.cmpUnit : legacyCons;
+  settings.cmpUnitEV = cuE(settings.cmpUnitEV, "ev");
+  settings.evUnit = cuE(settings.evUnit, "ev");
+  if (settings.cmpRank !== "cost") settings.cmpRank = "eff";
   if (!isCode(settings.home)) settings.home = isoFrom(settings.currency) || guessHome();
   settings.newVeh = Object.assign({ type: "motorcycle", fuel: "petrol", distUnit: "km", consUnit: legacyCons }, settings.newVeh || {});
   function saveSettings(){ try{ localStorage.setItem(K.settings, JSON.stringify(settings)); }catch(e){} }
@@ -637,7 +679,14 @@ details.more .sheet-sec{padding-top:2px}
   const fmtDist = (km, u) => `${f0.format(distIn(km, u))} ${du(u)}`;
 
   const TYPES = { motorcycle: "Motorcycle", car: "Car", other: "Other" };
-  const FUELS = { petrol: "Petrol", diesel: "Diesel", hybrid: "Hybrid", lpg: "LPG", other: "Other fuel" };
+  const FUELS = { petrol: "Petrol", diesel: "Diesel", hybrid: "Hybrid", lpg: "LPG", electric: "Electric", other: "Other fuel" };
+  // a vehicle's consumption unit must match what it runs on
+  const normCons = (u, o) => CONS[u] && CONS[u].energy === energyOf(o) ? u : (isEV(o) ? "kwh100" : legacyCons);
+  const defaultUnit = energy => energy === "ev" ? settings.evUnit : settings.cmpUnit;
+  // words that change for electric vehicles
+  const words = v => isEV(v)
+    ? { fill: "charge", Fill: "Charge", amt: "kWh", per: "kWh", tank: "charge", base: "full charge", fullFills: "full charges", fullCheck: "Charged to full (or your usual %)", when: "after you charge" }
+    : { fill: "fill-up", Fill: "Fill-up", amt: "L", per: "litre", tank: "tank", base: "full tank", fullFills: "full-tank fill-ups", fullCheck: "Filled the tank to full", when: "after your next visit to the pump" };
   const modelName = o => [clean(o.make), clean(o.model)].filter(Boolean).join(" ");
   const unnamed = o => "Unnamed " + (TYPES[o.type] || "vehicle").toLowerCase();
   const vehName = v => clean(v.name) || modelName(v) || TYPES[v.type] || "Vehicle";
@@ -650,7 +699,7 @@ details.more .sheet-sec{padding-top:2px}
   function normVehicle(v){
     const so = v.startOdo == null || v.startOdo === "" ? null : +v.startOdo;
     return { id: v.id || newId(), name: clean(v.name), type: TYPES[v.type] ? v.type : "other", make: clean(v.make), model: clean(v.model), year: clean(v.year),
-      fuel: FUELS[v.fuel] ? v.fuel : "petrol", distUnit: du(v.distUnit), consUnit: CONS[v.consUnit] ? v.consUnit : legacyCons, currency: isCode(v.currency) ? v.currency : H(),
+      fuel: FUELS[v.fuel] ? v.fuel : "petrol", distUnit: du(v.distUnit), consUnit: normCons(v.consUnit, v), currency: isCode(v.currency) ? v.currency : H(),
       startOdo: so != null && isFinite(so) && so >= 0 ? so : null, startFull: !!v.startFull, startDate: ISO.test(v.startDate || "") ? v.startDate : null };
   }
   const odoOrNull = x => { const n = x == null || x === "" ? NaN : +x; return isFinite(n) && n >= 0 ? n : null; };
@@ -658,7 +707,7 @@ details.more .sheet-sec{padding-top:2px}
   function normTripCar(v){
     if (!v || typeof v !== "object") return null;
     return { type: TYPES[v.type] ? v.type : "car", make: clean(v.make), model: clean(v.model), year: clean(v.year), fuel: FUELS[v.fuel] ? v.fuel : "petrol",
-      distUnit: du(v.distUnit), consUnit: CONS[v.consUnit] ? v.consUnit : legacyCons, startOdo: odoOrNull(v.startOdo) };
+      distUnit: du(v.distUnit), consUnit: normCons(v.consUnit, v), startOdo: odoOrNull(v.startOdo) };
   }
   function normJourney(j){
     const fr = +j.fixedRate, br = +j.backupRate;
@@ -670,7 +719,7 @@ details.more .sheet-sec{padding-top:2px}
     const cost = t.cost == null || t.cost === "" ? null : +t.cost;
     return { id: t.id || newId(), tripId: t.tripId || null, kind: t.kind === "start" ? "start" : "drive", date: t.date, type: TYPES[t.type] ? t.type : "other", make: clean(t.make), model: clean(t.model), year: clean(t.year),
       fuel: FUELS[t.fuel] ? t.fuel : "petrol", distance: +t.distance, litres: +t.litres, cost: cost != null && isFinite(cost) ? cost : null,
-      currency: isCode(t.currency) ? t.currency : (isoFrom(t.currency) || fallbackCur || H()), distUnit: du(t.distUnit), consUnit: CONS[t.consUnit] ? t.consUnit : legacyCons,
+      currency: isCode(t.currency) ? t.currency : (isoFrom(t.currency) || fallbackCur || H()), distUnit: du(t.distUnit), consUnit: normCons(t.consUnit, t),
       odoStart: odoOrNull(t.odoStart), odoEnd: odoOrNull(t.odoEnd), place: clean(t.place), note: clean(t.note), created: t.created || new Date().toISOString() };
   }
   const mostCommon = list => { const n = {}; list.forEach(x => { n[x] = (n[x] || 0) + 1; }); return Object.keys(n).sort((a,b) => n[b] - n[a])[0] || null; };
@@ -790,6 +839,7 @@ details.more .sheet-sec{padding-top:2px}
       ["sj2","2026-05-02","car","Honda","Fit","2020","petrol",265,13.8,430,"TWD","km","kml","Jiufen","Rental"],
       ["sj3","2026-07-08","motorcycle","Yamaha","NMAX 155","2023","petrol",146,3.5,35000,"IDR","km","kml","Ubud","Scooter rental"],
       ["sj4","2026-08-11","car","Ford","Mustang","2024","petrol",483,46.0,62.4,"USD","mi","mpgus","Highway 1",""],
+      ["sj4","2026-08-12","car","Tesla","Model 3","2024","electric",320,48.0,18.5,"USD","mi","whmi","Big Sur","Supercharger"],
       ["sj4","2026-08-13","car","","","","petrol",120,9.1,null,"USD","km","l100","Airport shuttle","Didn't catch the model"]
     ].map((r, i) => normDrive({ id: "sd" + i, tripId: r[0], date: r[1], type: r[2], make: r[3], model: r[4], year: r[5], fuel: r[6], distance: r[7], litres: r[8], cost: r[9], currency: r[10], distUnit: r[11], consUnit: r[12], place: r[13], note: r[14], created: r[1] + "T12:00:00Z" }));
     return { j, d };
@@ -895,25 +945,25 @@ details.more .sheet-sec{padding-top:2px}
   }
 
   function renderChart(c, v){
-    const el = $("#chart"), note = $("#chartNote"), tab = settings.tab, u = v.consUnit;
+    const el = $("#chart"), note = $("#chartNote"), tab = settings.tab, u = v.consUnit, w = words(v);
     const W = Math.max(260, Math.round(el.clientWidth || 320));
     let pts, opts;
     if (tab === "cons"){
       pts = c.rows.filter(r => r.cons != null).map(r => ({ label: shortDate(r.date), y: consIn(r.cons, u) }));
-      opts = { fmt: x => f1.format(x) + " " + consLabel(u), short: x => f1.format(x), avg: c.avgCons != null ? consIn(c.avgCons, u) : null, aria: "Fuel consumption per tank in " + consLabel(u) };
-      note.textContent = `${consLabel(u)} for each tank, measured between full fill-ups. ${higherBetter(u) ? "Higher" : "Lower"} is better. The dashed line is your average.`;
-      if (!pts.length){ el.innerHTML = `<div class="empty-chart">${v.startOdo != null && v.startFull ? "Your first full fill-up will show consumption." : "Log two full-tank fill-ups to see your consumption."}</div>`; return; }
+      opts = { fmt: x => f1.format(x) + " " + consLabel(u), short: x => f1.format(x), avg: c.avgCons != null ? consIn(c.avgCons, u) : null, aria: `Consumption per ${w.tank} in ` + consLabel(u) };
+      note.textContent = `${consLabel(u)} for each ${w.tank}, measured between ${w.fullFills}. ${higherBetter(u) ? "Higher" : "Lower"} is better. The dashed line is your average.`;
+      if (!pts.length){ el.innerHTML = `<div class="empty-chart">${v.startOdo != null && v.startFull ? `Your first ${w.base} will show consumption.` : `Log two ${w.fullFills} to see your consumption.`}</div>`; return; }
     } else if (tab === "price"){
       pts = c.fills.map(r => ({ label: shortDate(r.date), y: r.ppl }));
-      opts = { fmt: x => moneyPPL(x, v.currency), prefix: sym(v.currency), avg: c.avgPrice, aria: "Price paid per litre at each fill-up" };
-      note.textContent = "What you paid per litre at each fill-up. The dashed line is your average.";
+      opts = { fmt: x => moneyPPL(x, v.currency), prefix: sym(v.currency), avg: c.avgPrice, aria: `Price paid per ${w.per} at each ${w.fill}` };
+      note.textContent = `What you paid per ${w.per} at each ${w.fill}. The dashed line is your average.`;
       if (!pts.length){ el.innerHTML = `<div class="empty-chart">Your fuel prices will appear here.</div>`; return; }
     } else {
       const byMonth = {};
       c.fills.forEach(r => { const k = r.date.slice(0,7); byMonth[k] = (byMonth[k] || 0) + r.total; });
       pts = Object.keys(byMonth).sort().slice(-12).map(k => ({ label: parseISO(k + "-01").toLocaleDateString(undefined, { month: "short" }), y: byMonth[k] }));
-      opts = { bars: true, fmt: x => money(x, v.currency), prefix: sym(v.currency), aria: "Fuel spending per month" };
-      note.textContent = "Total spent on fuel each month, last 12 months. This month is highlighted.";
+      opts = { bars: true, fmt: x => money(x, v.currency), prefix: sym(v.currency), aria: `${isEV(v) ? "Charging" : "Fuel"} spending per month` };
+      note.textContent = `Total spent on ${isEV(v) ? "charging" : "fuel"} each month, last 12 months. This month is highlighted.`;
       if (!pts.length){ el.innerHTML = `<div class="empty-chart">Your monthly spending will appear here.</div>`; return; }
     }
     el.innerHTML = chartSVG(pts, opts, W);
@@ -931,7 +981,8 @@ details.more .sheet-sec{padding-top:2px}
     if (garage) renderGarage(); else renderTrips();
     $("#sampleBanner").hidden = !(garage ? sample : sampleTrip);
     $("#sampleText").textContent = garage ? "These example fill-ups aren't saved. Add your own to start this vehicle's log." : "These example trips aren't saved. Create your own trip to start.";
-    $("#addBtn").textContent = garage ? (vehicles.length ? "Add fill-up" : "Add vehicle") : (journeys.length ? "Log drive" : "New trip");
+    const av = vehicles.find(x => x.id === settings.activeVehicle);
+    $("#addBtn").textContent = garage ? (av ? `Add ${words(av).fill}` : "Add vehicle") : (journeys.length ? "Log drive" : "New trip");
     renderSettings();
   }
 
@@ -941,7 +992,9 @@ details.more .sheet-sec{padding-top:2px}
     $("#garageEmpty").hidden = !!vehicles.length;
     $("#garageBody").hidden = !vehicles.length;
     if (!v){ $("#sub").textContent = "Track fill-ups for each vehicle you own"; return; }
-    const u = v.distUnit, vu = v.consUnit, vc = v.currency;
+    const u = v.distUnit, vu = v.consUnit, vc = v.currency, w = words(v);
+    $("#histTitle").textContent = w.Fill + "s";
+    $('#tabs [data-tab="price"]').textContent = "Price/" + w.amt;
     const own = entries.filter(e => e.vehicleId === v.id);
     if (own.length) sample = false;
     const c = sample ? compute(sampleEntries(), null) : compute(own, v);
@@ -951,14 +1004,14 @@ details.more .sheet-sec{padding-top:2px}
     $("#vehDetailText").textContent = vehDetail(v);
 
     const last = c.fills[c.fills.length - 1];
-    $("#sub").textContent = c.fills.length ? `${vehName(v)} · ${plural(c.fills.length, "fill-up")} · last on ${fmtDate(last.date)}${sample ? " (sample)" : ""}` : `${vehName(v)} · no fill-ups yet`;
+    $("#sub").textContent = c.fills.length ? `${vehName(v)} · ${plural(c.fills.length, w.fill)} · last on ${fmtDate(last.date)}${sample ? " (sample)" : ""}` : `${vehName(v)} · no ${w.fill}s yet`;
 
     const perU = c.costPerKm != null ? (du(u) === "mi" ? c.costPerKm * MI : c.costPerKm) : null;
     $("#tiles").innerHTML =
-      tile("Average", c.avgCons != null ? f1.format(consIn(c.avgCons, vu)) : "–", consLabel(vu), c.lastCons != null ? `Last tank ${f1.format(consIn(c.lastCons, vu))}` : "Needs a full tank to measure", { hero: true }) +
-      tile("Cost per " + du(u), perU != null ? moneyPer(perU, vc) : "–", "", perU != null ? `${money(perU * 100, vc)} per 100 ${du(u)}` : "Needs a full tank to measure") +
-      tile("Total spent", c.fills.length ? money(c.totalSpent, vc) : "–", "", `${f1.format(c.totalL)} L in ${plural(c.fills.length, "fill-up")}`) +
-      tile("Distance", c.distance ? f0.format(distIn(c.distance, u)) : "–", du(u), c.avgPrice != null ? `Avg ${moneyPPL(c.avgPrice, vc)}/L` : "Logged so far");
+      tile("Average", c.avgCons != null ? f1.format(consIn(c.avgCons, vu)) : "–", consLabel(vu), c.lastCons != null ? `Last ${w.tank} ${f1.format(consIn(c.lastCons, vu))}` : `Needs a ${w.base} to measure`, { hero: true }) +
+      tile("Cost per " + du(u), perU != null ? moneyPer(perU, vc) : "–", "", perU != null ? `${money(perU * 100, vc)} per 100 ${du(u)}` : `Needs a ${w.base} to measure`) +
+      tile("Total spent", c.fills.length ? money(c.totalSpent, vc) : "–", "", `${f1.format(c.totalL)} ${w.amt} in ${plural(c.fills.length, w.fill)}`) +
+      tile("Distance", c.distance ? f0.format(distIn(c.distance, u)) : "–", du(u), c.avgPrice != null ? `Avg ${moneyPPL(c.avgPrice, vc)}/${w.amt}` : "Logged so far");
 
     $("#tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === settings.tab)));
     renderChart(c, v);
@@ -966,7 +1019,7 @@ details.more .sheet-sec{padding-top:2px}
     const el = $("#history");
     if (!c.fills.length){
       const startRow = c.rows.find(r => r.start);
-      el.innerHTML = `<div class="list">${startRow ? startHTML(startRow, v) : ""}<div class="emptystate"><strong>No fill-ups for ${esc(vehName(v))} yet</strong><span>Tap <b>Add fill-up</b> after your next visit to the pump${startRow ? ". Just type the new odometer reading." : ". Two full tanks are enough to show consumption."}</span>${startRow ? "" : '<button type="button" class="link" data-editveh>Log the starting odometer first</button><button type="button" class="link" data-sample>Preview with sample data</button>'}</div></div>`;
+      el.innerHTML = `<div class="list">${startRow ? startHTML(startRow, v) : ""}<div class="emptystate"><strong>No ${w.fill}s for ${esc(vehName(v))} yet</strong><span>Tap <b>Add ${w.fill}</b> ${w.when}${startRow ? ". Just type the new odometer reading." : `. Two ${w.fullFills} are enough to show consumption.`}</span>${startRow ? "" : '<button type="button" class="link" data-editveh>Log the starting odometer first</button><button type="button" class="link" data-sample>Preview with sample data</button>'}</div></div>`;
       return;
     }
     const avg = c.avgCons;
@@ -981,14 +1034,14 @@ details.more .sheet-sec{padding-top:2px}
         </span>
         <span class="e-side">
           <span class="e-cons ${cls}">${r.cons != null ? f1.format(consIn(r.cons, vu)) : "–"}<small>${consLabel(vu)}</small></span>
-          <span class="e-meta">${f2.format(r.litres)} L · ${money(r.total, vc)}</span>
+          <span class="e-meta">${f2.format(r.litres)} ${w.amt} · ${money(r.total, vc)}</span>
         </span>
       </button>`;
     }).join("")}</div>`;
   }
   function startHTML(r, v){
     return `<button type="button" class="entry start tap" data-editveh aria-label="Edit starting odometer">
-      <span class="e-main"><span class="e-date">Starting odometer${r.full ? '<span class="pill">tank full</span>' : ""}</span>
+      <span class="e-main"><span class="e-date">Starting odometer${r.full ? `<span class="pill">${isEV(v) ? "battery full" : "tank full"}</span>` : ""}</span>
       <span class="e-meta">${fmtDist(r.odo, v.distUnit)}${r.date ? " · set " + esc(fmtDate(r.date)) : ""}</span></span>
       <span class="e-side"><span class="e-meta">Edit</span></span>
     </button>`;
@@ -996,7 +1049,7 @@ details.more .sheet-sec{padding-top:2px}
 
   // ---------- render: trips ----------
   let viewJ = journeys, viewD = drives;   // what the Trips screen shows: your data, or the sample
-  const modelKey = o => [o.type, o.make, o.model, o.year].map(s => clean(s).toLowerCase()).join("|");
+  const modelKey = o => [o.type, energyOf(o), o.make, o.model, o.year].map(s => clean(s).toLowerCase()).join("|");
   const isFuel = d => d.kind !== "start";   // a starting-odometer entry has no fuel or distance
   const journeyOf = (d, list) => (list || viewJ).find(j => j.id === d.tripId) || null;
   // a drive's cost in the home currency: { v, approx } — v is null while the rate isn't known yet
@@ -1018,7 +1071,7 @@ details.more .sheet-sec{padding-top:2px}
     const groups = new Map();
     list.forEach(t => {
       const k = modelKey(t);
-      const g = groups.get(k) || { ref: t, trips: 0, dist: 0, litres: 0, fuels: new Set(), costHome: 0, costDist: 0 };
+      const g = groups.get(k) || { ref: t, energy: energyOf(t), trips: 0, dist: 0, litres: 0, fuels: new Set(), costHome: 0, costDist: 0 };
       g.trips++; g.dist += t.distance; g.litres += t.litres; g.fuels.add(FUELS[t.fuel] || "");
       const hc = homeCost(t); if (hc && hc.v != null){ g.costHome += hc.v; g.costDist += t.distance; }
       groups.set(k, g);
@@ -1033,7 +1086,11 @@ details.more .sheet-sec{padding-top:2px}
     $("#tripsBody").hidden = !viewJ.length;
     if (!viewJ.length){ $("#sub").textContent = "Log drives on trips and compare models"; return; }
 
-    const U = settings.cmpUnit, D = U.startsWith("mpg") ? "mi" : "km";
+    const U = settings.cmpUnit, UE = settings.cmpUnitEV, D = U.startsWith("mpg") ? "mi" : "km";
+    const unitFor = e => e === "ev" ? UE : U;
+    // fuel (litres) and electric (kWh) are totalled separately
+    const split = list => { const sum = (l, k) => l.reduce((a,d) => a + d[k], 0), f = list.filter(d => !isEV(d)), e = list.filter(isEV);
+      return { fD: sum(f, "distance"), fL: sum(f, "litres"), eD: sum(e, "distance"), eK: sum(e, "litres") }; };
     const jSel = viewJ.find(j => j.id === settings.activeTrip) || null;
     const inSel = jSel ? viewD.filter(d => d.tripId === jSel.id) : viewD, scope = inSel.filter(isFuel);
     ensureRates(scope.filter(d => needsDailyRate(d, journeyOf(d)) && !fx[d.date]).map(d => d.date));
@@ -1055,34 +1112,41 @@ details.more .sheet-sec{padding-top:2px}
       : `${plural(viewJ.length, "trip")} · ${plural(viewD.filter(isFuel).length, "drive")}${sampleTag}`;
 
     // tiles
-    const totD = scope.reduce((a,t) => a + t.distance, 0), totL = scope.reduce((a,t) => a + t.litres, 0);
+    const P = split(scope), totD = P.fD + P.eD;
+    const fAvg = P.fD ? f1.format(consIn(P.fL / P.fD * 100, U)) : null, eAvg = P.eD ? f1.format(consIn(P.eK / P.eD * 100, UE)) : null;
     const cs = costSummary(scope);
     const costVal = !cs.n ? "–" : cs.missing ? "…" : money(cs.total);
     const ratesNote = cs.missing ? (navigator.onLine === false || !viewD.some(d => ratePending(d.date)) ? "No exchange rate yet. Add your own rate in Edit trip" : "Getting exchange rates…") : "";
-    const avgTile = tile("Average", totD ? f1.format(consIn(totL / totD * 100, U)) : "–", consLabel(U), jSel ? "This trip" : "Across all trips", { hero: true });
-    const distTile = tile("Distance", totD ? f0.format(distIn(totD, D)) : "–", D, totL ? `${f1.format(totL)} L used` : "Logged so far");
+    const avgTile = fAvg || !eAvg
+      ? tile("Average", fAvg || "–", consLabel(U), eAvg ? `Electric: ${eAvg} ${consLabel(UE)}` : jSel ? "This trip" : "Across all trips", { hero: true })
+      : tile("Average", eAvg, consLabel(UE), jSel ? "This trip, electric" : "All trips, electric", { hero: true });
+    const used = [P.fL ? `${f1.format(P.fL)} L` : "", P.eK ? `${f1.format(P.eK)} kWh` : ""].filter(Boolean).join(" · ");
+    const distTile = tile("Distance", totD ? f0.format(distIn(totD, D)) : "–", D, used ? used + " used" : "Logged so far");
+    const costLabel = P.eD ? (P.fD ? "Fuel and charging" : "Charging cost") : "Fuel cost";
     if (jSel){
       const localAll = scope.filter(d => d.cost != null).every(d => d.currency === jSel.currency);
       const localTotal = scope.filter(d => d.cost != null).reduce((a,d) => a + d.cost, 0);
       const costSub = !cs.n ? "No costs logged yet" : ratesNote || [jSel.currency !== H() && localAll ? `${money(localTotal, jSel.currency)} paid` : plural(cs.n, "drive") + " with costs", cs.approx ? "approx. rate" : ""].filter(Boolean).join(" · ");
       const perD = cs.n && !cs.missing ? (() => { const dd = scope.filter(d => d.cost != null).reduce((a,d) => a + d.distance, 0); return dd ? `${money(cs.total / dd * 100 * (D === "mi" ? MI : 1))} per 100 ${D}` : ""; })() : "";
-      $("#tripTiles").innerHTML = avgTile + tile("Fuel cost", costVal, "", costSub) + distTile + tile("Cost per 100 " + D, perD ? perD.split(" per")[0] : "–", "", perD ? `Converted to ${H()}` : "Log costs to see this");
+      $("#tripTiles").innerHTML = avgTile + tile(costLabel, costVal, "", costSub) + distTile + tile("Cost per 100 " + D, perD ? perD.split(" per")[0] : "–", "", perD ? `Converted to ${H()}` : "Log costs to see this");
     } else {
-      const best = groupDrives(scope).sort((a,b) => a.cons - b.cons)[0];
+      const gs = groupDrives(scope).sort((a,b) => a.cons - b.cons), best = gs.find(g => g.energy === "fuel") || gs[0], bu = best ? unitFor(best.energy) : U;
       const costSub = !cs.n ? "No costs logged yet" : ratesNote || `${plural(cs.n, "drive")} with costs${cs.approx ? " · approx. rate" : ""}`;
       $("#tripTiles").innerHTML = avgTile +
-        tile("Most efficient", best ? modelHTML(best.ref) : "–", "", best ? `${f1.format(consIn(best.cons, U))} ${consLabel(U)}` : "Log a drive to compare", { sm: !!best }) +
-        tile("Fuel cost", costVal, "", costSub) + distTile;
+        tile("Most efficient", best ? modelHTML(best.ref) : "–", "", best ? `${f1.format(consIn(best.cons, bu))} ${consLabel(bu)}` : "Log a drive to compare", { sm: !!best }) +
+        tile(costLabel, costVal, "", costSub) + distTile;
     }
 
     // comparison ranking, always best first
-    $("#cmpUnit").value = U;
+    const rank = settings.cmpRank;
+    $("#cmpRank").querySelectorAll("button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.rank === rank)));
+    $("#cmpUnit").value = U; $("#cmpUnitEV").value = UE;
     $("#cmpMine").checked = !!settings.cmpMine;
     $("#cmpFilter").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.cmp === settings.cmpType)));
     const typeOk = t => settings.cmpType === "all" || t === settings.cmpType;
-    const per100 = (cost, km) => km ? money(cost / km * 100 * (D === "mi" ? MI : 1)) + "/100 " + D : "";
-    const rows = groupDrives(scope.filter(t => typeOk(t.type))).map(g => ({ name: modelHTML(g.ref), type: g.ref.type, cons: g.cons, mine: false,
-      meta: [plural(g.trips, "drive"), fmtDist(g.dist, D), [...g.fuels].filter(Boolean).join(", "), g.costDist ? per100(g.costHome, g.costDist) : ""].filter(Boolean).join(" · ") }));
+    const per100 = costKm => money(costKm * 100 * (D === "mi" ? MI : 1));
+    const rows = groupDrives(scope.filter(t => typeOk(t.type))).map(g => ({ name: modelHTML(g.ref), type: g.ref.type, energy: g.energy, cons: g.cons, mine: false,
+      costKm: g.costDist ? g.costHome / g.costDist : null, meta: [plural(g.trips, "drive"), fmtDist(g.dist, D), [...g.fuels].filter(Boolean).join(", ")] }));
     if (settings.cmpMine){
       vehicles.forEach(v => {
         if (!typeOk(v.type)) return;
@@ -1090,39 +1154,60 @@ details.more .sheet-sec{padding-top:2px}
         if (c.avgCons == null) return;
         if (c.costPerKm != null && v.currency !== H()){ const x = rate(v.currency, H(), todayISO(), null); c.costPerKm = x ? c.costPerKm * x.r : null; if (!x || x.approx) ensureRates([todayISO()]); }
         rows.push({ name: esc(vehName(v)) + (modelName(v) && modelName(v) !== vehName(v) ? ` <span class="yr">${esc(modelName(v))}</span>` : clean(v.year) ? ` <span class="yr">${esc(clean(v.year))}</span>` : ""),
-          type: v.type, cons: c.avgCons, mine: true, meta: ["Your vehicle", fmtDist(c.distance, D) + " of fill-ups", c.costPerKm != null ? per100(c.costPerKm, 1) : ""].filter(Boolean).join(" · ") });
+          type: v.type, energy: energyOf(v), cons: c.avgCons, costKm: c.costPerKm, mine: true, meta: ["Your vehicle", fmtDist(c.distance, D) + " logged"] });
       });
     }
-    rows.sort((a,b) => a.cons - b.cons);
-    const el = $("#compare");
-    if (!rows.length){
-      el.innerHTML = `<div class="empty-chart">${scope.length || vehicles.length ? "Nothing to compare for this filter yet." : "Log drives in different vehicles to rank them here."}</div>`;
-    } else {
-      const max = Math.max(...rows.map(r => consIn(r.cons, U)));
-      el.innerHTML = `<div class="rank-list">${rows.map((r,i) => `<div class="rank-row${i === 0 ? " first" : ""}${r.mine ? " mine" : ""}">
+    const hasFuel = rows.some(r => r.energy === "fuel"), hasEV = rows.some(r => r.energy === "ev");
+    $("#cmpUnitWrap").hidden = rank === "cost" || (!hasFuel && hasEV);
+    $("#cmpUnitEVWrap").hidden = rank === "cost" || !hasEV;
+    $("#cmpUnitLbl").textContent = hasEV ? "Fuel as" : "Show as";
+    const rankRows = (list, valueOf, valueHTML, extra) => {
+      const max = Math.max(...list.map(valueOf));
+      return `<div class="rank-list">${list.map((r,i) => `<div class="rank-row${i === 0 ? " first" : ""}${r.mine ? " mine" : ""}">
           <span class="rank-n">${i + 1}</span>
           <div>
             <div class="rank-top"><span class="rank-name">${r.name}<span class="tag">${esc(TYPES[r.type] || "Other")}</span>${r.mine ? '<span class="tag mine">Mine</span>' : ""}</span>
-              <span class="rank-val">${f1.format(consIn(r.cons, U))}<small>${consLabel(U)}</small></span></div>
-            <div class="bar"><span style="width:${Math.max(4, consIn(r.cons, U) / max * 100).toFixed(1)}%"></span></div>
-            <div class="rank-meta">${esc(r.meta)}</div>
+              <span class="rank-val">${valueHTML(r)}</span></div>
+            <div class="bar"><span style="width:${Math.max(4, valueOf(r) / max * 100).toFixed(1)}%"></span></div>
+            <div class="rank-meta">${esc([...r.meta, extra(r)].filter(Boolean).join(" · "))}</div>
           </div>
         </div>`).join("")}</div>`;
+    };
+    const el = $("#compare");
+    let note = "";
+    if (!rows.length){
+      el.innerHTML = `<div class="empty-chart">${scope.length || vehicles.length ? "Nothing to compare for this filter yet." : "Log drives in different vehicles to rank them here."}</div>`;
+    } else if (rank === "cost"){
+      const list = rows.filter(r => r.costKm != null).sort((a,b) => a.costKm - b.costKm), missing = rows.length - list.length;
+      el.innerHTML = list.length
+        ? rankRows(list, r => r.costKm, r => `${per100(r.costKm)}<small>/100 ${D}</small>`, r => `${f1.format(consIn(r.cons, unitFor(r.energy)))} ${consLabel(unitFor(r.energy))}`)
+        : `<div class="empty-chart">Log what you paid for fuel or charging to rank by cost.</div>`;
+      note = `Ranked by what fuel and charging cost per 100 ${D}, converted to ${H()} with each day's exchange rate. Petrol and electric are compared directly.${missing ? ` ${plural(missing, "model")} without costs ${missing === 1 ? "isn't" : "aren't"} ranked.` : ""}`;
+    } else {
+      const section = (energy, title) => {
+        const list = rows.filter(r => r.energy === energy).sort((a,b) => a.cons - b.cons), u = unitFor(energy);
+        if (!list.length) return "";
+        return (hasFuel && hasEV ? `<h3 class="rank-h">${title}</h3>` : "")
+          + rankRows(list, r => consIn(r.cons, u), r => `${f1.format(consIn(r.cons, u))}<small>${consLabel(u)}</small>`, r => r.costKm != null ? `${per100(r.costKm)}/100 ${D}` : "");
+      };
+      el.innerHTML = section("fuel", "Petrol, diesel and hybrid") + section("ev", "Electric");
+      note = `Ranked from most to least efficient.${hasFuel && hasEV ? " Fuel and electric are ranked separately, because litres and kWh can't be compared. Choose Cost to rank them together." : ""} Costs are converted to ${H()} with each day's exchange rate.`;
     }
-    $("#cmpNote").textContent = rows.length ? `Ranked from most to least efficient, in ${consLabel(U)}. Fuel costs are converted to ${curName(H())}s (${H()}) with each day's exchange rate.${settings.cmpMine ? " Your own vehicles use their fill-up average." : ""}` : "";
+    $("#cmpNote").textContent = rows.length ? note + (settings.cmpMine ? " Your own vehicles use their logged average." : "") : "";
 
     // list: trips (All) or this trip's drives
     const tl = $("#tripList");
     $("#tripListTitle").textContent = jSel ? "Drives" : "Your trips";
     if (!jSel){
       tl.innerHTML = `<div class="list">${ordered.map(j => {
-        const inTrip = viewD.filter(d => d.tripId === j.id), ds = inTrip.filter(isFuel), dd = ds.reduce((a,d) => a + d.distance, 0), ll = ds.reduce((a,d) => a + d.litres, 0);
+        const inTrip = viewD.filter(d => d.tripId === j.id), ds = inTrip.filter(isFuel), S = split(ds), mainEV = S.eD > S.fD;
+        const dd = S.fD + S.eD, cons = mainEV ? S.eK / S.eD * 100 : S.fL / S.fD * 100, cu2 = unitFor(mainEV ? "ev" : "fuel");
         const dates = inTrip.map(d => d.date).sort(), c2 = costSummary(ds);
         return `<button type="button" class="entry tap" data-open="${esc(j.id)}" aria-label="Open ${esc(j.name)}">
           <span class="e-main"><span class="e-date">${esc(j.name)}</span>
-            <span class="e-meta">${dates.length ? esc(fmtRange(dates[0], dates[dates.length - 1])) + " · " : ""}${plural(ds.length, "drive")} · ${esc(j.currency)}</span>
+            <span class="e-meta">${dates.length ? esc(fmtRange(dates[0], dates[dates.length - 1])) + " · " : ""}${plural(ds.length, "drive")} · ${esc(j.currency)}${S.fD && S.eD ? " · fuel and electric" : ""}</span>
             ${j.note ? `<span class="e-note">${esc(j.note)}</span>` : ""}</span>
-          <span class="e-side">${dd ? `<span class="e-cons">${f1.format(consIn(ll / dd * 100, U))}<small>${consLabel(U)}</small></span><span class="e-meta">${fmtDist(dd, D)}</span>` : `<span class="e-meta">${inTrip.length ? "Starting odometer logged" : "No drives yet"}</span>`}
+          <span class="e-side">${dd ? `<span class="e-cons">${f1.format(consIn(cons, cu2))}<small>${consLabel(cu2)}</small></span><span class="e-meta">${fmtDist(dd, D)}</span>` : `<span class="e-meta">${inTrip.length ? "Starting odometer logged" : "No drives yet"}</span>`}
             ${c2.n ? `<span class="e-home">${c2.missing ? "…" : (c2.approx ? "≈ " : "") + money(c2.total)}</span>` : ""}</span>
         </button>`; }).join("")}</div>`;
       return;
@@ -1147,7 +1232,7 @@ details.more .sheet-sec{padding-top:2px}
         </span>
         <span class="e-side">
           <span class="e-cons">${f1.format(consIn(t.litres / t.distance * 100, t.consUnit))}<small>${consLabel(t.consUnit)}</small></span>
-          <span class="e-meta">${fmtDist(t.distance, t.distUnit)} · ${f1.format(t.litres)} L</span>
+          <span class="e-meta">${fmtDist(t.distance, t.distUnit)} · ${f1.format(t.litres)} ${amtUnit(t)}</span>
           ${t.cost != null ? `<span class="e-meta">${esc(money(t.cost, t.currency))}</span>` : ""}
           ${t.cost != null && t.currency !== H() ? `<span class="e-home">${hc && hc.v != null ? "≈ " + money(hc.v) : "…"}</span>` : ""}
         </span>
@@ -1234,10 +1319,10 @@ details.more .sheet-sec{padding-top:2px}
     const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return;
     const u = v.distUnit, val = num($("#odo").value), pts = fillPoints(v), h = $("#odoHint");
     $("#fDistWrap").hidden = !pts.length;
-    $("#fDistLbl").textContent = `Or distance since last fill-up (${du(u)})`;
+    $("#fDistLbl").textContent = `Or distance since last ${words(v).fill} (${du(u)})`;
     if (!(val > 0)){
       const last = pts.sort((a,b) => b.odo - a.odo)[0];
-      h.textContent = last ? `Last reading: ${fmtDist(last.odo, u)}` : "First fill-up: enter the odometer as shown on the bike or car.";
+      h.textContent = last ? `Last reading: ${fmtDist(last.odo, u)}` : `First ${words(v).fill}: enter the odometer as shown on the bike or car.`;
       if (syncDist) $("#fDist").value = "";
       return;
     }
@@ -1259,13 +1344,20 @@ details.more .sheet-sec{padding-top:2px}
     editingFill = id || null;
     const e = id ? entries.find(x => x.id === id) : null;
     const u = v.distUnit;
-    $("#fillTitle").textContent = e ? "Edit fill-up" : "Add fill-up";
+    const w = words(v), ev = isEV(v);
+    $("#fillTitle").textContent = e ? `Edit ${w.fill}` : `Add ${w.fill}`;
+    $("#litresLbl").textContent = ev ? "kWh" : "Litres";
+    $("#litres").placeholder = ev ? "35" : "12.4";
+    $("#price").placeholder = ev ? "1.20" : "1.89";
+    $("#fillHint").textContent = `Fill in any two of ${ev ? "kWh" : "litres"}, price and total. The third is worked out for you.${ev ? " Free charging? Put 0 as the total." : ""}`;
+    $("#full").parentElement.lastChild.textContent = " " + w.fullCheck;
+    $("#odoStartFull").parentElement.lastChild.textContent = ev ? " The battery was full (or at your usual %) then" : " The tank was full at that reading";
     $("#fillFor").textContent = "For " + vehName(v);
     $("#odoLbl").textContent = `Odometer (${du(u)})`;
-    $("#priceLbl").textContent = `${sym(v.currency).trim()}/L`;
+    $("#priceLbl").textContent = `${sym(v.currency).trim()}/${w.amt}`;
     $("#totalLbl").textContent = `Total ${sym(v.currency).trim()}`;
-    $("#fillSave").textContent = e ? "Save changes" : "Save fill-up";
-    $("#fillDelete").hidden = !e; armButton($("#fillDelete"), false, "Delete fill-up");
+    $("#fillSave").textContent = e ? "Save changes" : `Save ${w.fill}`;
+    $("#fillDelete").hidden = !e; armButton($("#fillDelete"), false, `Delete ${w.fill}`);
     $("#date").value = e ? e.date : todayISO();
     $("#odo").value = e ? fmtIn(distIn(e.odo, u), 1) : "";
     $("#litres").value = e ? e.litres : "";
@@ -1290,13 +1382,14 @@ details.more .sheet-sec{padding-top:2px}
     ev.preventDefault();
     const v = vehicles.find(x => x.id === settings.activeVehicle); if (!v) return;
     const u = v.distUnit;
+    const w = words(v), elec = isEV(v);
     const date = $("#date").value, odoIn = num($("#odo").value), litres = num($("#litres").value), price = num($("#price").value);
-    let total = num($("#total").value);
-    if (!(total > 0) && litres > 0 && price > 0) total = litres * price;
-    if (!date) return setErr("#fillErr", "Choose the date of the fill-up.");
+    let total = $("#total").value.trim() === "" ? NaN : num($("#total").value);
+    if (!(total >= 0) && litres > 0 && price >= 0 && $("#price").value.trim() !== "") total = litres * price;
+    if (!date) return setErr("#fillErr", `Choose the date of the ${w.fill}.`);
     if (!(odoIn > 0)) return setErr("#fillErr", `Enter your odometer reading in ${distWord(u)}.`);
-    if (!(litres > 0)) return setErr("#fillErr", "Enter how many litres you filled.");
-    if (!(total > 0)) return setErr("#fillErr", "Enter the price per litre or the total you paid.");
+    if (!(litres > 0)) return setErr("#fillErr", elec ? "Enter how many kWh you charged." : "Enter how many litres you filled.");
+    if (!(total >= 0)) return setErr("#fillErr", elec ? "Enter the price per kWh or the total you paid. Use 0 if charging was free." : "Enter the price per litre or the total you paid.");
     const odo = Math.round(distOut(odoIn, u) * 1000) / 1000;
     const sRaw = !$("#fillStartWrap").hidden ? $("#odoStart").value.trim() : "", sIn = num(sRaw);
     if (sRaw && !(sIn >= 0)) return setErr("#fillErr", "Enter the starting odometer as a number, or leave it empty.");
@@ -1317,14 +1410,14 @@ details.more .sheet-sec{padding-top:2px}
       commitEntries(next);
     } catch(e){ return setErr("#fillErr", "Couldn't save. Your device may be out of storage."); }
     const wasEdit = !!editingFill;
-    sample = false; closeDialog(fillSheet); render(); toast(wasEdit ? "Changes saved" : "Fill-up saved");
+    sample = false; closeDialog(fillSheet); render(); toast(wasEdit ? "Changes saved" : `${w.Fill} saved`);
   });
 
   $("#fillDelete").onclick = () => {
     const b = $("#fillDelete");
-    if (!b.dataset.armed){ armButton(b, true, "Delete fill-up", "Tap again to delete"); return; }
+    if (!b.dataset.armed){ armButton(b, true, "Delete", "Tap again to delete"); return; }
     try { commitEntries(entries.filter(e => e.id !== editingFill)); } catch(e){ return setErr("#fillErr", "Couldn't delete. Try again."); }
-    closeDialog(fillSheet); render(); toast("Fill-up deleted");
+    closeDialog(fillSheet); render(); toast("Deleted");
   };
 
   // ---------- vehicle sheet ----------
@@ -1337,6 +1430,14 @@ details.more .sheet-sec{padding-top:2px}
     $("#vOdoLbl").textContent = `${editingVeh ? "Starting" : "Current"} odometer (${du(u)})`;
   }
   onRadio("vDist", () => setVehUnit(radioVal("vDist")));
+  function vehFuelUI(){
+    const e = energyOf({ fuel: $("#vFuel").value });
+    if ($("#vCons").dataset.energy !== e) setConsSelect($("#vCons"), e, defaultUnit(e));
+    $("#vFull").parentElement.lastChild.textContent = e === "ev"
+      ? (editingVeh ? " The battery was full (or at your usual %) at that reading" : " The battery is full (or at your usual %) right now")
+      : (editingVeh ? " The tank was full at that reading" : " The tank is full right now");
+  }
+  $("#vFuel").addEventListener("change", vehFuelUI);
 
   function openVehicle(id){
     editingVeh = id || null;
@@ -1350,11 +1451,11 @@ details.more .sheet-sec{padding-top:2px}
     $("#vYear").value = v ? v.year : "";
     $("#vFuel").value = v ? v.fuel : d.fuel;
     prepCur($("#vCur"), v ? v.currency : (isCode(d.currency) ? d.currency : H()));
-    $("#vCons").value = v ? v.consUnit : d.consUnit;
+    setConsSelect($("#vCons"), energyOf({ fuel: $("#vFuel").value }), v ? v.consUnit : d.consUnit);
     vehFormUnit = v ? v.distUnit : d.distUnit;
     $("#vOdo").value = v && v.startOdo != null ? fmtIn(distIn(v.startOdo, vehFormUnit), 1) : "";
     $("#vFull").checked = v ? !!v.startFull : false;
-    $("#vFull").parentElement.lastChild.textContent = v ? " The tank was full at that reading" : " The tank is full right now";
+    vehFuelUI();
     setVehUnit(vehFormUnit);
     const n = v ? entries.filter(e => e.vehicleId === v.id).length : 0;
     $("#vOdoHint").textContent = v
@@ -1391,6 +1492,7 @@ details.more .sheet-sec{padding-top:2px}
     try { commitVehicles(next); } catch(e){ return setErr("#vehErr", "Couldn't save. Your device may be out of storage."); }
     settings.activeVehicle = id; settings.mode = "garage"; sample = false;
     settings.newVeh = { type: data.type, fuel: data.fuel, distUnit: data.distUnit, consUnit: data.consUnit, currency: data.currency };
+    if (isEV(data)) settings.evUnit = data.consUnit;
     saveSettings();
     closeDialog(vehSheet); render();
     const n = entries.filter(e => e.vehicleId === id).length;
@@ -1463,6 +1565,7 @@ details.more .sheet-sec{padding-top:2px}
     $("#jOdoLbl").textContent = `Odometer at pickup (${jUnit})`;
   }
   onRadio("jDistU", () => setJUnit(radioVal("jDistU")));
+  $("#jFuel").addEventListener("change", () => { const e = energyOf({ fuel: $("#jFuel").value }); if ($("#jConsU").dataset.energy !== e) setConsSelect($("#jConsU"), e, defaultUnit(e)); });
 
   function openJourney(id, fromDrive){
     editingJ = id || null; jFromDrive = !!fromDrive;
@@ -1477,7 +1580,7 @@ details.more .sheet-sec{padding-top:2px}
     setRadio("jType", car ? car.type : "car");
     $("#jMake").value = car ? car.make : ""; $("#jModel").value = car ? car.model : ""; $("#jYear").value = car ? car.year : "";
     $("#jFuel").value = car ? car.fuel : "petrol";
-    $("#jConsU").value = car ? car.consUnit : settings.cmpUnit;
+    setConsSelect($("#jConsU"), energyOf({ fuel: $("#jFuel").value }), car ? car.consUnit : defaultUnit(energyOf({ fuel: $("#jFuel").value })));
     jUnit = car ? car.distUnit : du(settings.newVeh.distUnit);
     $("#jOdo").value = car && car.startOdo != null ? fmtIn(distIn(car.startOdo, jUnit), 1) : "";
     setJUnit(jUnit);
@@ -1575,20 +1678,30 @@ details.more .sheet-sec{padding-top:2px}
   function setTripUnits(d, c){
     const conv = (id, from, to) => { const el = $("#" + id), v = num(el.value); if (from !== to && el.value.trim() !== "" && v >= 0) el.value = fmtIn(distIn(distOut(v, from), to), 1); };
     ["tDist", "tOdoA", "tOdoB"].forEach(id => conv(id, tripDU, du(d)));
+    c = cu(c);
     const C = num($("#tCons").value);
-    if (c !== tripCU && C > 0) $("#tCons").value = fmtIn(consIn(consOut(C, tripCU), c), 1);
-    tripDU = du(d); tripCU = cu(c);
-    setRadio("tDistU", tripDU); $("#tConsU").value = tripCU;
+    // litres and kWh can't be converted into each other, so a switch between them clears consumption
+    if (c !== tripCU && C > 0) $("#tCons").value = CONS[c].energy === CONS[tripCU].energy ? fmtIn(consIn(consOut(C, tripCU), c), 1) : "";
+    tripDU = du(d); tripCU = c;
+    setRadio("tDistU", tripDU); setConsSelect($("#tConsU"), CONS[tripCU].energy, tripCU);
+    const ev = CONS[tripCU].energy === "ev";
+    $("#tLitresLbl").textContent = ev ? "Energy used kWh" : "Fuel used L";
+    $("#tLitres").placeholder = ev ? "48" : "18.5";
     $("#tDistLbl").textContent = "Distance " + tripDU;
     $("#tOdoALbl").textContent = `Odometer start (${tripDU})`;
     $("#tOdoBLbl").textContent = odoNowLabel();
     $("#tConsLbl").textContent = consLabel(tripCU);
     $("#tDist").placeholder = tripDU === "mi" ? "200" : "320";
-    $("#tCons").placeholder = { l100: "5.8", kml: "17", mpgus: "40", mpguk: "48" }[tripCU];
+    $("#tCons").placeholder = { l100: "5.8", kml: "17", mpgus: "40", mpguk: "48", kwh100: "15", kmkwh: "6.5", mikwh: "4", whkm: "150", whmi: "250" }[tripCU];
     updateOdo(false);
   }
   onRadio("tDistU", () => setTripUnits(radioVal("tDistU"), tripCU));
   $("#tConsU").addEventListener("change", () => setTripUnits(tripDU, $("#tConsU").value));
+  $("#tFuel").addEventListener("change", () => {
+    const e = energyOf({ fuel: $("#tFuel").value });
+    if (CONS[tripCU].energy !== e) setTripUnits(tripDU, defaultUnit(e));
+    prefillOdo();
+  });
 
   function applyVehicle(t){
     setRadio("tType", t.type); $("#tMake").value = t.make || ""; $("#tModel").value = t.model || ""; $("#tYear").value = t.year || "";
@@ -1599,7 +1712,7 @@ details.more .sheet-sec{padding-top:2px}
 
   // ----- odometer readings: the start comes from the last reading of this car in this trip, or its pickup reading
   const tripCarOf = jid => { const j = journeys.find(x => x.id === jid); return j && j.vehicle ? j.vehicle : null; };
-  const formVehicle = () => ({ type: radioVal("tType") || "car", make: $("#tMake").value, model: $("#tModel").value, year: $("#tYear").value });
+  const formVehicle = () => ({ type: radioVal("tType") || "car", fuel: $("#tFuel").value, make: $("#tMake").value, model: $("#tModel").value, year: $("#tYear").value });
   function lastReading(jid, veh){
     const k = modelKey(veh);
     const best = drives.filter(d => d.tripId === jid && d.odoEnd != null && modelKey(d) === k).sort((a,b) => b.odoEnd - a.odoEnd)[0];
@@ -1725,7 +1838,7 @@ details.more .sheet-sec{padding-top:2px}
     } else {
       $("#tDate").value = todayISO();
       if (recentList.length){ applyVehicle(recentList[0]); markRecent(0); }
-      else applyVehicle({ type: "car", make: "", model: "", year: "", fuel: "petrol", distUnit: settings.newVeh.distUnit, consUnit: settings.cmpUnit });
+      else applyVehicle({ type: "car", make: "", model: "", year: "", fuel: "petrol", distUnit: settings.newVeh.distUnit, consUnit: defaultUnit("fuel") });
       prepCur($("#tCurSel"), j ? j.currency : H());
       prefillOdo();
       setKind(defaultKind(jid));
@@ -1790,7 +1903,7 @@ details.more .sheet-sec{padding-top:2px}
     if (!date) return setErr("#driveErr", "Choose the date of the drive.");
     if (aRaw !== "" && B > 0 && B <= A) return setErr("#driveErr", "The odometer now should be higher than the start reading.");
     if (!(Dkm > 0)) return setErr("#driveErr", `Enter the distance in ${distWord(tripDU)}, or both odometer readings.`);
-    if (!(Lt > 0)) return setErr("#driveErr", "Enter the fuel used, or the consumption from the trip computer.");
+    if (!(Lt > 0)) return setErr("#driveErr", CONS[tripCU].energy === "ev" ? "Enter the energy used (kWh), or the consumption from the car's display." : "Enter the fuel used, or the consumption from the trip computer.");
     if (costRaw && !(cost >= 0)) return setErr("#driveErr", "Enter the fuel cost as a number, or leave it empty.");
     if (!currency) return setErr("#driveErr", CODE_ERR);
     const ownRate = !$("#tRateWrap").hidden ? num($("#tRate").value) : NaN;
@@ -1805,6 +1918,7 @@ details.more .sheet-sec{padding-top:2px}
       if (ownRate > 0) commitJourneys(journeys.map(j => j.id === tripId ? { ...j, backupRate: ownRate, fixedTo: H() } : j));
     } catch(e){ return setErr("#driveErr", "Couldn't save. Your device may be out of storage."); }
     const wasEdit = !!editingDrive;
+    if (CONS[tripCU].energy === "ev") settings.evUnit = tripCU;
     sampleTrip = false; settings.activeTrip = tripId; saveSettings();
     closeDialog(driveSheet); render(); toast((wasEdit ? "Changes saved" : "Drive saved") + (ownRate > 0 ? ". Your rate is saved for this trip" : ""));
   });
@@ -1844,7 +1958,9 @@ details.more .sheet-sec{padding-top:2px}
     const o = e.target.closest("[data-open]"); if (o){ settings.activeTrip = o.dataset.open; saveSettings(); render(); window.scrollTo(0, 0); return; }
     const d = e.target.closest("[data-drive]"); if (d && !sampleTrip) openDrive(d.dataset.drive);
   });
-  $("#cmpUnit").addEventListener("change", e => { settings.cmpUnit = cu(e.target.value); saveSettings(); render(); });
+  $("#cmpUnit").addEventListener("change", e => { settings.cmpUnit = cuE(e.target.value, "fuel"); saveSettings(); render(); });
+  $("#cmpUnitEV").addEventListener("change", e => { settings.cmpUnitEV = cuE(e.target.value, "ev"); saveSettings(); render(); });
+  $("#cmpRank").addEventListener("click", e => { const b = e.target.closest("button[data-rank]"); if (!b) return; settings.cmpRank = b.dataset.rank; saveSettings(); render(); });
   $("#cmpFilter").addEventListener("click", e => { const b = e.target.closest("button[data-cmp]"); if (!b) return; settings.cmpType = b.dataset.cmp; saveSettings(); render(); });
   $("#cmpMine").addEventListener("change", e => { settings.cmpMine = e.target.checked; saveSettings(); render(); });
   $("#hideSample").onclick = () => { sample = false; sampleTrip = false; render(); };
@@ -1889,7 +2005,7 @@ details.more .sheet-sec{padding-top:2px}
     if (f !== "" || row.length){ row.push(f); rows.push(row); }
     return rows.filter(r => r.some(c => c.trim() !== ""));
   }
-  const validFill = e => e && ISO.test(e.date) && e.odo > 0 && e.litres > 0 && e.total > 0;
+  const validFill = e => e && ISO.test(e.date) && e.odo > 0 && e.litres > 0 && e.total >= 0;
   const validDrive = t => t && ISO.test(t.date) && (t.kind === "start" ? +t.odoEnd >= 0 : t.distance > 0 && t.litres > 0);
 
   function importJSON(b){

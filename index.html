@@ -99,6 +99,15 @@ header.top .sub{color:var(--muted);font-size:14px;margin-top:8px}
 .insights li::before{content:"";width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--muted)}
 .insights li.good::before{background:var(--accent)}
 .insights li.warn::before{background:var(--amber)}
+/* renewals */
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+.pills{flex-wrap:wrap;overflow:visible}
+.ren-st{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ren-st.due{color:var(--amber);font-weight:600}
+.ren-st.over{color:var(--danger);font-weight:600}
+.entry.addrow{justify-content:center;color:var(--accent);font-weight:600}
+.duelist{display:grid;gap:4px}
+.dueitem{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .chart svg{display:block;width:100%;height:auto;direction:ltr}
 .chart text{font-family:var(--body);font-size:11.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
 .chart .endlbl{font-family:var(--display);font-weight:700;font-size:13px;fill:var(--fg)}
@@ -265,6 +274,10 @@ details.more .sheet-sec{padding-top:2px}
 
   <!-- ===== My vehicles ===== -->
   <div class="view" id="garageView">
+    <div id="dueBanner" class="banner" hidden>
+      <strong data-i18n="ren_due_title">Coming up</strong>
+      <div class="duelist" id="dueList"></div>
+    </div>
     <div class="panel" id="garageEmpty" hidden>
       <div class="emptystate">
         <strong data-i18n="first_vehicle_title">Add your first vehicle</strong>
@@ -297,6 +310,11 @@ details.more .sheet-sec{padding-top:2px}
         <div class="chart" id="chart"></div>
         <div class="legend" id="chartLegend" hidden></div>
         <p class="hint" id="chartNote"></p>
+      </section>
+
+      <section class="stack" aria-labelledby="renTitle">
+        <div class="sec-head"><h2 id="renTitle" data-i18n="renewals">Renewals</h2><span class="e-meta" id="renYearly"></span></div>
+        <div id="renList"></div>
       </section>
 
       <section class="stack" aria-labelledby="histTitle">
@@ -434,6 +452,44 @@ details.more .sheet-sec{padding-top:2px}
 </dialog>
 
 <!-- Vehicle sheet -->
+<dialog id="renSheet" aria-labelledby="renSheetTitle">
+  <form id="renForm" novalidate>
+    <div class="sheet-head">
+      <h2 id="renSheetTitle">Add renewal</h2>
+      <button type="button" class="plain" data-close data-i18n="cancel">Cancel</button>
+    </div>
+    <div class="sheet-sec stack" id="rPresetWrap">
+      <div class="field"><label class="label" for="rRegion" data-i18n="ren_region">Region</label><select id="rRegion"></select></div>
+      <div class="field" id="rPresetField"><span class="label" data-i18n="ren_common">Common here</span><div class="tabs pills" id="rPresets"></div></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label class="label" for="rKind" data-i18n="ren_type">Type</label><select id="rKind"></select></div>
+      <div class="field"><label class="label" for="rFor" data-i18n="ren_for">For</label><select id="rFor"></select></div>
+    </div>
+    <div class="field"><label class="label" for="rName" data-i18n="name">Name</label><input type="text" id="rName" maxlength="60" autocomplete="off" data-i18n-ph="ren_name_ph"></div>
+    <p class="hint" id="rLocal" hidden></p>
+    <div class="row2">
+      <div class="field"><label class="label" for="rExpiry" data-i18n="ren_expiry">Expires on</label><input type="date" id="rExpiry"></div>
+      <div class="field"><label class="label" for="rEvery" data-i18n="ren_every">Renews every</label><select id="rEvery"></select></div>
+    </div>
+    <div class="row-cost">
+      <div class="field"><label class="label" for="rCost" data-i18n="ren_cost">Cost</label><input type="text" id="rCost" inputmode="decimal" autocomplete="off" data-i18n-ph="optional"></div>
+      <div class="field"><label class="label" for="rCur" data-i18n="paid_in">Paid in</label><select id="rCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" data-i18n-ph="code_ph" hidden></div>
+    </div>
+    <div class="field"><label class="label" for="rRemind" data-i18n="ren_remind">Remind me</label><select id="rRemind"></select></div>
+    <div class="field"><label class="label" for="rNote" data-i18n="note_optional">Note (optional)</label><input type="text" id="rNote" maxlength="120" autocomplete="off"></div>
+    <p class="hint" data-i18n="ren_hint"></p>
+    <p class="hint" data-i18n="ren_check"></p>
+    <p class="err" id="renErr" hidden></p>
+    <button class="primary" type="submit" id="renSave">Save renewal</button>
+    <div class="btnrow">
+      <button type="button" id="renCal" data-i18n="add_calendar">Add to Calendar</button>
+      <button type="button" id="renRenew" data-i18n="mark_renewed">Mark as renewed</button>
+    </div>
+    <button type="button" class="danger" id="renDelete" hidden>Delete renewal</button>
+  </form>
+</dialog>
+
 <dialog id="vehSheet" aria-labelledby="vehTitle">
   <form id="vehForm" novalidate>
     <div class="sheet-head">
@@ -620,8 +676,8 @@ details.more .sheet-sec{padding-top:2px}
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
-  const APP_VERSION = 12;   // keep in step with VERSION in sw.js
-  const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx" };
+  const APP_VERSION = 13;   // keep in step with VERSION in sw.js
+  const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx", renewals: "fuel.renewals" };
 
   // ---------- small helpers ----------
   const clean = s => String(s ?? "").trim();
@@ -642,6 +698,17 @@ details.more .sheet-sec{padding-top:2px}
     sample_title: "Showing sample data", hide_sample: "Hide sample",
     sample_fills: "These example fill-ups aren't saved. Add your own to start this vehicle's log.", sample_trips: "These example trips aren't saved. Create your own trip to start.", sample_suffix: " (sample)",
     first_vehicle_title: "Add your first vehicle", first_vehicle_body: "Add the bike or car you ride or drive, with its current odometer reading. After that, each fill-up only needs the new reading.",
+    renewals: "Renewals", add_renewal: "Add renewal", edit_renewal: "Edit renewal", save_renewal: "Save renewal", delete_renewal: "Delete renewal", renewal_saved: "Renewal saved",
+    ren_region: "Region", region_other: "Other region", ren_common: "Common here", ren_type: "Type",
+    kind_licence: "Vehicle license / registration", kind_insurance: "Insurance", kind_inspection: "Inspection", kind_tax: "Road tax or fee", kind_driving: "Driver's license", kind_other: "Other",
+    ren_name_ph: "Optional, e.g. Comprehensive insurance", ren_for: "For", ren_me: "Me (not a vehicle)", ren_personal: "Personal",
+    ren_expiry: "Expires on", ren_every: "Renews every", ren_no_repeat: "Doesn't repeat", ren_remind: "Remind me", ren_before: "{time} before", ren_cost: "Cost",
+    ren_hint: "Reminders show in the app when you open it. For an alert on your phone even when the app is closed, tap Add to Calendar.",
+    ren_check: "Rules differ by place and change over time, so check the dates on your own documents.",
+    mark_renewed: "Mark as renewed", renewed_until: "Renewed until {date}", add_calendar: "Add to Calendar", ren_cal_done: "Calendar file ready. Open it to add the reminder.",
+    ren_expires: "Expires {when}", ren_expired: "Expired {when}", ren_due_title: "Coming up",
+    ren_empty: "Add your license, insurance and inspection dates, and Fuel Log will remind you before they expire.",
+    ren_yearly: "About {amount} a year", err_ren_date: "Choose the expiry date.", n_renewal: { one: "{n} renewal", other: "{n} renewals" },
     insights: "Insights", ins_better: "Lately you're averaging {v}, {pct} better than usual.",
     ins_worse: "Lately you're averaging {v}, {pct} worse than usual. Low tire pressure, extra weight or a service that's due can cause this.",
     ins_steady: "Lately you're averaging {v}, in line with usual.", ins_month: "This month so far: {amount}. Last month: {last}.",
@@ -990,12 +1057,39 @@ details.more .sheet-sec{padding-top:2px}
   let drives = arr(load(K.drives, [])).map(d => normDrive(d, (journeys.find(j => j.id === d.tripId) || {}).currency));
   let fx = load(K.fx, {}); if (!fx || typeof fx !== "object" || Array.isArray(fx)) fx = {};
 
+  // ---------- renewals: licence, insurance, inspection and other dates to keep ----------
+  const KINDS = ["licence", "insurance", "inspection", "tax", "driving", "other"];
+  // typical items per place: [kind, renews every N months, local name]. Rules vary and change, so the sheet asks people to check their own papers.
+  const REGIONS = {
+    HK: [["licence", 12, "車輛牌照 · Vehicle licence"], ["insurance", 12, "第三者保險 · Third-party insurance"], ["inspection", 12, "驗車 · Vehicle examination (older cars)"], ["driving", 120, "駕駛執照 · Driving licence"]],
+    TW: [["tax", 12, "使用牌照稅"], ["tax", 12, "汽燃費"], ["insurance", 12, "強制汽車責任保險"], ["inspection", 12, "定期檢驗 / 機車排氣定檢"]],
+    JP: [["inspection", 24, "車検"], ["insurance", 24, "自賠責保険"], ["insurance", 12, "任意保険"], ["tax", 12, "自動車税 / 軽自動車税"], ["driving", 60, "運転免許証"]],
+    KR: [["insurance", 12, "자동차 의무보험"], ["inspection", 24, "자동차 정기검사"], ["tax", 6, "자동차세"], ["driving", 120, "운전면허 갱신"]],
+    US: [["licence", 12, "Registration renewal"], ["insurance", 6, "Auto insurance"], ["inspection", 12, "Safety / emissions inspection (some states)"], ["driving", 60, "Driver's license"]],
+    GB: [["tax", 12, "Vehicle tax (VED)"], ["inspection", 12, "MOT test"], ["insurance", 12, "Insurance"], ["driving", 120, "Driving licence photocard"]],
+    CA: [["licence", 12, "Vehicle registration (plate sticker)"], ["insurance", 12, "Auto insurance"], ["inspection", 24, "Safety inspection (some provinces)"], ["driving", 60, "Driver's licence"]],
+    XX: []
+  };
+  const REGION_BY_CUR = { HKD: "HK", TWD: "TW", JPY: "JP", KRW: "KR", USD: "US", GBP: "GB", CAD: "CA" };
+  const EVERY = [0, 1, 3, 4, 6, 12, 24, 36, 48, 60, 96, 120], REMIND = [7, 14, 30, 60, 90];   // months; days before
+  function normRenewal(r){
+    r = r || {};
+    const cost = r.cost == null || r.cost === "" ? null : +r.cost;
+    return { id: r.id || newId(), vehicleId: r.vehicleId || null, kind: KINDS.includes(r.kind) ? r.kind : "other",
+      name: clean(r.name).slice(0, 60), local: clean(r.local).slice(0, 80), expiry: ISO.test(r.expiry) ? r.expiry : todayISO(),
+      remind: REMIND.includes(+r.remind) ? +r.remind : 30, every: Number.isInteger(+r.every) && +r.every >= 0 ? +r.every : 12,
+      cost: isFinite(cost) && cost >= 0 ? cost : null, currency: isCode(r.currency) ? r.currency : H(), note: clean(r.note).slice(0, 120),
+      history: arr(r.history).filter(h => h && ISO.test(h.expiry)), created: r.created || new Date().toISOString() };
+  }
+  let renewals = arr(load(K.renewals, [])).map(normRenewal);
+
   function persist(key, val){ localStorage.setItem(key, JSON.stringify(val)); } // throws if storage is full or blocked
   function askPersist(){ if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }
   function commitEntries(next){ persist(K.entries, next); entries = next; askPersist(); }
   function commitVehicles(next){ persist(K.vehicles, next); vehicles = next; askPersist(); }
   function commitJourneys(next){ persist(K.journeys, next); journeys = next; askPersist(); }
   function commitDrives(next){ persist(K.drives, next); drives = next; askPersist(); }
+  function commitRenewals(next){ persist(K.renewals, next); renewals = next; askPersist(); }
 
   (function migrate(){
     // fill-ups saved before vehicles existed go to a first vehicle
@@ -1313,9 +1407,60 @@ details.more .sheet-sec{padding-top:2px}
     renderSettings();
   }
 
+  // ---------- render: renewals ----------
+  const unitFmt = (n, unit) => { try { return new Intl.NumberFormat(LOCALE, { style: "unit", unit, unitDisplay: "long" }).format(n); } catch(e){ return `${n} ${unit}`; } };
+  const everyText = m => !m ? t("ren_no_repeat") : m % 12 ? unitFmt(m, "month") : unitFmt(m / 12, "year");
+  const regionName = c => { if (c === "XX") return t("region_other"); try { return new Intl.DisplayNames([LOCALE], { type: "region" }).of(c); } catch(e){ return c; } };
+  const renTitle = r => r.name || t("kind_" + r.kind);
+  const daysUntil = iso => Math.round((parseISO(iso) - parseISO(todayISO())) / 864e5);
+  // "in 12 days", "in 5 months", "in 4.5 years": days near the date, larger units further away
+  const relTime = d => {
+    try {
+      const f = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" }), a = Math.abs(d);
+      return a < 60 ? f.format(d, "day") : a < 730 ? f.format(Math.round(d / 30.44), "month") : f.format(Math.round(d / 36.525) / 10, "year");
+    } catch(e){ return String(d); }
+  };
+  // due: inside the reminder window; over: past the expiry date
+  function renStatus(r){
+    const d = daysUntil(r.expiry);
+    return { d, cls: d < 0 ? "over" : d <= r.remind ? "due" : "", text: t(d < 0 ? "ren_expired" : "ren_expires", { when: relTime(d) }) };
+  }
+  function addMonths(iso, n){
+    const x = parseISO(iso), day = x.getDate(), y = new Date(x.getFullYear(), x.getMonth() + n, 1);
+    y.setDate(Math.min(day, new Date(y.getFullYear(), y.getMonth() + 1, 0).getDate()));
+    return toISO(y);
+  }
+
+  // the banner at the top: anything due soon or overdue, for every vehicle
+  function renderDue(){
+    const due = renewals.map(r => ({ r, s: renStatus(r) })).filter(x => x.s.cls).sort((a,b) => a.s.d - b.s.d);
+    $("#dueBanner").hidden = !due.length;
+    $("#dueList").innerHTML = due.map(({ r, s }) => {
+      const veh = vehicles.find(v => v.id === r.vehicleId);
+      return `<button type="button" class="dueitem" data-ren="${esc(r.id)}">${esc([renTitle(r), veh ? vehName(veh) : ""].filter(Boolean).join(" · "))}: ${esc(s.text)}</button>`;
+    }).join("");
+  }
+
+  // this vehicle's renewals plus personal ones (such as a driving licence), soonest first
+  function renderRenewals(v){
+    const mine = renewals.filter(r => r.vehicleId === v.id || !r.vehicleId).sort((a,b) => a.expiry.localeCompare(b.expiry));
+    const per = {};
+    mine.forEach(r => { if (r.cost != null && r.every > 0) per[r.currency] = (per[r.currency] || 0) + r.cost * 12 / r.every; });
+    const cs = Object.keys(per);
+    $("#renYearly").textContent = cs.length ? t("ren_yearly", { amount: cs.map(c => sym(c) + f0.format(Math.round(per[c]))).join(" + ") }) : "";
+    const row = r => { const s = renStatus(r);
+      return `<button type="button" class="entry tap" data-ren="${esc(r.id)}">
+        <span class="e-main"><span class="e-date">${esc(renTitle(r))}</span>
+          <span class="e-meta">${esc([r.local, r.vehicleId ? "" : t("ren_personal"), r.every ? everyText(r.every) : ""].filter(Boolean).join(" · "))}</span></span>
+        <span class="e-side"><span class="e-date">${esc(fmtDate(r.expiry))}</span><span class="ren-st ${s.cls}">${esc(s.text)}</span>${r.cost != null ? `<span class="e-meta">${esc(money(r.cost, r.currency))}</span>` : ""}</span>
+      </button>`; };
+    $("#renList").innerHTML = `<div class="list">${mine.length ? mine.map(row).join("") : `<div class="emptystate"><span>${esc(t("ren_empty"))}</span></div>`}<button type="button" class="entry addrow" data-ren-add>${esc("+ " + t("add_renewal"))}</button></div>`;
+  }
+
   // ---------- render: my vehicles ----------
   function renderGarage(){
     const v = vehicles.find(x => x.id === settings.activeVehicle) || null;
+    renderDue();
     $("#garageEmpty").hidden = !!vehicles.length;
     $("#garageBody").hidden = !vehicles.length;
     if (!v){ $("#sub").textContent = t("sub_no_vehicle"); return; }
@@ -1346,6 +1491,7 @@ details.more .sheet-sec{padding-top:2px}
 
     $("#tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === settings.tab)));
     renderChart(c, v);
+    renderRenewals(v);
 
     const el = $("#history");
     if (!c.fills.length){
@@ -1576,7 +1722,7 @@ details.more .sheet-sec{padding-top:2px}
   function renderSettings(){
     const hs = $("#homeCur");
     if (document.activeElement !== hs && document.activeElement !== hs.parentElement.querySelector(".curother")) prepCur(hs, H());
-    const has = entries.length || drives.length || vehicles.length || journeys.length;
+    const has = entries.length || drives.length || vehicles.length || journeys.length || renewals.length;
     $("#exportBtn").disabled = !has;
     if (settings.lastBackup){
       const days = Math.floor((Date.now() - new Date(settings.lastBackup)) / 864e5);
@@ -1850,11 +1996,115 @@ details.more .sheet-sec{padding-top:2px}
     if (!b.dataset.armed){ armButton(b, true, t("delete_vehicle"), n ? t("tap_again_n", { count: nFill(n, v) }) : t("tap_again")); return; }
     try {
       commitEntries(entries.filter(e => e.vehicleId !== editingVeh));
+      commitRenewals(renewals.filter(r => r.vehicleId !== editingVeh));
       commitVehicles(vehicles.filter(x => x.id !== editingVeh));
     } catch(e){ return setErr("#vehErr", t("err_delete")); }
     settings.activeVehicle = vehicles.length ? vehicles[0].id : null; saveSettings();
     closeDialog(vehSheet); render(); toast(t("vehicle_deleted"));
   };
+
+  // ---------- renewal sheet ----------
+  const renSheet = $("#renSheet");
+  let editingRen = null, renLocal = "";
+  const showLocal = () => { $("#rLocal").textContent = renLocal; $("#rLocal").hidden = !renLocal; };
+  function renPresets(){
+    const list = REGIONS[$("#rRegion").value] || [];
+    $("#rPresetField").hidden = !list.length;
+    $("#rPresets").innerHTML = list.map((p, i) => `<button type="button" data-preset="${i}" aria-pressed="false">${esc(p[2])}</button>`).join("");
+  }
+  function openRenewal(id){
+    const r = renewals.find(x => x.id === id) || null, v = vehicles.find(x => x.id === settings.activeVehicle);
+    editingRen = r ? r.id : null;
+    $("#renSheetTitle").textContent = t(r ? "edit_renewal" : "add_renewal");
+    $("#rPresetWrap").hidden = !!r;
+    $("#rRegion").innerHTML = Object.keys(REGIONS).map(c => `<option value="${c}">${esc(regionName(c))}</option>`).join("");
+    $("#rRegion").value = REGIONS[settings.region] ? settings.region : REGION_BY_CUR[H()] || "XX";
+    renPresets();
+    $("#rKind").innerHTML = KINDS.map(k => `<option value="${k}">${esc(t("kind_" + k))}</option>`).join("");
+    $("#rFor").innerHTML = vehicles.map(x => `<option value="${esc(x.id)}">${esc(vehName(x))}</option>`).join("") + `<option value="">${esc(t("ren_me"))}</option>`;
+    $("#rEvery").innerHTML = EVERY.map(m => `<option value="${m}">${esc(everyText(m))}</option>`).join("");
+    $("#rRemind").innerHTML = REMIND.map(d => `<option value="${d}">${esc(t("ren_before", { time: unitFmt(d, "day") }))}</option>`).join("");
+    $("#rKind").value = r ? r.kind : "insurance";
+    $("#rFor").value = r ? (r.vehicleId || "") : (v ? v.id : "");
+    $("#rName").value = r ? r.name : "";
+    renLocal = r ? r.local : ""; showLocal();
+    $("#rExpiry").value = r ? r.expiry : "";
+    $("#rEvery").value = String(r ? r.every : 12);
+    $("#rRemind").value = String(r ? r.remind : 30);
+    $("#rCost").value = r && r.cost != null ? String(r.cost) : "";
+    prepCur($("#rCur"), r ? r.currency : v ? v.currency : H());
+    $("#rNote").value = r ? r.note : "";
+    $("#renSave").textContent = t(r ? "save_changes" : "save_renewal");
+    $("#renRenew").hidden = !r || !r.every;
+    $("#renDelete").hidden = !r; armButton($("#renDelete"), false, t("delete_renewal"));
+    setErr("#renErr", "");
+    openDialog(renSheet);
+  }
+  $("#rRegion").addEventListener("change", () => { settings.region = $("#rRegion").value; saveSettings(); renPresets(); });
+  $("#rKind").addEventListener("change", () => { renLocal = ""; showLocal(); });
+  $("#rPresets").addEventListener("click", e => {
+    const b = e.target.closest("[data-preset]"); if (!b) return;
+    const [kind, every, local] = REGIONS[$("#rRegion").value][+b.dataset.preset];
+    $("#rKind").value = kind; $("#rEvery").value = String(every); renLocal = local; showLocal();
+    if (kind === "driving") $("#rFor").value = "";
+    $("#rPresets").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  });
+  // checks the form and saves it; returns the saved renewal, or null with the problem shown
+  function saveRenewal(){
+    const fail = msg => { setErr("#renErr", msg); return null; };
+    const expiry = $("#rExpiry").value, costTxt = $("#rCost").value.trim(), cost = costTxt === "" ? null : num(costTxt), cur = curVal($("#rCur"));
+    if (!ISO.test(expiry)) return fail(t("err_ren_date"));
+    if (cost !== null && !(cost >= 0)) return fail(t("err_cost_num"));
+    if (!cur) return fail(t("err_code"));
+    const old = renewals.find(x => x.id === editingRen);
+    const r = normRenewal({ ...(old || {}), id: editingRen || undefined, vehicleId: $("#rFor").value || null, kind: $("#rKind").value, name: $("#rName").value,
+      local: renLocal, expiry, every: +$("#rEvery").value, remind: +$("#rRemind").value, cost, currency: cur, note: $("#rNote").value });
+    try { commitRenewals(old ? renewals.map(x => x.id === old.id ? r : x) : [...renewals, r]); } catch(e){ return fail(t("err_storage")); }
+    editingRen = r.id;
+    return r;
+  }
+  $("#renForm").addEventListener("submit", ev => {
+    ev.preventDefault();
+    if (!saveRenewal()) return;
+    closeDialog(renSheet); render(); toast(t("renewal_saved"));
+  });
+  // moves the date on by one period and keeps the old one in the history
+  $("#renRenew").onclick = () => {
+    const r = saveRenewal(); if (!r || !r.every) return;
+    const next = { ...r, expiry: addMonths(r.expiry, r.every), history: [...r.history, { expiry: r.expiry, renewed: todayISO(), cost: r.cost }] };
+    try { commitRenewals(renewals.map(x => x.id === r.id ? next : x)); } catch(e){ return setErr("#renErr", t("err_storage")); }
+    closeDialog(renSheet); render(); toast(t("renewed_until", { date: fmtDate(next.expiry) }));
+  };
+  // a calendar file with two alerts (the reminder day and the expiry day, both at 9:00), so the phone reminds people even with the app closed
+  function renewalICS(r, title){
+    const txt = x => String(x).replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, "\\n");
+    const day = r.expiry.replace(/-/g, ""), x = parseISO(r.expiry), end = toISO(new Date(x.getFullYear(), x.getMonth(), x.getDate() + 1)).replace(/-/g, "");
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+    const desc = [r.local, r.note].filter(Boolean).join("\n");
+    const alarm = trigger => ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${txt(title)}`, `TRIGGER:${trigger}`, "END:VALARM"];
+    return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Fuel Log//EN", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
+      `UID:${r.id}-${day}@fuel-log`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${day}`, `DTEND;VALUE=DATE:${end}`, `SUMMARY:${txt(title)}`,
+      ...(desc ? [`DESCRIPTION:${txt(desc)}`] : []), ...alarm(`-P${r.remind - 1}DT15H`), ...alarm("PT9H"), "END:VEVENT", "END:VCALENDAR"].join("\r\n") + "\r\n";
+  }
+  $("#renCal").onclick = () => {
+    const r = saveRenewal(); if (!r) return;
+    const veh = vehicles.find(v => v.id === r.vehicleId);
+    const file = new File([renewalICS(r, [renTitle(r), veh ? vehName(veh) : ""].filter(Boolean).join(" · "))], `fuel-log-${r.expiry}.ics`, { type: "text/calendar" });
+    const url = URL.createObjectURL(file), a = document.createElement("a");
+    a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    closeDialog(renSheet); render(); toast(t("ren_cal_done"));
+  };
+  $("#renDelete").onclick = () => {
+    const b = $("#renDelete");
+    if (!b.dataset.armed){ armButton(b, true, t("delete_renewal"), t("tap_again")); return; }
+    try { commitRenewals(renewals.filter(x => x.id !== editingRen)); } catch(e){ return setErr("#renErr", t("err_delete")); }
+    closeDialog(renSheet); render(); toast(t("deleted"));
+  };
+  $("#garageView").addEventListener("click", e => {
+    if (e.target.closest("[data-ren-add]")) return openRenewal(null);
+    const b = e.target.closest("[data-ren]"); if (b) openRenewal(b.dataset.ren);
+  });
 
   // ---------- currency pickers: the list, plus "Other currency…" for any 3-letter code ----------
   function customCodes(){
@@ -2314,8 +2564,8 @@ details.more .sheet-sec{padding-top:2px}
 
   // ---------- backup ----------
   $("#exportBtn").onclick = async () => {
-    const backup = { app: "fuel-log", version: 5, exported: new Date().toISOString(), note: "Distances in km, fuel in litres (kWh for electric). Units show how each vehicle and drive is displayed.",
-      home: H(), vehicles, fillups: entries, journeys, drives, rates: fx };
+    const backup = { app: "fuel-log", version: 6, exported: new Date().toISOString(), note: "Distances in km, fuel in litres (kWh for electric). Units show how each vehicle and drive is displayed.",
+      home: H(), vehicles, fillups: entries, journeys, drives, renewals, rates: fx };
     const name = `fuel-log-backup-${todayISO()}.json`;
     const file = new File([JSON.stringify(backup, null, 1)], name, { type: "application/json" });
     const done = () => { settings.lastBackup = new Date().toISOString(); saveSettings(); renderSettings(); };
@@ -2377,13 +2627,15 @@ details.more .sheet-sec{padding-top:2px}
       if (!validDrive(x) || dIds.has(x.id) || !jIds.has(x.tripId)) return;
       nd.push(normDrive(x, (nj.find(j => j.id === x.tripId) || {}).currency)); dIds.add(x.id); addD++;
     });
+    const nr = [...renewals], rIds = new Set(nr.map(r => r.id)); let addR = 0;
+    arr(b.renewals).forEach(r => { if (r && r.id && !rIds.has(r.id) && ISO.test(r.expiry) && (!r.vehicleId || vIds.has(r.vehicleId))){ nr.push(normRenewal(r)); rIds.add(r.id); addR++; } });
     if (b.rates && typeof b.rates === "object") Object.keys(b.rates).forEach(k => { if (ISO.test(k) && !fx[k]) fx[k] = b.rates[k]; });
     saveFx();
-    if (!addV && !addF && !addJ && !addD) return toast(t("nothing_new"));
-    try { commitVehicles(nv); commitEntries(ne); commitJourneys(nj); commitDrives(nd); } catch(e){ return toast(t("import_fail")); }
+    if (!addV && !addF && !addJ && !addD && !addR) return toast(t("nothing_new"));
+    try { commitVehicles(nv); commitEntries(ne); commitJourneys(nj); commitDrives(nd); commitRenewals(nr); } catch(e){ return toast(t("import_fail")); }
     if (!vehicles.some(v => v.id === settings.activeVehicle) && vehicles.length){ settings.activeVehicle = vehicles[0].id; saveSettings(); }
     render();
-    toast(t("imported", { list: [addV && tn("n_vehicle", addV), addF && tn("n_fill", addF), addJ && tn("n_trip", addJ), addD && tn("n_drive", addD)].filter(Boolean).join(", ") }));
+    toast(t("imported", { list: [addV && tn("n_vehicle", addV), addF && tn("n_fill", addF), addJ && tn("n_trip", addJ), addD && tn("n_drive", addD), addR && tn("n_renewal", addR)].filter(Boolean).join(", ") }));
   }
 
   // backups from the first version of the app (CSV of fill-ups, in km) go into the selected vehicle
@@ -2443,6 +2695,7 @@ details.more .sheet-sec{padding-top:2px}
   window.addEventListener("storage", () => {
     entries = arr(load(K.entries, [])); vehicles = arr(load(K.vehicles, [])).map(normVehicle);
     journeys = arr(load(K.journeys, [])).map(normJourney); drives = arr(load(K.drives, [])).map(d => normDrive(d));
+    renewals = arr(load(K.renewals, [])).map(normRenewal);
     if (!vehicles.some(v => v.id === settings.activeVehicle)) settings.activeVehicle = vehicles.length ? vehicles[0].id : null;
     if (settings.activeTrip !== "all" && !journeys.some(j => j.id === settings.activeTrip)) settings.activeTrip = "all";
     render();

@@ -401,6 +401,9 @@ details.more .sheet-sec{padding-top:2px}
     <section class="menu-sec">
       <div class="setrow"><label for="homeCur" data-i18n="home_currency">Home currency</label><div class="curpick"><select id="homeCur" class="cursel"></select><input type="text" class="curother" maxlength="3" autocomplete="off" autocapitalize="characters" data-i18n-ph="code_ph" hidden></div></div>
       <p class="hint" data-i18n-html="home_hint"></p>
+    </section>
+    <section class="menu-sec">
+      <div class="setrow"><label for="consSel" data-i18n="consumption_as">Consumption as</label><select id="consSel"></select></div>
       <p class="hint" data-i18n-html="units_hint"></p>
     </section>
     <section class="menu-sec">
@@ -676,7 +679,7 @@ details.more .sheet-sec{padding-top:2px}
 (function(){
   "use strict";
   const $ = s => document.querySelector(s);
-  const APP_VERSION = 13;   // keep in step with VERSION in sw.js
+  const APP_VERSION = 14;   // keep in step with VERSION in sw.js
   const K = { entries: "fuel.entries", vehicles: "fuel.vehicles", oldTrips: "fuel.trips", journeys: "fuel.journeys", drives: "fuel.drives", settings: "fuel.settings", fx: "fuel.fx", renewals: "fuel.renewals" };
 
   // ---------- small helpers ----------
@@ -722,7 +725,7 @@ details.more .sheet-sec{padding-top:2px}
     unit_fuel: "Unit for fuel", unit_ev: "Unit for electric", filter_type: "Filter by vehicle type", filter_all: "All", filter_cars: "Cars", filter_motorcycles: "Motorcycles", filter_other: "Other",
     include_mine: "Include my vehicles",
     home_currency: "Home currency", code_ph: "Code, e.g. KHR", home_hint: "Trip costs and comparisons are converted to this currency. Each vehicle keeps the currency you pay in (tap <b>Edit vehicle</b>).",
-    units_hint: "Distance and consumption units are set for each vehicle (tap <b>Edit vehicle</b>) and for each drive.",
+    units_hint: "Every vehicle, trip and drive that uses fuel is shown in this unit. Distance and electric units are set for each vehicle (tap <b>Edit vehicle</b>) and each drive.",
     backup: "Backup", backup_hint: "Your data is saved only on this device. Export a backup now and then and keep it in iCloud Drive.", export_backup: "Export backup", import_backup: "Import backup",
     last_backup_never: "Last backup: never", last_backup_never_has: "Last backup: never. Export one to keep your data safe.", last_backup_today: "Last backup: today", last_backup_yesterday: "Last backup: yesterday",
     last_backup_days: { one: "Last backup: {n} day ago", other: "Last backup: {n} days ago" }, backup_time_new: "Time for a new one.", app_version: "App version {n}",
@@ -987,6 +990,7 @@ details.more .sheet-sec{padding-top:2px}
   useLang(settings.lang);
   const legacyCons = settings.unit === "kml" ? "kml" : "l100";   // the single unit setting from the earliest version
   settings.cmpUnit = cuE(settings.cmpUnit, "fuel") === settings.cmpUnit ? settings.cmpUnit : legacyCons;
+  settings.fuelUnit = cuE(settings.fuelUnit, "fuel") === settings.fuelUnit ? settings.fuelUnit : settings.cmpUnit;   // chosen in ☰ Settings (version 14)
   settings.cmpUnitEV = cuE(settings.cmpUnitEV, "ev");
   settings.evUnit = cuE(settings.evUnit, "ev");
   if (settings.cmpRank !== "cost") settings.cmpRank = "eff";
@@ -1014,7 +1018,7 @@ details.more .sheet-sec{padding-top:2px}
   const fuelName = k => t(k === "other" ? "fuel_other" : "fuel_" + (FUELS[k] ? k : "other"));
   // a vehicle's consumption unit must match what it runs on
   const normCons = (u, o) => CONS[u] && CONS[u].energy === energyOf(o) ? u : (isEV(o) ? "kwh100" : legacyCons);
-  const defaultUnit = energy => energy === "ev" ? settings.evUnit : settings.cmpUnit;
+  const defaultUnit = energy => energy === "ev" ? settings.evUnit : settings.fuelUnit;
   const modelName = o => [clean(o.make), clean(o.model)].filter(Boolean).join(" ");
   const unnamed = o => t("unnamed_" + (TYPES[o.type] ? o.type : "other"));
   const vehName = v => clean(v.name) || modelName(v) || typeName(v.type) || t("vehicle");
@@ -1722,6 +1726,7 @@ details.more .sheet-sec{padding-top:2px}
   function renderSettings(){
     const hs = $("#homeCur");
     if (document.activeElement !== hs && document.activeElement !== hs.parentElement.querySelector(".curother")) prepCur(hs, H());
+    setConsSelect($("#consSel"), "fuel", settings.fuelUnit);
     const has = entries.length || drives.length || vehicles.length || journeys.length || renewals.length;
     $("#exportBtn").disabled = !has;
     if (settings.lastBackup){
@@ -2561,6 +2566,20 @@ details.more .sheet-sec{padding-top:2px}
   }
   $("#homeCur").addEventListener("change", () => { if ($("#homeCur").value !== "__other") setHome(); });
   $("#homeCur").parentElement.querySelector(".curother").addEventListener("change", setHome);
+  // one unit for fuel use everywhere: vehicles, trip cars, drives, the next new vehicle and the trip summary.
+  // Only the display unit changes (stored values are per 100 km); electric keeps its own units.
+  $("#consSel").addEventListener("change", e => {
+    const u = cuE(e.target.value, "fuel"), fix = o => isEV(o) || o.consUnit === u ? o : { ...o, consUnit: u };
+    try {
+      commitVehicles(vehicles.map(fix));
+      commitJourneys(journeys.map(j => j.vehicle ? { ...j, vehicle: fix(j.vehicle) } : j));
+      commitDrives(drives.map(fix));
+    } catch(err){ toast(t("err_storage")); renderSettings(); return; }
+    settings.fuelUnit = settings.cmpUnit = u;
+    if (!isEV(settings.newVeh)) settings.newVeh.consUnit = u;
+    saveSettings(); render();
+    toast(t("cons_now_in", { unit: consLabel(u) }));
+  });
 
   // ---------- backup ----------
   $("#exportBtn").onclick = async () => {
